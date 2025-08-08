@@ -2,7 +2,7 @@ import logo from '@/assets/logo.png';
 import backgroundPicture from '@/assets/bg.jpg';
 import loginBackground from '@/assets/login-background.png';
 import './index.scss';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { login } from '@/api/users';
 import { setToken } from '@/store/login/authSlice';
@@ -32,6 +32,18 @@ function Login() {
     try {
       const values = await form.validateFields();
       setLoading(true);
+
+      const result = await login(values);
+
+      if (!result || typeof result !== 'object' || !('token' in result) || !('account' in result)) {
+        // 處理 API 回傳異常
+        message.error('登入失敗，請稍後再試。');
+        // 這裡可顯示錯誤提示給使用者
+
+        setLoading(false);
+        return;
+      }
+
       const { token, account } = await login(values);
       setLoading(false);
 
@@ -48,6 +60,7 @@ function Login() {
       setLoading(false);
       console.error('Login failed:', error);
       // 處理登入失敗
+
     }
   };
 
