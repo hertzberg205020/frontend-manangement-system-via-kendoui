@@ -15,6 +15,15 @@ This project is a web application built with React and TypeScript.
 - **Routing**: react-router 7.5
 - **Primary Goal**: Write clear, modular, testable, and performant React components.
 
+## architecture
+
+- **Directory Structure**:
+  - `src/components/`：共用元件
+  - `src/pages/`：頁面級元件
+  - `src/api/`：API 呼叫封裝
+  - `src/store/`：Redux Toolkit 狀態管理
+  - `src/utils/`：工具與通用邏輯（如 http client）
+
 ## Imports & Dependencies
 
 - Always import React, hooks, and types from `"react"`.
@@ -25,18 +34,20 @@ This project is a web application built with React and TypeScript.
 Example:
 
 ```typescript
-import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router";
-import { Button, Table } from "antd";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router';
+import { Button, Table } from 'antd';
 ```
 
 ## React Best Practices
 
 - **Component Types**:
+
   - **Always use Functional Components with Hooks** (e.g., `useState`, `useEffect`, `useContext`, `useReducer`, `useCallback`, `useMemo`).
   - **Avoid Class Components** unless there's a specific reason (e.g., legacy code or specific lifecycle needs).
 
 - **Props Typing**:
+
   - Use TypeScript `interface` or `type` to define clear types for component props.
   - Interface names should be the component name suffixed with `Props`, e.g., `MyComponentProps`.
   - For components that accept `children`, use `React.PropsWithChildren<P>` or `React.FC<P>` (where `P` is your props interface).
@@ -44,40 +55,49 @@ import { Button, Table } from "antd";
     ```typescript
     // Example
     interface ButtonProps {
-      onClick: () => void;
-      variant?: 'primary' | 'secondary';
+    	onClick: () => void;
+    	variant?: 'primary' | 'secondary';
     }
 
-    const Button: React.FC<ButtonProps> = ({ children, onClick, variant = 'primary' }) => {
-      // ...
+    const Button: React.FC<ButtonProps> = ({
+    	children,
+    	onClick,
+    	variant = 'primary',
+    }) => {
+    	// ...
     };
-
     ```
 
 - **Rules of Hooks**:
+
   - **Strictly follow the Rules of Hooks**:
     - Only call Hooks at the top level of functional components or custom Hooks.
     - Do not call Hooks inside loops, conditions, or nested functions.
 
 - **State Management**:
+
   - For simple component-local state, use `useState`.
   - For complex state shared across components, prefer `useContext` with `useReducer`.
   - If the project uses a specific state management library (e.g., Zustand, Redux Toolkit), follow its best practices.
   - **Avoid unnecessary prop drilling**.
 
 - **Lists & Keys**:
+
   - When rendering lists, **always provide a stable and unique `key` prop for each list item**. Avoid using index as the key, unless the list is static and will not be reordered.
 
 - **Side Effect Management (`useEffect`)**:
+
   - Clearly define the dependency array for `useEffect`.
   - Pass an empty array `[]` if the effect should not re-run.
   - If an effect needs cleanup when the component unmounts, be sure to return a cleanup function.
 
 - **Event Handling**:
+
   - Event handler function names should start with `handle`, e.g., `handleClick`, `handleSubmit`, `handleChange`.
   - Use `useCallback` to memoize event handlers where possible to prevent unnecessary re-renders of child components, especially when passing functions as props.
 
 - **Performance Optimization**:
+
   - Use `React.memo` to optimize re-renders of functional components.
   - Use `useMemo` to memoize the results of expensive calculations.
 
@@ -119,11 +139,11 @@ import { Button, Table } from "antd";
 - **Quotes**: Prefer single quotes (`'`) for strings, double quotes (`"`) for JSX attributes.
 - **Semicolons**: Use semicolons at the end of statements.
 - **Import Order**:
-    1. React-related imports (`import React from 'react';`)
-    2. External package imports
-    3. Project internal components/modules imports (use absolute or aliased paths, e.g., `@/components/...`)
-    4. Style file imports
-    5. Type imports (`import type { ... } from '...'`)
+  1. React-related imports (`import React from 'react';`)
+  2. External package imports
+  3. Project internal components/modules imports (use absolute or aliased paths, e.g., `@/components/...`)
+  4. Style file imports
+  5. Type imports (`import type { ... } from '...'`)
 - **Arrow Functions**: Use arrow functions wherever possible, especially for callbacks.
 - **Destructuring Assignment**: Actively use object and array destructuring.
 - **Comments**: Add clear comments for complex logic or important decisions.
