@@ -5,7 +5,9 @@ import './index.scss';
 import { Button, Form, Input, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { login } from '@/api/users';
-import { setToken } from '@/store/login/authSlice';
+import { setToken, setPermissions } from '@/store/login/authSlice';
+import { jwtDecode } from 'jwt-decode';
+import JwtToken from '@/types/jwtPayload';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import { useAppDispatch } from '@/store';
@@ -33,28 +35,41 @@ function Login() {
       const values = await form.validateFields();
       setLoading(true);
 
-      const result = await login(values);
+      const { token } = await login(values);
+      console.log('Login result:', token);
 
-      if (!result || typeof result !== 'object' || !('token' in result) || !('account' in result)) {
-        // 處理 API 回傳異常
-        message.error('登入失敗，請稍後再試。');
-        // 這裡可顯示錯誤提示給使用者
-
+      // API contract: { token: string }
+      if (!token || typeof token !== 'string') {
+        message.error('登入失敗，未取得 token');
         setLoading(false);
         return;
       }
 
-      const { token, account } = await login(values);
-      setLoading(false);
+      // 解析 JWT payload（前端僅作解析，不驗證簽章）
+      const payload = jwtDecode<Record<string, unknown>>(token);
+      const jwt = new JwtToken(payload);
 
-      // 將 token 存入 Redux store
+      if (jwt.isExpired()) {
+        message.error('登入失敗：Token 已過期');
+        setLoading(false);
+        return;
+      }
+
+      // 儲存原始 token 到 Redux
       dispatch(setToken(token));
+
       // save account to sessionStorage
+      const account = jwt.sub || '';
       sessionStorage.setItem('account', account);
+
+      // 取得權限並存入 Redux（如果有）
+      const perms = Array.isArray(jwt.permissions) ? jwt.permissions.map(String) : [];
+      // types: Permission[] is a string union; cast safely
+      dispatch(setPermissions(perms as unknown as any));
+
+      setLoading(false);
       // 導向首頁
       navigate('/', { replace: true });
-      // 處理登入成功
-      console.log('Login successful:', token);
 
     } catch (error) {
       setLoading(false);

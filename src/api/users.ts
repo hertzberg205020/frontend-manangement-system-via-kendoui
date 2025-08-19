@@ -9,13 +9,12 @@ interface LoginData {
 
 interface LoginResponse {
   token: string;
-  account: string;
 }
 
 
 
 export async function login(data: LoginData): Promise<LoginResponse> {
-  const res = await post<LoginResponse, LoginData>('/login', data);
+  const res = await post<LoginResponse, LoginData>('api/auth/login', data);
 
   return res.data;
 }
