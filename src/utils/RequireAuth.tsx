@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router';
  * @returns 若 token 為非空白字串則回傳 true，否則回傳 false。
  */
 function isValidToken(token: unknown): boolean {
-  return typeof token === 'string' && token.trim() !== '';
+  return typeof token === 'string' && token.trim() !== '' && isJwtFormat(token);
 }
 
 /**

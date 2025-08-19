@@ -7,6 +7,8 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { login } from '@/api/users';
 import { setToken, setPermissions } from '@/store/login/authSlice';
 import { jwtDecode } from 'jwt-decode';
+import { PERMISSIONS } from '@/constants/permissions';
+import type { Permission } from '@/constants/permissions';
 import JwtToken from '@/types/jwtPayload';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
@@ -63,9 +65,17 @@ function Login() {
       sessionStorage.setItem('account', account);
 
       // 取得權限並存入 Redux（如果有）
-      const perms = Array.isArray(jwt.permissions) ? jwt.permissions.map(String) : [];
-      // types: Permission[] is a string union; cast safely
-      dispatch(setPermissions(perms as unknown as any));
+      const permsRaw = Array.isArray(jwt.permissions) ? jwt.permissions.map(String) : [];
+
+      // 建立允許權限集合，並做篩選驗證，轉成 Permission[]
+      const allowed = new Set<string>(Object.values(PERMISSIONS));
+      const isPermission = (p: string): p is Permission => allowed.has(p);
+
+      const perms = permsRaw.filter(isPermission) as Permission[];
+
+      // dispatch 型別安全的 Permission[]
+      console.log('Permissions:', perms);
+      dispatch(setPermissions(perms));
 
       setLoading(false);
       // 導向首頁

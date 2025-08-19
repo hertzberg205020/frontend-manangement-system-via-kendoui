@@ -1,16 +1,14 @@
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import BASE_ROUTES from './router';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { getUserPermissions } from '@/api/users';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import type { RouteObject } from 'react-router';
 import { Spin } from 'antd';
-import { setPermissions } from '@/store/login/authSlice.ts';
 import { generateRoutesFromPermissions } from '@/utils/permissionRouteGenerator.tsx';
 
 
 function App() {
-  const { token } = useAppSelector(state => state.authSlice);
+  const { token, permissions } = useAppSelector(state => state.authSlice);
   const dispatch = useAppDispatch();
 
   // 路由準備狀態
@@ -38,10 +36,11 @@ function App() {
           return;
         }
 
-        const permissions = await getUserPermissions();
+        // const permissions = await getUserPermissions();
 
         // 將權限儲存到 Redux store
-        dispatch(setPermissions(permissions));
+        // dispatch(setPermissions(permissions));
+        console.log('User permissions:', permissions);
 
         // 根據權限生成路由
         const userRoutes = generateRoutesFromPermissions(permissions);
