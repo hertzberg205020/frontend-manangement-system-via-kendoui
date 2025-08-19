@@ -1,0 +1,1124 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "WebApi",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new user in the system",
+        "description": "Creates a new user account with the provided information. The employee ID must be unique across the system.\r\nThe password will be hashed using BCrypt before storage for security.\r\n            \r\nSample request:\r\n            \r\n    POST /api/auth/register\r\n    {\r\n        \"name\": \"John Doe\",\r\n        \"empId\": \"EMP001\",\r\n        \"password\": \"SecurePassword123!\"\r\n    }\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"name\": \"John Doe\",\r\n            \"empId\": \"EMP001\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error response:\r\n            \r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"EmpId 已存在\",\r\n        \"data\": null\r\n    }",
+        "requestBody": {
+          "description": "User registration data containing name, employee ID, and password",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully registered. Returns the created user information wrapped in ApiResponse.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Validation failed (missing required fields) or employee ID already exists.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/{empId}": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Retrieve user information by employee ID",
+        "description": "Fetches detailed information about a specific user using their employee ID.\r\nOnly returns information for active users in the system.\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/EMP001\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"name\": \"John Doe\",\r\n            \"empId\": \"EMP001\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error response:\r\n            \r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"資源不存在\",\r\n        \"data\": null\r\n    }",
+        "operationId": "GetUser",
+        "parameters": [
+          {
+            "name": "empId",
+            "in": "path",
+            "description": "The employee ID to search for. Must be a valid, non-empty string representing an existing employee.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found successfully. Returns the user information wrapped in ApiResponse.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found. The specified employee ID doesn't exist or the user is inactive.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Authenticate user and generate JWT token with permissions",
+        "description": "Authenticates a user using their employee ID and password. Upon successful authentication,\r\nreturns a JWT token that includes user permissions and roles as claims. The token can be used\r\nfor subsequent API calls requiring authentication.\r\n            \r\nAuthentication Process:\r\n1. Validates required fields (account/empId and password)\r\n2. Verifies user exists and is active\r\n3. Validates password using BCrypt\r\n4. Retrieves user permissions and roles\r\n5. Generates JWT token with embedded claims\r\n            \r\nSample request:\r\n            \r\n    POST /api/auth/login\r\n    {\r\n        \"account\": \"EMP001\",\r\n        \"password\": \"SecurePassword123!\"\r\n    }\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // Missing credentials\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"EmpId 與密碼為必填\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // Invalid credentials\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"帳號或密碼錯誤\",\r\n        \"data\": null\r\n    }\r\n            \r\nToken Usage:\r\nInclude the returned token in subsequent API requests using the Authorization header:\r\nAuthorization: Bearer {token}",
+        "requestBody": {
+          "description": "Login credentials containing employee ID (account) and password",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful. Returns JWT token containing user permissions and roles.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponseApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponseApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponseApiResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed. Invalid credentials, missing required fields, or inactive user account.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/client-list": {
+      "get": {
+        "tags": [
+          "Client"
+        ],
+        "summary": "取得分頁的客戶列表，支援搜尋篩選",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "頁數",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每頁筆數",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "公司名稱搜尋",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contact",
+            "in": "query",
+            "description": "聯絡人搜尋",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "電話號碼搜尋",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedClientResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedClientResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedClientResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/client/delete": {
+      "post": {
+        "tags": [
+          "Client"
+        ],
+        "summary": "刪除指定的客戶",
+        "requestBody": {
+          "description": "包含要刪除的客戶 ID",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "刪除成功",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "請求參數無效",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "找不到指定的客戶",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/client/batch-delete": {
+      "post": {
+        "tags": [
+          "Client"
+        ],
+        "summary": "批量刪除多個客戶",
+        "requestBody": {
+          "description": "包含要批量刪除的客戶 ID 列表",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchDeleteRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchDeleteRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchDeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "批量刪除成功",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "請求參數無效",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/client/upsert": {
+      "post": {
+        "tags": [
+          "Client"
+        ],
+        "summary": "新增或編輯客戶資料",
+        "requestBody": {
+          "description": "客戶資料",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientData"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientData"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "請求資料驗證失敗",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/EnergyData": {
+      "get": {
+        "tags": [
+          "EnergyData"
+        ],
+        "summary": "取得能源資料",
+        "operationId": "GetEnergyDataAsync",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/tenement": {
+      "get": {
+        "tags": [
+          "Tenement"
+        ],
+        "summary": "取得不動產分頁列表",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenementDataPagedApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenementDataPagedApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenementDataPagedApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenement/upsert": {
+      "post": {
+        "tags": [
+          "Tenement"
+        ],
+        "summary": "新增或編輯不動產",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenementData"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenementData"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenementData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/claims": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Retrieves all claims from the authenticated user.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/username": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Retrieves the username of the authenticated user from the token.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/userid": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Retrieves the unique identifier of the authenticated user from the token.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/jwtid": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Retrieves the unique identifier (JWT ID) of the authenticated user's JSON Web Token (JWT) from the claims.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/WeatherForecast": {
+      "get": {
+        "tags": [
+          "WeatherForecast"
+        ],
+        "operationId": "GetWeatherForecast",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BatchDeleteRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ClientData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "industryCategory": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "unifiedBusinessNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "industryCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "responsiblePerson": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeleteRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a data transfer object used for login requests."
+      },
+      "ObjectApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginatedClientData": {
+        "type": "object",
+        "properties": {
+          "list": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClientData"
+            },
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaginatedClientResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/PaginatedClientData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "使用者姓名。",
+            "nullable": true
+          },
+          "empId": {
+            "type": "string",
+            "description": "員工編號。",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "description": "使用者密碼（明文，僅用於註冊）。",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "註冊請求 DTO。"
+      },
+      "TenementData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "responsiblePerson": {
+            "type": "string",
+            "nullable": true
+          },
+          "tel": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vacancyRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "managementFee": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TenementDataPagedApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TenementDataPagedData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TenementDataPagedData": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenementData"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TokenResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The JWT token string.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a JWT token response."
+      },
+      "TokenResponseApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/TokenResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "empId": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserResponseApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WeatherForecast": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "temperatureC": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "temperatureF": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "請在此輸入 JWT Bearer token，格式為: Bearer {your JWT token}",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Authentication Controller - Handles user registration, authentication, and user management operations"
+    },
+    {
+      "name": "Client",
+      "description": "客戶列表 API"
+    },
+    {
+      "name": "EnergyData",
+      "description": "能源資料 API"
+    },
+    {
+      "name": "Tenement",
+      "description": "不動產 (Tenement) API"
+    },
+    {
+      "name": "Token",
+      "description": "Provides API endpoints for retrieving user-related claims and information from the token."
+    }
+  ]
+}
