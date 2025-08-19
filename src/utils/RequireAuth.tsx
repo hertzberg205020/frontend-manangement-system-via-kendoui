@@ -2,6 +2,24 @@ import { useAppSelector } from '@/store';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
+/**
+ * 檢查傳入的 token 是否為有效字串。
+ *
+ * @param token - 欲驗證的 token，型別為 unknown。
+ * @returns 若 token 為非空白字串則回傳 true，否則回傳 false。
+ */
+function isValidToken(token: unknown): boolean {
+  return typeof token === 'string' && token.trim() !== '';
+}
+
+/**
+ * 檢查 JWT 字串格式是否正確（僅檢查格式，不驗證簽章）。
+ * @param token - 欲驗證的 token
+ * @returns 若格式正確則回傳 true，否則回傳 false
+ */
+function isJwtFormat(token: string): boolean {
+  return /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(token);
+}
 
 interface IProps {
   allowAnonymous: boolean;
@@ -13,10 +31,7 @@ function RequireAuth({ allowAnonymous, redirectPath, children }: IProps) {
   const { token } = useAppSelector(state => state.authSlice);
   const navigate = useNavigate();
 
-  const isAuthenticated = token !== null &&
-    token !== undefined &&
-    token !== '';
-
+  const isAuthenticated = isValidToken(token);
 
   useEffect(() => {
     if (!allowAnonymous !== isAuthenticated) {
@@ -28,6 +43,5 @@ function RequireAuth({ allowAnonymous, redirectPath, children }: IProps) {
 
   return <>{children}</>;
 }
-
 
 export default RequireAuth;
