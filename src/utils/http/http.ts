@@ -535,6 +535,9 @@ http.interceptors.request.use(
       const state = store.getState();
       const token = state?.authSlice?.token;
       if (token) {
+        // 改寫為安全賦值
+        // config.headers = config.headers || {};
+        // config.headers['Authorization'] =`Bearer ${token}`;
         config.headers.set('Authorization', `Bearer ${token}`);
       }
     } catch (storeError) {
