@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch } from '@/store';
 import { clearToken } from '@/store/login/authSlice';
 import { clearTabsStorage } from '@/store/tabs/tabsSlice';
@@ -32,7 +33,9 @@ const items: MenuProps['items'] = [
 const LayoutHeader: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
+  const { userInfo } = useAuth();
+  const { name = '', sub: empId = '' } = userInfo ?? {};
+  const account = `${empId} ${name}`.trim();
 
   const onClick: MenuProps['onClick'] = (e) => {
     switch (e.key) {
@@ -60,7 +63,7 @@ const LayoutHeader: React.FC = () => {
       <Dropdown menu={{ items, onClick }} >
         <a onClick={(e) => e.preventDefault()}>
           <Space>
-            Welcome, {sessionStorage.getItem('account') || 'Guest'}
+            Welcome, {account || 'Guest'}
             <DownOutlined />
           </Space>
         </a>
