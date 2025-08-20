@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import BASE_ROUTES from './router';
-import { useAppDispatch, useAppSelector } from '@/store';
+import { useAppDispatch, useAppSelector, selectPermissions, selectToken } from '@/store';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import type { RouteObject } from 'react-router';
 import { Spin } from 'antd';
@@ -8,7 +8,8 @@ import { generateRoutesFromPermissions } from '@/utils/permissionRouteGenerator.
 
 
 function App() {
-  const { token, permissions } = useAppSelector(state => state.authSlice);
+  const token = useAppSelector(selectToken);
+  const permissions = useAppSelector(selectPermissions);
   const dispatch = useAppDispatch();
 
   // 路由準備狀態
@@ -74,7 +75,7 @@ function App() {
     };
 
     buildUserRoutes();
-  }, [token, dispatch]);
+  }, [token, dispatch, permissions]);
 
 
   const router = useMemo(() => {
