@@ -59,10 +59,6 @@ function Login() {
       dispatch(setToken(token));
       sessionStorage.setItem('token', token);
 
-      // save account to sessionStorage
-      const account = jwt.sub || '';
-      sessionStorage.setItem('account', account);
-
       console.log('Login successful, permissions will be calculated from token automatically');
 
       setLoading(false);
