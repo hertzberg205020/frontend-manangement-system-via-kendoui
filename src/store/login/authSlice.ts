@@ -1,25 +1,22 @@
 // src/store/login/authSlice.ts
 
-import type { Permission } from '@/constants/permissions';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
   token: string | null;
-  permissions: Permission[]; // 改為儲存權限陣列而非選單項目
 }
 
 const initialState: AuthState = {
   token: sessionStorage.getItem('token') || null,
-  permissions: [], // 初始化為空陣列
 };
 
 /**
  * authSlice 負責管理使用者的身分驗證狀態
  *
  * 重構說明：
- * 1. 從儲存 menuList 改為儲存 permissions 陣列
- * 2. permissions 陣列包含使用者擁有的所有權限字串
- * 3. 這種設計讓權限檢查更加直接和高效
+ * 1. 從儲存 permissions 改為透過 selector 計算權限
+ * 2. permissions 直接從 JWT token 解析得來
+ * 3. 這種設計確保權限與 token 保持同步，避免狀態不一致的問題
  */
 export const authSlice = createSlice({
   name: 'auth',
@@ -33,22 +30,12 @@ export const authSlice = createSlice({
     },
     clearToken: (state) => {
       // 清除 redux state 中的 token
-      state.token = '';
+      state.token = null;
       // 清除 sessionStorage 中的 token
       sessionStorage.removeItem('token');
-      // 同時清除權限
-      state.permissions = [];
-    },
-    setPermissions: (state, action: PayloadAction<Permission[]>) => {
-      // 設定使用者權限
-      state.permissions = action.payload;
-    },
-    clearPermissions: (state) => {
-      // 清除使用者權限
-      state.permissions = [];
     },
   },
 });
 
-export const { setToken, clearToken, setPermissions, clearPermissions } = authSlice.actions;
+export const { setToken, clearToken } = authSlice.actions;
 export default authSlice.reducer;

@@ -18,3 +18,12 @@ export type AppDispatch = typeof store.dispatch;
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+// 導出所有 auth 相關的 selector
+export {
+  selectToken,
+  selectPermissions,
+  selectUserInfo,
+  selectIsTokenExpired,
+  selectIsAuthenticated,
+} from './selectors/authSelectors';
