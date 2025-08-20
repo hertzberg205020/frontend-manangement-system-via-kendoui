@@ -6,6 +6,9 @@
  * roles, expiration).
  */
 
+import { parsePermissions } from '@/utils/parsePermissions';
+import type { Permission } from '@/constants/permissions';
+
 export interface JwtPayload {
   sub?: string;
   jti?: string;
@@ -77,6 +80,11 @@ export default class JwtToken implements JwtPayload {
   /** 檢查是否包含指定角色 */
   hasRole(role: string): boolean {
     return this.roles.includes(role);
+  }
+
+  /** 取得解析後的權限列表 */
+  getParsedPermissions(): Permission[] {
+    return parsePermissions(this.permissions);
   }
 
   /** 檢查是否過期（預設使用目前時間） */
