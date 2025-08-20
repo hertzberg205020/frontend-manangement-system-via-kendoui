@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Navigate } from 'react-router';
-import { useAppSelector } from '@/store';
+import { useAppSelector, selectPermissions, selectToken } from '@/store';
 import type { Permission } from '@/constants/permissions';
 import { Result } from 'antd';
 
@@ -28,7 +28,8 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   allowAnonymous = false,
   redirectPath = '/login'
 }) => {
-  const { token, permissions } = useAppSelector(state => state.authSlice);
+  const token = useAppSelector(selectToken);
+  const permissions = useAppSelector(selectPermissions);
 
   // 檢查是否已登入
   const isAuthenticated = Boolean(token);

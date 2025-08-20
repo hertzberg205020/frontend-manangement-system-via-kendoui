@@ -1,5 +1,5 @@
 
-import { useAppSelector } from '@/store';
+import { useAppSelector, selectPermissions } from '@/store';
 import { Breadcrumb } from 'antd';
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
@@ -34,7 +34,7 @@ const _recursiveFind = (path: string, data: MenuItemForDisplay[]): string[] => {
 
 const CustomBreadcrumb: React.FC = () => {
   const location = useLocation();
-  const { permissions } = useAppSelector(state => state.authSlice);
+  const permissions = useAppSelector(selectPermissions);
   const { activeKey } = useAppSelector(state => state.tabsSlice);
   const cacheRef = useRef<Map<string, string[]>>(new Map());
 

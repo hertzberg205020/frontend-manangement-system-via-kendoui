@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import icons from './icons';
 import logo from '@/assets/logo.png';
 import './index.scss';
-import { useAppDispatch, useAppSelector } from '@/store';
+import { useAppDispatch, useAppSelector, selectPermissions, selectToken } from '@/store';
 import { useLocation, useNavigate } from 'react-router';
 import { addTab } from '@/store/tabs/tabsSlice';
 import {
@@ -59,9 +59,9 @@ function convertToAntdMenuItem(nodes: MenuItemForDisplay[]): AntdMenuItem[] {
  * 這種方式更加直接且可靠。
  */
 function findMenuItemInfoByPath(path: string, nodes: MenuItemForDisplay[]): {
-    key: string;
-    label: string;
-    description: string;
+  key: string;
+  label: string;
+  description: string;
 } {
   // 依據 menuNodes 中的路由資訊查找對應的選單項目
   if (!path) {
@@ -102,7 +102,8 @@ function findMenuItemInfoByPath(path: string, nodes: MenuItemForDisplay[]): {
 const NavSidebar: React.FC<NavSidebarProps> = ({ collapsed }) => {
   const [menuTree, setMenuTree] = useState<AntdMenuItem[]>([]);
   // 從 Redux store 取得使用者權限
-  const { permissions, token } = useAppSelector(state => state.authSlice);
+  const permissions = useAppSelector(selectPermissions);
+  const token = useAppSelector(selectToken);
   const { activeKey } = useAppSelector(state => state.tabsSlice);
 
   const dispatch = useAppDispatch();
