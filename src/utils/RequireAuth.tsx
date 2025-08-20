@@ -34,9 +34,14 @@ function RequireAuth({ allowAnonymous, redirectPath, children }: IProps) {
   const isAuthenticated = isValidToken(token);
 
   useEffect(() => {
-    if (!allowAnonymous !== isAuthenticated) {
-      // User is not authenticated but anonymous access is allowed
-      // Allow access to the route
+    // 如果不允許匿名存取且使用者未驗證，導向 redirectPath
+    if (!allowAnonymous && !isAuthenticated) {
+      navigate(redirectPath, { replace: true });
+    }
+
+    // 已經驗證過且允許匿名存取，則導向 redirectPath
+    // 避免已登入後又重新訪問登入頁面
+    if (allowAnonymous && isAuthenticated) {
       navigate(redirectPath, { replace: true });
     }
   }, [isAuthenticated, allowAnonymous, navigate, redirectPath]);
