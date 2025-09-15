@@ -13,7 +13,7 @@ export const selectToken = (state: RootState) => state.authSlice.token;
 export const selectPermissions = createSelector(
   [selectToken],
   (token): Permission[] => {
-    if (!token) {
+    if (!token || typeof token !== 'string' || token.trim() === '') {
       return [];
     }
 
@@ -32,7 +32,7 @@ export const selectPermissions = createSelector(
 export const selectUserInfo = createSelector(
   [selectToken],
   (token) => {
-    if (!token) {
+    if (!token || typeof token !== 'string' || token.trim() === '') {
       return null;
     }
 
