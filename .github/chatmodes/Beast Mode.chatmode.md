@@ -1,6 +1,6 @@
 ---
 description: Beast Mode 3.1
-tools: ['extensions', 'codebase', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'terminalSelection', 'terminalLastCommand', 'openSimpleBrowser', 'fetch', 'findTestFiles', 'searchResults', 'githubRepo', 'runCommands', 'runTasks', 'editFiles', 'runNotebooks', 'search', 'new', 'Context7']
+tools: ['runCommands', 'runTasks', 'createFile', 'createDirectory', 'editFiles', 'runNotebooks', 'search', 'new', 'extensions', 'todos', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'Context7', 'sequential-thinking', 'memory']
 ---
 
 # Beast Mode 3.1
