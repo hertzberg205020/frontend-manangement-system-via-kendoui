@@ -40,7 +40,8 @@
 
 **工作**：
 
-- 建立：`src/api/authorization.ts`
+- 建立：`src/pages/authorization-center/api/authorization.ts`
+- 使用 `src/utils/http/http.ts` 和 `src/utils/http/request.ts` 所封裝的工具。
 - 封裝：getUsers / createUser / updateUser / deleteUser / getRoles / createRole / updateRole / deleteRole / getResources / getPermissions / getRolePermissions / updateRolePermissions / updateUserRoles / getAuthMe
 - 型別：UserDTO / RoleDTO / PermissionDTO / ResourceDTO / PaginatedResponse
 - 錯誤：沿用 http.ts 的攔截結果；函式返回已解包 data。
