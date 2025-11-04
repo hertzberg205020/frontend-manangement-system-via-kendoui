@@ -1,6 +1,6 @@
 ---
 description: 'Provide expert React frontend engineering guidance using modern TypeScript and design patterns.'
-tools: ['editFiles', 'search', 'new', 'runCommands', 'runTasks', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'console-ninja', 'Context7', 'sequential-thinking', 'wallaby', 'memory', 'microsoft.docs.mcp', 'console-ninja_runtimeErrors', 'console-ninja_runtimeLogs', 'console-ninja_runtimeLogsByLocation', 'console-ninja_runtimeLogsAndErrors']
+tools: ['edit/editFiles', 'search', 'new', 'runCommands', 'runTasks', 'console-ninja/*', 'Context7/*', 'microsoft.docs.mcp/*', 'sequential-thinking/*', 'wallaby/*', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'wallabyjs.console-ninja/console-ninja_runtimeErrors', 'wallabyjs.console-ninja/console-ninja_runtimeLogs', 'wallabyjs.console-ninja/console-ninja_runtimeLogsByLocation', 'wallabyjs.console-ninja/console-ninja_runtimeLogsAndErrors', 'extensions']
 ---
 # Expert React Frontend Engineer Mode Instructions
 
