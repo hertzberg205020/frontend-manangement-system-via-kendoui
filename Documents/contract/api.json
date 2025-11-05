@@ -2292,13 +2292,14 @@
         }
       }
     },
-    "/api/auth/Resources": {
+    "/api/auth/resources": {
       "get": {
         "tags": [
           "Resources"
         ],
         "summary": "列出所有資源",
         "description": "取得系統中所有資源的列表,包含啟用和停用的資源。\r\n            \r\n此 API 僅需要使用者已登入(有效的 JWT Token),不需要特定權限。\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/resources\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": [\r\n            {\r\n                \"id\": 1,\r\n                \"code\": \"users\",\r\n                \"description\": \"使用者管理資源\",\r\n                \"isActive\": true\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"code\": \"roles\",\r\n                \"description\": \"角色管理資源\",\r\n                \"isActive\": true\r\n            }\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token (僅需登入,無需特定權限)",
+        "operationId": "GetResources",
         "responses": {
           "200": {
             "description": "查詢成功,回傳資源列表",
@@ -3492,7 +3493,7 @@
       "Bearer": {
         "type": "http",
         "description": "請在此輸入 JWT Bearer token，格式為: Bearer {your JWT token}",
-        "scheme": "bearer",
+        "scheme": "Bearer",
         "bearerFormat": "JWT"
       }
     }
