@@ -1,0 +1,2249 @@
+openapi: 3.0.1
+info:
+  title: WebApi
+  version: v1
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Registers a new user in the system.
+      description: "Creates a new user account using the provided information. The employee ID must be unique across the system.\r\nFor security, the password is hashed using BCrypt before storage.\r\n            \r\nExample request:\r\n            \r\n    POST /api/auth/register\r\n    {\r\n        \"name\": \"John Doe\",\r\n        \"empId\": \"EMP001\",\r\n        \"password\": \"SecurePassword123!\"\r\n    }\r\n            \r\nExample success response:\r\n            \r\n    {\r\n        \"code\": 201,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"name\": \"John Doe\",\r\n            \"empId\": \"EMP001\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nExample error responses:\r\n            \r\n    // Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Name, EmpId, and Password are required\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // EmpId already exists\r\n    {\r\n        \"code\": 409,\r\n        \"message\": \"EmpId already exists\",\r\n        \"data\": null\r\n    }"
+      requestBody:
+        description: The user registration data including name, employee ID, and password.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully. Returns the created user information wrapped in ApiResponse.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UserResponseApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseApiResponse'
+        '400':
+          description: Bad request. Validation failed (missing required fields).
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '409':
+          description: Conflict. The employee ID already exists.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/auth/{empId}:
+    get:
+      tags:
+        - Auth
+      summary: Retrieve user information by employee ID
+      description: "Fetches detailed information about a specific user using their employee ID.\r\nOnly returns information for active users in the system.\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/EMP001\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"name\": \"John Doe\",\r\n            \"empId\": \"EMP001\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error response:\r\n            \r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"資源不存在\",\r\n        \"data\": null\r\n    }"
+      operationId: GetUser
+      parameters:
+        - name: empId
+          in: path
+          description: The employee ID to search for. Must be a valid, non-empty string representing an existing employee.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found successfully. Returns the user information wrapped in ApiResponse.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UserResponseApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseApiResponse'
+        '404':
+          description: User not found. The specified employee ID doesn't exist or the user is inactive.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Authenticate user and generate JWT token with permissions
+      description: "Authenticates a user using their employee ID and password. Upon successful authentication,\r\nreturns a JWT token that includes user permissions and roles as claims. The token can be used\r\nfor subsequent API calls requiring authentication.\r\n            \r\nAuthentication Process:\r\n1. Validates required fields (account/empId and password)\r\n2. Verifies user exists and is active\r\n3. Validates password using BCrypt\r\n4. Retrieves user permissions and roles\r\n5. Generates JWT token with embedded claims\r\n            \r\nSample request:\r\n            \r\n    POST /api/auth/login\r\n    {\r\n        \"account\": \"EMP001\",\r\n        \"password\": \"SecurePassword123!\"\r\n    }\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // Missing credentials\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"EmpId 與密碼為必填\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // Invalid credentials\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"帳號或密碼錯誤\",\r\n        \"data\": null\r\n    }\r\n            \r\nToken Usage:\r\nInclude the returned token in subsequent API requests using the Authorization header:\r\nAuthorization: Bearer {token}"
+      requestBody:
+        description: Login credentials containing employee ID (account) and password
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentication successful. Returns JWT token containing user permissions and roles.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/TokenResponseApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponseApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponseApiResponse'
+        '401':
+          description: Authentication failed. Invalid credentials, missing required fields, or inactive user account.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+  /api/auth/me:
+    get:
+      tags:
+        - Auth
+      summary: 取得目前登入使用者上下文
+      description: "回傳目前登入使用者的完整上下文資訊,包括基本資料、擁有的角色 ID 和權限 ID。\r\n            \r\n此 endpoint 從 JWT token 中提取使用者的 empId,然後查詢並回傳該使用者的上下文資訊。\r\n前端應用程式可使用此資訊進行:\r\n- 顯示使用者資訊\r\n- 權限控制(根據 permissionIds 顯示/隱藏功能)\r\n- 角色檢查(根據 roleIds 判斷使用者類型)\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/me\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"name\": \"張三\",\r\n            \"roleIds\": [1, 2, 5],\r\n            \"permissionIds\": [1, 2, 3, 4, 5, 10, 15]\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized (未提供 token 或 token 無效)\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - User not found (使用者不存在或已停用)\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"User not found\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\n不需要特定權限,所有登入使用者都可以查詢自己的上下文資訊。"
+      responses:
+        '200':
+          description: 查詢成功,回傳使用者上下文
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/CurrentUserDtoApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUserDtoApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUserDtoApiResponse'
+        '401':
+          description: 未授權(未提供或無效的 JWT token)
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: 使用者不存在或已停用
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: 伺服器內部錯誤
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+  /api/auth/users:
+    get:
+      tags:
+        - Auth
+      summary: Retrieve a list of users with pagination and filtering support
+      description: "Retrieves a paginated list of users from the system with support for filtering by name,\r\nemployee ID, and active status. This endpoint requires authentication and appropriate\r\npermissions to access user data.\r\n            \r\nQuery Parameters:\r\n- page: Page number (default: 1, minimum: 1)\r\n- pageSize: Items per page (default: 10, range: 1-100)\r\n- name: Optional fuzzy search by user name (case-insensitive, partial match)\r\n- empId: Optional fuzzy search by employee ID (case-insensitive, partial match)\r\n- isActive: Optional filter by user active status (true/false)\r\n            \r\nPagination Details:\r\n- Pages are 1-indexed (first page is page 1)\r\n- Maximum page size is 100 to prevent excessive data loading\r\n- Response includes total count and total pages for client-side pagination UI\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/users?page=1&pageSize=10&name=John&isActive=true\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"data\": [\r\n                {\r\n                    \"empId\": \"EMP001\",\r\n                    \"name\": \"John Doe\",\r\n                    \"isActive\": true,\r\n                    \"roles\": [1, 2],\r\n                    \"createdAt\": \"2024-01-15T10:30:00Z\"\r\n                },\r\n                {\r\n                    \"empId\": \"EMP002\",\r\n                    \"name\": \"John Smith\",\r\n                    \"isActive\": true,\r\n                    \"roles\": [3],\r\n                    \"createdAt\": \"2024-01-16T11:45:00Z\"\r\n                }\r\n            ],\r\n            \"total\": 25,\r\n            \"page\": 1,\r\n            \"pageSize\": 10,\r\n            \"totalPages\": 3\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // Invalid pagination parameters\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Invalid pagination parameters\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // Unauthorized access\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\nRequires valid JWT token with 'users.list.read' permission.\r\nInclude the token in the Authorization header: Bearer {token}"
+      operationId: GetUsers
+      parameters:
+        - name: page
+          in: query
+          description: Page number (must be >= 1). Default is 1.
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          description: 'Number of items per page (range: 1-100). Default is 10.'
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: name
+          in: query
+          description: Optional. Fuzzy search filter by user name (case-insensitive).
+          schema:
+            type: string
+        - name: empId
+          in: query
+          description: Optional. Fuzzy search filter by employee ID (case-insensitive).
+          schema:
+            type: string
+        - name: isActive
+          in: query
+          description: Optional. Filter by user active status (true for active, false for inactive).
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successfully retrieved paginated user list with filtering applied.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UserDtoPagedApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDtoPagedApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UserDtoPagedApiResponse'
+        '400':
+          description: Request parameter validation failed. Check page and pageSize values (page must be at least 1, pageSize must be between 1 and 100).
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: Unauthorized. Valid JWT token with appropriate permissions is required.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal server error occurred while retrieving users.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+    post:
+      tags:
+        - Auth
+      summary: 建立新使用者
+      description: "建立新使用者帳戶並可選擇性地分配角色。員工編號在系統中必須唯一。\r\n            \r\n驗證規則：\r\n- empId: 必填，格式為 N + 9 位數字（例如：N123456789）\r\n- name: 必填，長度 1-128 字元\r\n- password: 必填，長度 8-64 字元\r\n- roleIds: 可選，角色 ID 陣列，不可重複\r\n            \r\nSample request:\r\n            \r\n    POST /api/auth/users\r\n    {\r\n        \"empId\": \"N123456789\",\r\n        \"name\": \"張三\",\r\n        \"password\": \"SecurePass123!\",\r\n        \"roleIds\": [1, 2]\r\n    }\r\n            \r\nSample success response (201):\r\n            \r\n    {\r\n        \"code\": 201,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"name\": \"張三\",\r\n            \"isActive\": true,\r\n            \"roleIds\": [1, 2],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 409 - EmpId already exists\r\n    {\r\n        \"code\": 409,\r\n        \"message\": \"Employee ID already exists\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備建立使用者的權限"
+      requestBody:
+        description: 建立使用者請求資料
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: 建立成功，回傳使用者資訊
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponseApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponseApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponseApiResponse'
+        '400':
+          description: 請求驗證失敗
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: 未授權
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '409':
+          description: EmpId 重複
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/auth/users/{empId}:
+    get:
+      tags:
+        - Auth
+      summary: Retrieve a single user by employee ID
+      description: "Fetches detailed information about a specific user using their employee ID.\r\nThis endpoint returns user information including their assigned role IDs and account status.\r\n            \r\nEmployee ID Format:\r\n- Must match the pattern: ^N\\d{9}$ (e.g., N123456789)\r\n- The 'N' prefix is followed by exactly 9 digits\r\n            \r\nResponse includes:\r\n- Employee ID (empId)\r\n- User's full name\r\n- Active status (isActive)\r\n- List of assigned role IDs\r\n- Account creation timestamp\r\n- Last update timestamp\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/users/N123456789\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"name\": \"張三\",\r\n            \"isActive\": true,\r\n            \"roleIds\": [1, 2],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T11:20:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - User not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized (missing or invalid token)\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden (insufficient permissions)\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\nRequires valid JWT token with 'users.list.read' permission.\r\nInclude the token in the Authorization header: Bearer {token}"
+      operationId: GetUserByEmpId
+      parameters:
+        - name: empId
+          in: path
+          description: The employee ID to search for. Must match pattern ^N\d{9}$ (e.g., N123456789).
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved user information.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UserDtoApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDtoApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UserDtoApiResponse'
+        '401':
+          description: Unauthorized. Valid JWT token is required.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: Forbidden. Insufficient permissions to access this resource.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: User not found. The specified employee ID doesn't exist.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+    put:
+      tags:
+        - Auth
+      summary: Update user information
+      description: "Updates the name and active status of a specified user. This endpoint does not support updating password, employee ID, or roles.\r\n            \r\nFields that can be updated:\r\n- name: User's name (1-128 characters)\r\n- isActive: Account active status (boolean)\r\n            \r\nFields that cannot be updated:\r\n- empId: Employee ID (used as identification key, cannot be changed)\r\n- password: Password (requires dedicated password change endpoint)\r\n- roleIds: Roles (requires dedicated role assignment endpoint)\r\n            \r\nPath Parameters:\r\n- empId: Required, format N + 9 digits (e.g., N123456789)\r\n            \r\nValidation Rules:\r\n- name: Required, length 1-128 characters\r\n- isActive: Required, boolean value\r\n            \r\nSample request:\r\n            \r\n    PUT /api/auth/users/N123456789\r\n    {\r\n        \"name\": \"李四\",\r\n        \"isActive\": false\r\n    }\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"name\": \"李四\",\r\n            \"isActive\": false,\r\n            \"roleIds\": [1, 2],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-16T14:25:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - User not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\nRequires valid JWT token with user update permissions"
+      parameters:
+        - name: empId
+          in: path
+          description: Employee ID, format N + 9 digits (e.g., N123456789)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: User update request data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: Update successful, returns user information
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UpdateUserResponseApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateUserResponseApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UpdateUserResponseApiResponse'
+        '400':
+          description: Request validation failed
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: Insufficient permissions
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      tags:
+        - Auth
+      summary: Delete a user from the system (soft delete)
+      description: "Performs a soft delete by setting the user's isActive field to false. This operation\r\npreserves data integrity and allows for potential user restoration. The user data\r\nis not permanently removed from the database.\r\n            \r\nSoft Delete vs Hard Delete:\r\n- Soft Delete (this endpoint): Sets isActive to false, data is preserved and can be restored\r\n- Hard Delete: Permanently removes data from database, cannot be restored (not implemented)\r\n            \r\nPath Parameters:\r\n- empId: Required, format N + 9 digits (e.g., N123456789)\r\n            \r\nData Cleanup:\r\n- User's isActive status is set to false\r\n- User roles (user_roles) remain intact but become inactive with the user\r\n- User can be reactivated by using PUT /api/auth/users/{empId} to set isActive to true\r\n- After deletion, the user cannot login but data is preserved for audit purposes\r\n            \r\nSample request:\r\n            \r\n    DELETE /api/auth/users/N123456789\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": null\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - User not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 400 - Invalid empId format\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\nRequires valid JWT token with admin role. Delete operations are restricted\r\nto administrators due to their sensitive nature."
+      parameters:
+        - name: empId
+          in: path
+          description: Employee ID, format N + 9 digits (e.g., N123456789)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deletion successful
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '400':
+          description: Request validation failed (invalid empId format)
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: Insufficient permissions
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/auth/users/{empId}/roles:
+    put:
+      tags:
+        - Auth
+      summary: 全量覆寫使用者角色集合
+      description: "此端點會完全替換指定使用者的所有角色分配。提供的角色 ID 陣列將成為使用者的唯一角色集合。\r\n            \r\n行為說明：\r\n- 移除使用者現有的所有角色\r\n- 指派請求中提供的新角色集合\r\n- 如果 roleIds 為空陣列，則移除使用者的所有角色\r\n- 重複的 roleIds 會自動去重\r\n- 操作在單一事務中執行以確保資料一致性\r\n            \r\n驗證規則：\r\n- empId: 必填，格式為 N + 9 位數字（例如：N123456789）\r\n- roleIds: 必填，可為空陣列\r\n- 每個 roleId 必須對應資料庫中存在的角色\r\n            \r\nSample request:\r\n            \r\n    PUT /api/auth/users/N123456789/roles\r\n    {\r\n        \"roleIds\": [1, 2, 3]\r\n    }\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"success\": true,\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"roleIds\": [1, 2, 3]\r\n        }\r\n    }\r\n            \r\nSample request (remove all roles):\r\n            \r\n    PUT /api/auth/users/N123456789/roles\r\n    {\r\n        \"roleIds\": []\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Invalid role ID\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Invalid role ID\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - User not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備管理使用者角色的權限（admin role）"
+      parameters:
+        - name: empId
+          in: path
+          description: 員工編號（路徑參數）
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 角色替換請求
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplaceUserRolesRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ReplaceUserRolesRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ReplaceUserRolesRequest'
+      responses:
+        '200':
+          description: 成功替換角色，回傳使用者角色資訊
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UserRolesDtoApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRolesDtoApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UserRolesDtoApiResponse'
+        '400':
+          description: 請求驗證失敗或角色 ID 無效
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: 未授權
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: 使用者不存在
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/auth/roles:
+    get:
+      tags:
+        - Auth
+      summary: 取得角色列表
+      description: "取得系統中所有可用的角色列表。此端點回傳所有角色的基本資訊,\r\n包括角色 ID、名稱、描述及建立/更新時間。\r\n            \r\n回應格式:\r\n- 成功時回傳角色陣列,按建立時間排序(新到舊)\r\n- 如果系統中沒有角色,回傳空陣列\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/roles\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"success\": true,\r\n        \"data\": [\r\n            {\r\n                \"id\": 1,\r\n                \"name\": \"admin\",\r\n                \"description\": \"系統管理員\",\r\n                \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n                \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"name\": \"user\",\r\n                \"description\": \"一般使用者\",\r\n                \"createdAt\": \"2024-01-16T11:45:00Z\",\r\n                \"updatedAt\": \"2024-01-16T11:45:00Z\"\r\n            }\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\nInclude the token in the Authorization header: Bearer {token}"
+      operationId: GetRoles
+      responses:
+        '200':
+          description: 成功取得角色列表
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RoleDtoListApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoListApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoListApiResponse'
+        '401':
+          description: 未授權
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+    post:
+      tags:
+        - Auth
+      summary: 建立新角色
+      description: "建立新的系統角色。角色名稱在系統中必須唯一 (不區分大小寫)。\r\n            \r\n驗證規則:\r\n- name: 必填,長度 1-100 字元,系統內唯一\r\n- description: 可選,最大長度 512 字元\r\n            \r\nSample request:\r\n            \r\n    POST /api/auth/roles\r\n    {\r\n        \"name\": \"Project Manager\",\r\n        \"description\": \"Manages project planning and execution\"\r\n    }\r\n            \r\nSample success response (201):\r\n            \r\n    {\r\n        \"code\": 201,\r\n        \"message\": \"Create Success\",\r\n        \"data\": {\r\n            \"id\": 5,\r\n            \"name\": \"Project Manager\",\r\n            \"description\": \"Manages project planning and execution\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 409 - Role name already exists\r\n    {\r\n        \"code\": 409,\r\n        \"message\": \"Role name already exists\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備建立角色的權限 (roles.create)"
+      requestBody:
+        description: 建立角色請求資料
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        '201':
+          description: 建立成功,回傳角色資訊
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+        '400':
+          description: 請求驗證失敗
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: 未授權
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '409':
+          description: 角色名稱重複
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/auth/roles/{id}:
+    get:
+      tags:
+        - Auth
+      summary: 取得單一角色
+      description: "根據角色 ID 取得指定角色的詳細資訊。此端點回傳單一角色的基本資訊，\r\n包括角色 ID、名稱、描述及建立/更新時間。\r\n            \r\n路徑參數:\r\n- id: 必填，角色 ID（正整數，minimum: 1）\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/roles/1\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"success\": true,\r\n        \"data\": {\r\n            \"id\": 1,\r\n            \"name\": \"admin\",\r\n            \"description\": \"系統管理員\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - Role not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\nInclude the token in the Authorization header: Bearer {token}"
+      operationId: GetRoleById
+      parameters:
+        - name: id
+          in: path
+          description: 角色 ID（必須大於 0）
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功取得角色資訊
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+        '401':
+          description: 未授權
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: 角色不存在
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+  /api/auth/roles/{id}/permissions:
+    put:
+      tags:
+        - Auth
+      summary: 全量覆寫角色權限集合
+      description: "完全替換指定角色的權限集合。此操作會刪除角色的所有現有權限，\r\n然後分配請求中指定的新權限集合。\r\n            \r\n驗證規則：\r\n- id: 必填，必須是有效的角色 ID（> 0）\r\n- permissionIds: 必填，權限 ID 陣列（可為空陣列以清空權限）\r\n- 每個 permissionId 必須對應一個存在、啟用且未廢棄的權限\r\n            \r\n行為說明：\r\n- 空陣列: 移除角色的所有權限\r\n- 非空陣列: 用指定的權限集合完全替換現有權限\r\n- 重複的 permissionId 會自動去重\r\n            \r\nSample request:\r\n            \r\n    PUT /api/auth/roles/1/permissions\r\n    {\r\n        \"permissionIds\": [1, 2, 3, 5, 8]\r\n    }\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"roleId\": 1,\r\n            \"permissionIds\": [1, 2, 3, 5, 8]\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Invalid permission ID\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Invalid permission ID\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - Role not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Role with ID 999 not found\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備角色權限管理權限"
+      parameters:
+        - name: id
+          in: path
+          description: 角色 ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: 覆寫角色權限請求資料
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplaceRolePermissionsRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ReplaceRolePermissionsRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ReplaceRolePermissionsRequest'
+      responses:
+        '200':
+          description: 覆寫成功，回傳更新後的權限資訊
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RolePermissionsDtoApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolePermissionsDtoApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RolePermissionsDtoApiResponse'
+        '400':
+          description: 請求驗證失敗或權限 ID 無效
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: 未授權
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: 角色不存在
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: 伺服器內部錯誤
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/auth/permissions:
+    get:
+      tags:
+        - Auth
+      summary: 列出所有有效權限
+      description: "回傳系統中所有有效且未淘汰的權限清單。每個權限包含：\r\n- 權限 ID\r\n- 資源 ID\r\n- 動作類型（read, create, edit, delete）\r\n- 權限代碼（格式：{resource_code}.{action}）\r\n- 權限描述\r\n            \r\n權限代碼格式說明：\r\n- 由資源代碼和動作組成，中間用點號連接\r\n- 例如：users.list.read, roles.create.create\r\n            \r\n回傳的權限清單已依資源代碼和動作類型排序。\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/permissions\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": [\r\n            {\r\n                \"id\": 1,\r\n                \"resourceId\": 1,\r\n                \"action\": \"read\",\r\n                \"code\": \"users.list.read\",\r\n                \"description\": \"讀取使用者列表\"\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"resourceId\": 1,\r\n                \"action\": \"create\",\r\n                \"code\": \"users.create.create\",\r\n                \"description\": \"建立新使用者\"\r\n            }\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\n此 endpoint 僅需驗證身份，不需特定權限（所有登入使用者皆可查詢權限清單）。"
+      responses:
+        '200':
+          description: 查詢成功，回傳權限清單
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PermissionDtoListApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionDtoListApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PermissionDtoListApiResponse'
+        '401':
+          description: 未授權（未提供或無效的 JWT token）
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限（token 有效但權限不足）
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: 伺服器內部錯誤
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+  /client-list:
+    get:
+      tags:
+        - Client
+      summary: 取得分頁的客戶列表，支援搜尋篩選
+      parameters:
+        - name: page
+          in: query
+          description: 頁數
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          description: 每頁筆數
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: name
+          in: query
+          description: 公司名稱搜尋
+          schema:
+            type: string
+        - name: contact
+          in: query
+          description: 聯絡人搜尋
+          schema:
+            type: string
+        - name: phone
+          in: query
+          description: 電話號碼搜尋
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PaginatedClientResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedClientResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedClientResponse'
+  /client/delete:
+    post:
+      tags:
+        - Client
+      summary: 刪除指定的客戶
+      requestBody:
+        description: 包含要刪除的客戶 ID
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+      responses:
+        '200':
+          description: 刪除成功
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: 請求參數無效
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 找不到指定的客戶
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /client/batch-delete:
+    post:
+      tags:
+        - Client
+      summary: 批量刪除多個客戶
+      requestBody:
+        description: 包含要批量刪除的客戶 ID 列表
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchDeleteRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/BatchDeleteRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/BatchDeleteRequest'
+      responses:
+        '200':
+          description: 批量刪除成功
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: 請求參數無效
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /client/upsert:
+    post:
+      tags:
+        - Client
+      summary: 新增或編輯客戶資料
+      requestBody:
+        description: 客戶資料
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientData'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ClientData'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ClientData'
+      responses:
+        '200':
+          description: 操作成功
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: 請求資料驗證失敗
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /energy-data:
+    get:
+      tags:
+        - EnergyData
+      summary: 取得能源資料
+      operationId: GetEnergyDataAsync
+      responses:
+        '200':
+          description: OK
+  /api/auth/resources:
+    get:
+      tags:
+        - Resources
+      summary: 列出所有資源
+      description: "取得系統中所有資源的列表,包含啟用和停用的資源。\r\n            \r\n此 API 僅需要使用者已登入(有效的 JWT Token),不需要特定權限。\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/resources\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": [\r\n            {\r\n                \"id\": 1,\r\n                \"code\": \"users\",\r\n                \"description\": \"使用者管理資源\",\r\n                \"isActive\": true\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"code\": \"roles\",\r\n                \"description\": \"角色管理資源\",\r\n                \"isActive\": true\r\n            }\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token (僅需登入,無需特定權限)"
+      operationId: GetResources
+      responses:
+        '200':
+          description: 查詢成功,回傳資源列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceDtoListApiResponse'
+        '401':
+          description: 未授權
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: 伺服器內部錯誤
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+  /tenement:
+    get:
+      tags:
+        - Tenement
+      summary: 取得不動產分頁列表
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/TenementDataPagedApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenementDataPagedApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/TenementDataPagedApiResponse'
+  /tenement/upsert:
+    post:
+      tags:
+        - Tenement
+      summary: 新增或編輯不動產
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenementData'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/TenementData'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/TenementData'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /claims:
+    get:
+      tags:
+        - Token
+      summary: Retrieves all claims from the authenticated user.
+      responses:
+        '200':
+          description: OK
+  /username:
+    get:
+      tags:
+        - Token
+      summary: Retrieves the username of the authenticated user from the token.
+      responses:
+        '200':
+          description: OK
+  /userid:
+    get:
+      tags:
+        - Token
+      summary: Retrieves the unique identifier of the authenticated user from the token.
+      responses:
+        '200':
+          description: OK
+  /jwtid:
+    get:
+      tags:
+        - Token
+      summary: Retrieves the unique identifier (JWT ID) of the authenticated user's JSON Web Token (JWT) from the claims.
+      responses:
+        '200':
+          description: OK
+  /WeatherForecast:
+    get:
+      tags:
+        - WeatherForecast
+      operationId: GetWeatherForecast
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeatherForecast'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeatherForecast'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeatherForecast'
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          nullable: true
+      additionalProperties: false
+    BatchDeleteRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    ClientData:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        phoneNumber:
+          type: string
+          nullable: true
+        industryCategory:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        unifiedBusinessNumber:
+          type: string
+          nullable: true
+        industryCode:
+          type: string
+          nullable: true
+        responsiblePerson:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CreateRoleRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          maxLength: 100
+          minLength: 1
+          type: string
+        description:
+          maxLength: 512
+          minLength: 0
+          type: string
+          nullable: true
+      additionalProperties: false
+    CreateUserRequest:
+      required:
+        - empId
+        - name
+        - password
+      type: object
+      properties:
+        empId:
+          minLength: 1
+          pattern: ^N\d{9}$
+          type: string
+        name:
+          maxLength: 128
+          minLength: 1
+          type: string
+        password:
+          maxLength: 64
+          minLength: 8
+          type: string
+        roleIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+      additionalProperties: false
+    CreateUserResponse:
+      type: object
+      properties:
+        empId:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        roleIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    CreateUserResponseApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/CreateUserResponse'
+      additionalProperties: false
+    CurrentUserDto:
+      type: object
+      properties:
+        empId:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        roleIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+        permissionIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+      additionalProperties: false
+    CurrentUserDtoApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/CurrentUserDto'
+      additionalProperties: false
+    DeleteRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+      additionalProperties: false
+    LoginRequest:
+      type: object
+      properties:
+        account:
+          type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ObjectApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          nullable: true
+      additionalProperties: false
+    PaginatedClientData:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientData'
+          nullable: true
+        total:
+          type: integer
+          format: int32
+      additionalProperties: false
+    PaginatedClientResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/PaginatedClientData'
+      additionalProperties: false
+    PermissionDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        resourceId:
+          type: integer
+          format: int64
+        action:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+      additionalProperties: false
+    PermissionDtoListApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionDto'
+          nullable: true
+      additionalProperties: false
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+      additionalProperties: {}
+    RegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        empId:
+          type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ReplaceRolePermissionsRequest:
+      required:
+        - permissionIds
+      type: object
+      properties:
+        permissionIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+      additionalProperties: false
+    ReplaceUserRolesRequest:
+      required:
+        - roleIds
+      type: object
+      properties:
+        roleIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+      additionalProperties: false
+    ResourceDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+      additionalProperties: false
+    ResourceDtoListApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceDto'
+          nullable: true
+      additionalProperties: false
+    RoleDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    RoleDtoApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/RoleDto'
+      additionalProperties: false
+    RoleDtoListApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleDto'
+          nullable: true
+      additionalProperties: false
+    RolePermissionsDto:
+      type: object
+      properties:
+        roleId:
+          type: integer
+          format: int64
+        permissionIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+      additionalProperties: false
+    RolePermissionsDtoApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/RolePermissionsDto'
+      additionalProperties: false
+    TenementData:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        responsiblePerson:
+          type: string
+          nullable: true
+        tel:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+        vacancyRate:
+          type: number
+          format: double
+        managementFee:
+          type: string
+          nullable: true
+      additionalProperties: false
+    TenementDataPagedApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/TenementDataPagedData'
+      additionalProperties: false
+    TenementDataPagedData:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenementData'
+          nullable: true
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      additionalProperties: false
+    TokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          nullable: true
+      additionalProperties: false
+    TokenResponseApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/TokenResponse'
+      additionalProperties: false
+    UpdateUserRequest:
+      required:
+        - isActive
+        - name
+      type: object
+      properties:
+        name:
+          maxLength: 128
+          minLength: 1
+          type: string
+        isActive:
+          type: boolean
+      additionalProperties: false
+    UpdateUserResponse:
+      type: object
+      properties:
+        empId:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        roleIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    UpdateUserResponseApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/UpdateUserResponse'
+      additionalProperties: false
+    UserDto:
+      type: object
+      properties:
+        empId:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        roleIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    UserDtoApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/UserDto'
+      additionalProperties: false
+    UserDtoPagedApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/UserDtoPagedData'
+      additionalProperties: false
+    UserDtoPagedData:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDto'
+          nullable: true
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      additionalProperties: false
+    UserResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        empId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    UserResponseApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/UserResponse'
+      additionalProperties: false
+    UserRolesDto:
+      type: object
+      properties:
+        empId:
+          type: string
+          nullable: true
+        roleIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          nullable: true
+      additionalProperties: false
+    UserRolesDtoApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/UserRolesDto'
+      additionalProperties: false
+    WeatherForecast:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        temperatureC:
+          type: integer
+          format: int32
+        temperatureF:
+          type: integer
+          format: int32
+          readOnly: true
+        summary:
+          type: string
+          nullable: true
+      additionalProperties: false
+  securitySchemes:
+    Bearer:
+      type: http
+      description: '請在此輸入 JWT Bearer token，格式為: Bearer {your JWT token}'
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - Bearer: []
+tags:
+  - name: Auth
+    description: Authentication Controller - Handles user registration, authentication, and user management operations
+  - name: Client
+    description: 客戶列表 API
+  - name: EnergyData
+    description: 能源資料 API
+  - name: Resources
+    description: 資源管理 API 控制器
+  - name: Tenement
+    description: 不動產 (Tenement) API
+  - name: Token
+    description: Provides API endpoints for retrieving user-related claims and information from the token.
