@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector, selectPermissions, selectToken } from '
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import type { RouteObject } from 'react-router';
 import { Spin } from 'antd';
-import { generateRoutesFromPermissions } from '@/utils/permissionRouteGenerator.tsx';
+import { generateRoutesFromPermissions } from './utils/generateRouteFromPermission';
 
 
 function App() {

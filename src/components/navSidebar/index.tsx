@@ -6,10 +6,8 @@ import './index.scss';
 import { useAppDispatch, useAppSelector, selectPermissions, selectToken } from '@/store';
 import { useLocation, useNavigate } from 'react-router';
 import { addTab } from '@/store/tabs/tabsSlice';
-import {
-  generateMenuFromPermissions,
-  type MenuItemForDisplay, menuNodes
-} from '@/utils/permissionRouteGenerator.tsx';
+import type { MenuItemForDisplay } from '@/types/MenuItemForDisplay';
+import { generateMenuFromPermissions, menuNodes } from '@/utils/menuItemsGenerator';
 
 /**
  * Antd Menu 元件使用的選單項目格式

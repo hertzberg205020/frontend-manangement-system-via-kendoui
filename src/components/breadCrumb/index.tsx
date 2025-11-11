@@ -4,7 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Breadcrumb } from 'antd';
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { type MenuItemForDisplay, menuNodes } from '@/utils/permissionRouteGenerator.tsx';
+import type { MenuItemForDisplay } from '@/types/MenuItemForDisplay';
+import { menuNodes } from '@/utils/menuItemsGenerator';
 
 const _recursiveFind = (path: string, data: MenuItemForDisplay[]): string[] => {
 

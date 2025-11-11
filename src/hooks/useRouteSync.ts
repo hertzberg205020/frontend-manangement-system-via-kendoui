@@ -2,7 +2,8 @@ import { useAppDispatch } from '@/store';
 import { addTab, setActiveTab } from '@/store/tabs/tabsSlice';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
-import { type MenuItemForDisplay, menuNodes } from '@/utils/permissionRouteGenerator.tsx';
+import { menuNodes } from '@/utils/menuItemsGenerator.ts';
+import type { MenuItemForDisplay } from '@/types/MenuItemForDisplay';
 
 function findMenuItemByKey(menuList: MenuItemForDisplay[], key: string): MenuItemForDisplay | null {
   for (const item of menuList) {
