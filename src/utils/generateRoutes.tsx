@@ -29,7 +29,7 @@ export function generateRoutes(menuItems: MenuNode[] | undefined): RouteObject[]
       if (isLeafNode) {
         const node: RouteObject = {
           path: item.key,
-          element: getRoute(item.key)?.element
+          element: getRoute(item.key)
         };
 
         routes.push(node);

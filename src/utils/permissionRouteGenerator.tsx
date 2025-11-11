@@ -202,8 +202,8 @@ export function generateRoutesFromPermissions(permissions: Permission[]): RouteO
     }
 
     // 從 routerMap 取得對應的元件
-    const routeConfig = getRoute(routeInfo.path);
-    if (!routeConfig) {
+    const element = getRoute(routeInfo.path);
+    if (!element) {
       console.warn(`未找到路徑 ${routeInfo.path} 對應的路由設定`);
       return;
     }
@@ -213,7 +213,7 @@ export function generateRoutesFromPermissions(permissions: Permission[]): RouteO
       path: routeInfo.path,
       element: (
         <PrivateRoute requiredPermission={permission}>
-          {routeConfig.element}
+          {element}
         </PrivateRoute>
       )
     };
