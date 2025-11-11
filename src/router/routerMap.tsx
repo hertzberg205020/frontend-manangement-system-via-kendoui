@@ -1,4 +1,5 @@
 // routerMap.tsx
+import { RESOURCES } from '@/constants/permissions';
 import React, { lazy } from 'react';
 
 interface RouteConfig {
@@ -27,76 +28,77 @@ const AuthorizationSettings = lazy(() => import('@/pages/authorization-center'))
 const UserProfile = lazy(() => import('@/pages/user-profile'));
 
 const routerMap: Record<string, RouteConfig> = {
-  '/dashboard': {
-    path: '/dashboard',
+
+  [RESOURCES.DASHBOARD]: {
+    path: RESOURCES.DASHBOARD,
     element: <Dashboard />
   },
-  '/users/list': {
-    path: '/users/list',
+  [RESOURCES.TENANTS_LIST]: {
+    path: RESOURCES.TENANTS_LIST,
     element: <UsersList />
   },
-  '/users/add': {
-    path: '/users/add',
+  [RESOURCES.TENANTS_CREATION]: {
+    path: RESOURCES.TENANTS_CREATION,
     element: <AddUser />
   },
-  '/property-management/building': {
-    path: '/property-management/building',
+  [RESOURCES.PORTFOLIO_BUILDING]: {
+    path: RESOURCES.PORTFOLIO_BUILDING,
     element: <BuildingManagement />
   },
-  '/property-management/room': {
-    path: '/property-management/room',
+  [RESOURCES.PORTFOLIO_SPACES]: {
+    path: RESOURCES.PORTFOLIO_SPACES,
     element: <RoomManagement />
   },
-  '/property-management/car': {
-    path: '/property-management/car',
+  [RESOURCES.PORTFOLIO_PARKING]: {
+    path: RESOURCES.PORTFOLIO_PARKING,
     element: <VehicleManagement />
   },
-  '/repair': {
-    path: '/repair',
+  [RESOURCES.REPAIR]: {
+    path: RESOURCES.REPAIR,
     element: <RepairManagement />
   },
-  '/finance/contract': {
-    path: '/finance/contract',
+  [RESOURCES.FINANCIALS_CONTRACT]: {
+    path: RESOURCES.FINANCIALS_CONTRACT,
     element: <ContractManagement />
   },
-  '/finance/contract/detail': {
-    path: '/finance/contract/detail',
+  [RESOURCES.FINANCIALS_CONTRACT_DETAIL]: {
+    path: RESOURCES.FINANCIALS_CONTRACT_DETAIL,
     element: <ContractDetail />
   },
-  '/finance/bill': {
-    path: '/finance/bill',
+  [RESOURCES.FINANCIALS_BILLING]: {
+    path: RESOURCES.FINANCIALS_BILLING,
     element: <BillingManagement />
   },
-  '/merchant-portal': {
-    path: '/merchant-portal',
+  [RESOURCES.MERCHANT_PORTAL]: {
+    path: RESOURCES.MERCHANT_PORTAL,
     element: <MerchantPortal />
   },
-  '/operation-center/analytics': {
-    path: '/operation-center/analytics',
+  [RESOURCES.OPERATION_ANALYTICS]: {
+    path: RESOURCES.OPERATION_ANALYTICS,
     element: <OperationsAnalytics />
   },
-  '/operation-center/article': {
-    path: '/operation-center/article',
+  [RESOURCES.OPERATION_ARTICLE]: {
+    path: RESOURCES.OPERATION_ARTICLE,
     element: <ArticlePublishing />
   },
-  '/operation-center/comments': {
-    path: '/operation-center/comments',
+  [RESOURCES.OPERATION_COMMENTS]: {
+    path: RESOURCES.OPERATION_COMMENTS,
     element: <ContentComments />
   },
-  '/equipment': {
-    path: '/equipment',
+  [RESOURCES.EQUIPMENT]: {
+    path: RESOURCES.EQUIPMENT,
     element: <EquipmentManagement />
   },
-  '/energy': {
-    path: '/energy',
+  [RESOURCES.ENERGY]: {
+    path: RESOURCES.ENERGY,
     element: <EnergyConsumption />
   },
-  '/authorization-center': {
-    path: '/authorization-center',
+  [RESOURCES.AUTHORIZATION_CENTER]: {
+    path: RESOURCES.AUTHORIZATION_CENTER,
     element: <AuthorizationSettings />
   },
-  '/user-profile': {
-    path: '/user-profile',
+  [RESOURCES.USER_PROFILE]: {
+    path: RESOURCES.USER_PROFILE,
     element: <UserProfile />
   }
 };

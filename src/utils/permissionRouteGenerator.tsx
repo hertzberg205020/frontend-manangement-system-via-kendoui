@@ -2,7 +2,8 @@ import type { RouteObject } from 'react-router';
 import { getRoute } from '@/router/routerMap';
 import {
   PERMISSION_ROUTE_MAP,
-  type Permission, PERMISSIONS
+  type Permission, PERMISSIONS,
+  RESOURCES
 } from '@/constants/permissions';
 import PrivateRoute from '@/components/PrivateRoute';
 
@@ -18,129 +19,129 @@ export interface MenuItemForDisplay {
 
 export const menuNodes: MenuItemForDisplay[] = [
   {
-    key: '/dashboard',
+    key: RESOURCES.DASHBOARD,
     label: 'Dashboard',
     description: '儀表板',
     icon: 'DashboardOutlined',
     requiredPermissions: [PERMISSIONS.DASHBOARD_READ]
   },
   {
-    key: '/users',
-    label: 'Users',
+    key: RESOURCES.TENANTS,
+    label: 'Tenants',
     icon: 'UserOutlined',
     requiredPermissions: [],
     children: [
       {
-        key: '/users/list',
+        key: RESOURCES.TENANTS_LIST,
         label: 'Tenant List',
         description: '客戶列表',
         icon: 'UnorderedListOutlined',
-        requiredPermissions: [PERMISSIONS.USERS_LIST_READ]
+        requiredPermissions: [PERMISSIONS.TENANTS_READ]
       },
       {
-        key: '/users/add',
-        label: 'Add Tenant',
+        key: RESOURCES.TENANTS_CREATION,
+        label: 'Create Tenant',
         description: '新增客戶',
         icon: 'UserAddOutlined',
-        requiredPermissions: [PERMISSIONS.USERS_ADD_READ]
+        requiredPermissions: [PERMISSIONS.TENANTS_CREATE]
       }
     ]
   },
   {
-    key: '/property-management',
-    label: 'Property Management',
+    key: RESOURCES.PORTFOLIO,
+    label: 'Portfolio Management',
     description: '物業管理',
     icon: 'LaptopOutlined',
     requiredPermissions: [],
     children: [
       {
-        key: '/property-management/building',
+        key: RESOURCES.PORTFOLIO_BUILDING,
         label: 'Building Management',
         description: '大樓管理',
         icon: 'InsertRowLeftOutlined',
-        requiredPermissions: [PERMISSIONS.PROPERTY_BUILDING_READ]
+        requiredPermissions: [PERMISSIONS.PORTFOLIO_BUILDING_READ]
       },
       {
-        key: '/property-management/room',
-        label: 'Room Management',
+        key: RESOURCES.PORTFOLIO_SPACES,
+        label: 'Spaces Management',
         description: '房間管理',
         icon: 'BankOutlined',
-        requiredPermissions: [PERMISSIONS.PROPERTY_ROOM_READ]
+        requiredPermissions: [PERMISSIONS.PORTFOLIO_SPACES_READ]
       },
       {
-        key: '/property-management/car',
+        key: RESOURCES.PORTFOLIO_PARKING,
         label: 'Vehicle Information',
         description: '車輛管理',
         icon: 'TruckOutlined',
-        requiredPermissions: [PERMISSIONS.PROPERTY_CAR_READ]
+        requiredPermissions: [PERMISSIONS.PORTFOLIO_PARKING_READ]
       }
     ]
   },
   {
-    key: '/repair',
+    key: RESOURCES.REPAIR,
     label: 'Repair Management',
     description: '修復管理',
     icon: 'ToolOutlined',
     requiredPermissions: [PERMISSIONS.REPAIR_READ]
   },
   {
-    key: '/finance',
-    label: 'Finance',
+    key: RESOURCES.FINANCIALS,
+    label: 'Financial Management',
     icon: 'DollarOutlined',
     requiredPermissions: [],
     children: [
       {
-        key: '/finance/contract',
+        key: RESOURCES.FINANCIALS_CONTRACT,
         label: 'Contract Management',
         description: '合約管理',
         icon: 'ProfileOutlined',
-        requiredPermissions: [PERMISSIONS.FINANCE_CONTRACT_READ]
+        requiredPermissions: [PERMISSIONS.FINANCIALS_CONTRACT_READ]
       },
       {
-        key: '/finance/contract/detail',
+        key: RESOURCES.FINANCIALS_CONTRACT_DETAIL,
         label: 'Contract Detail',
         description: '合約明細',
         icon: 'FrownOutlined',
-        requiredPermissions: [PERMISSIONS.FINANCE_CONTRACT_DETAIL_READ]
+        requiredPermissions: [PERMISSIONS.FINANCIALS_CONTRACT_DETAIL_READ]
       },
       {
-        key: '/finance/bill',
+        key: RESOURCES.FINANCIALS_BILLING,
         label: 'Billing Management',
         description: '帳單管理',
         icon: 'FileTextOutlined',
-        requiredPermissions: [PERMISSIONS.FINANCE_BILL_READ]
+        requiredPermissions: [PERMISSIONS.FINANCIALS_BILLING_READ]
       }
     ]
   },
   {
-    key: '/merchant-portal',
+    key: RESOURCES.MERCHANT_PORTAL,
     label: 'Merchant Portal',
     description: '商家入口網站',
     icon: 'TransactionOutlined',
     requiredPermissions: [PERMISSIONS.MERCHANT_PORTAL_READ]
   },
   {
-    key: '/operation-center',
+    key: RESOURCES.OPERATION_CENTER,
     label: 'Operation Center',
     icon: 'FundProjectionScreenOutlined',
     requiredPermissions: [],
     children: [
       {
-        key: '/operation-center/analytics',
+        key: RESOURCES.OPERATION_ANALYTICS,
         label: 'Operations Analytics',
         description: '運營分析',
         icon: 'FundViewOutlined',
         requiredPermissions: [PERMISSIONS.OPERATION_ANALYTICS_READ]
       },
       {
-        key: '/operation-center/article',
+        key: RESOURCES.OPERATION_ARTICLE,
         label: 'Article Publishing',
         description: '文章發布',
         icon: 'ReadOutlined',
         requiredPermissions: [PERMISSIONS.OPERATION_ARTICLE_READ]
       },
       {
-        key: '/operation-center/comments',
+        key: RESOURCES.OPERATION_COMMENTS,
         label: 'Content Comments',
         description: '內容評論管理',
         icon: 'CommentOutlined',
@@ -149,28 +150,28 @@ export const menuNodes: MenuItemForDisplay[] = [
     ]
   },
   {
-    key: '/equipment',
+    key: RESOURCES.EQUIPMENT,
     label: 'Equipment Management',
     description: '設備管理系統',
     icon: 'SettingOutlined',
     requiredPermissions: [PERMISSIONS.EQUIPMENT_READ]
   },
   {
-    key: '/energy',
+    key: RESOURCES.ENERGY,
     label: 'Energy Consumption',
     description: '能源消耗管理',
     icon: 'ThunderboltOutlined',
     requiredPermissions: [PERMISSIONS.ENERGY_READ]
   },
   {
-    key: '/authorization-center',
+    key: RESOURCES.AUTHORIZATION_CENTER,
     label: 'Authorization Center',
     description: '授權中心',
     icon: 'SettingOutlined',
     requiredPermissions: [PERMISSIONS.AUTHORIZATION_CENTER_READ]
   },
   {
-    key: '/user-profile',
+    key: RESOURCES.USER_PROFILE,
     label: 'User Profile',
     description: '個人資料',
     icon: 'UserOutlined',
