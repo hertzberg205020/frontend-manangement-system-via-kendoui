@@ -231,6 +231,61 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ObjectApiResponse'
+  /api/auth/me/permissions:
+    get:
+      tags:
+        - Auth
+      summary: 取得目前登入使用者的權限代碼列表
+      description: "回傳目前登入使用者擁有的所有權限代碼（字串陣列）。\r\n            \r\n此 endpoint 從 JWT token 中提取使用者的 empId，然後查詢該使用者透過角色擁有的所有權限代碼。\r\n前端應用程式可使用此資訊進行：\r\n- 細粒度的權限控制（根據權限 code 顯示/隱藏功能）\r\n- 動態菜單生成（根據權限決定顯示哪些選項）\r\n- UI 元件權限判斷（如按鈕的啟用/禁用）\r\n            \r\n權限代碼格式：\r\n- 格式：{resource_code}.{action}\r\n- 例如：users.list.read, users.add.create, roles.edit.edit\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/me/permissions\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": [\r\n            \"tenants.read\",\r\n            \"tenants.create\",\r\n            \"equipment.read\",\r\n            \"rfinancials.billing.read\"\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized (未提供 token 或 token 無效)\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - User not found (使用者不存在或已停用)\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"User not found\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\n不需要特定權限，所有登入使用者都可以查詢自己的權限代碼列表。"
+      responses:
+        '200':
+          description: 查詢成功，回傳權限代碼字串陣列
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/StringListApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringListApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/StringListApiResponse'
+        '401':
+          description: 未授權（未提供或無效的 JWT token）
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: 使用者不存在或已停用
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: 伺服器內部錯誤
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
   /api/auth/users:
     get:
       tags:
@@ -1560,6 +1615,21 @@ components:
           nullable: true
         data:
           $ref: '#/components/schemas/RolePermissionsDto'
+      additionalProperties: false
+    StringListApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            type: string
+          nullable: true
       additionalProperties: false
     TokenResponse:
       type: object
