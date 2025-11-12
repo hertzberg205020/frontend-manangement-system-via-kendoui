@@ -6,8 +6,6 @@
  * roles, expiration).
  */
 
-import { parsePermissions } from '@/utils/parsePermissions';
-import type { Permission } from '@/constants/permissions';
 
 export interface JwtPayload {
   sub?: string;
@@ -16,7 +14,6 @@ export interface JwtPayload {
   name?: string;
   /** friendly roles mapped from 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' */
   roles?: string[];
-  permissions?: string[];
   iss?: string;
   exp?: number;
   iat?: number;
@@ -34,7 +31,6 @@ export default class JwtToken implements JwtPayload {
   jti?: string;
   name?: string;
   roles: string[] = [];
-  permissions: string[] = [];
   iss?: string;
   exp?: number;
   iat?: number;
@@ -62,19 +58,10 @@ export default class JwtToken implements JwtPayload {
       this.roles = (raw['roles'] as unknown[]).map(String);
     }
 
-    if (Array.isArray(raw['permissions'])) {
-      this.permissions = (raw['permissions'] as unknown[]).map(String);
-    }
-
     this.iss = raw['iss'] as string | undefined;
     this.exp = typeof raw['exp'] === 'number' ? (raw['exp'] as number) : undefined;
     this.iat = typeof raw['iat'] === 'number' ? (raw['iat'] as number) : undefined;
     this.nbf = typeof raw['nbf'] === 'number' ? (raw['nbf'] as number) : undefined;
-  }
-
-  /** 檢查是否包含指定權限 */
-  hasPermission(permission: string): boolean {
-    return this.permissions.includes(permission);
   }
 
   /** 檢查是否包含指定角色 */
@@ -82,10 +69,6 @@ export default class JwtToken implements JwtPayload {
     return this.roles.includes(role);
   }
 
-  /** 取得解析後的權限列表 */
-  getParsedPermissions(): Permission[] {
-    return parsePermissions(this.permissions);
-  }
 
   /** 檢查是否過期（預設使用目前時間） */
   isExpired(nowSeconds = Date.now() / 1000): boolean {
