@@ -4,8 +4,8 @@ import loginBackground from '@/assets/login-background.png';
 import './index.scss';
 import { Button, Form, Input, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { login } from '@/api/users';
-import { setToken } from '@/store/login/authSlice';
+import { getUserPermissions, login } from '@/api/users';
+import { setPermissions, setToken } from '@/store/login/authSlice';
 import { jwtDecode } from 'jwt-decode';
 import JwtToken from '@/types/jwtPayload';
 import { useNavigate } from 'react-router';
@@ -36,10 +36,9 @@ function Login() {
       setLoading(true);
 
       const { token } = await login(values);
-      console.log('Login result:', token);
 
       // API contract: { token: string }
-      if (!token || typeof token !== 'string') {
+      if (!token) {
         message.error('登入失敗，未取得 token');
         setLoading(false);
         return;
@@ -57,9 +56,9 @@ function Login() {
 
       // 儲存原始 token 到 Redux
       dispatch(setToken(token));
-      sessionStorage.setItem('token', token);
 
-      console.log('Login successful, permissions will be calculated from token automatically');
+      const permissions = await getUserPermissions();
+      dispatch(setPermissions(permissions));
 
       setLoading(false);
       // 導向首頁

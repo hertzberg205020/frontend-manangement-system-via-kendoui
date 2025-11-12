@@ -3,30 +3,13 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
 import JwtToken from '@/types/jwtPayload';
-import type { Permission } from '@/constants/permissions';
-import type { RootState } from '../index';
+import type { RootState } from '@/store';
 
 // 基礎 selector 用於選取 token
 export const selectToken = (state: RootState) => state.authSlice.token;
 
 // Selector 用於計算 permissions
-export const selectPermissions = createSelector(
-  [selectToken],
-  (token): Permission[] => {
-    if (!token || typeof token !== 'string' || token.trim() === '') {
-      return [];
-    }
-
-    try {
-      const payload = jwtDecode<Record<string, unknown>>(token);
-      const jwt = new JwtToken(payload);
-      return jwt.getParsedPermissions();
-    } catch (error) {
-      console.error('Failed to decode JWT token:', error);
-      return [];
-    }
-  }
-);
+export const selectPermissions = (state: RootState) => state.authSlice.permissions;
 
 // Selector 用於取得用戶信息
 export const selectUserInfo = createSelector(

@@ -4,10 +4,12 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
   token: string | null;
+  permissions: string[];
 }
 
 const initialState: AuthState = {
   token: sessionStorage.getItem('token') || null,
+  permissions: JSON.parse(sessionStorage.getItem('permissions') || '[]'),
 };
 
 /**
@@ -34,8 +36,20 @@ export const authSlice = createSlice({
       // 清除 sessionStorage 中的 token
       sessionStorage.removeItem('token');
     },
+    setPermissions: (state, action: PayloadAction<string[]>) => {
+      // 儲存 permissions 到 redux state
+      state.permissions = action.payload;
+      // 儲存 permissions 到 sessionStorage
+      sessionStorage.setItem('permissions', JSON.stringify(action.payload));
+    },
+    clearPermissions: (state) => {
+      // 清除 redux state 中的 permissions
+      state.permissions = [];
+      // 清除 sessionStorage 中的 permissions
+      sessionStorage.removeItem('permissions');
+    },
   },
 });
 
-export const { setToken, clearToken } = authSlice.actions;
+export const { setToken, clearToken, setPermissions, clearPermissions } = authSlice.actions;
 export default authSlice.reducer;

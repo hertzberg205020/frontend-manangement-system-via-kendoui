@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch } from '@/store';
-import { clearToken } from '@/store/login/authSlice';
+import { clearPermissions, clearToken } from '@/store/login/authSlice';
 import { clearTabsStorage } from '@/store/tabs/tabsSlice';
 import { DownOutlined, PoweroffOutlined, UserOutlined } from '@ant-design/icons';
 import { Dropdown, Space, type MenuProps } from 'antd';
@@ -50,6 +50,7 @@ const LayoutHeader: React.FC = () => {
         console.log('Logout clicked');
         dispatch(clearToken());
         dispatch(clearTabsStorage()); // clear the persistent tabs state
+        dispatch(clearPermissions());
         // Clear session storage
         sessionStorage.clear();
         break;

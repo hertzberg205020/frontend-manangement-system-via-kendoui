@@ -16,21 +16,40 @@ interface LoginResponse {
 export async function login(data: LoginData): Promise<LoginResponse> {
   const res = await post<LoginResponse, LoginData>('api/auth/login', data);
 
+  if (res.code < 200 || res.code >= 300) {
+    throw new Error(res.message);
+  }
+
+  // check data type
+  if (!res.data || typeof res.data !== 'object' || !('token' in res.data)) {
+    throw new Error('Invalid response format');
+  }
+
+  // 運行時型別檢查,確保 token 是字串
+  if (typeof res.data.token !== 'string') {
+    throw new Error('Invalid token type');
+  }
+
   return res.data;
 }
 
 
+
 /**
- * 取得使用者權限
+ * Fetches the list of permissions for the currently authenticated user.
  *
- * 重構說明：
- * 這個函式現在返回權限字串陣列而不是選單項目陣列。
- * 這種設計的優勢：
- * 1. 更清晰的職責分離：後端只負責權限，前端負責 UI 呈現
- * 2. 更靈活的權限控制：可以更精細地控制功能存取
- * 3. 更容易維護：權限變更不需要修改選單結構
+ * @return {Promise<Permission[]>} A promise that resolves to an array of permissions for the user.
  */
 export async function getUserPermissions(): Promise<Permission[]> {
-  const res = await get<Permission[]>('/permissions');
+  const res = await get<Permission[]>('api/auth/me/permissions');
+
+  if (!(res.code >= 200 && res.code < 300)) {
+    throw new Error(res.message);
+  }
+
+  if (!Array.isArray(res.data)) {
+    throw new Error('Invalid permissions format');
+  }
+
   return res.data;
 }
