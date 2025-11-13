@@ -1,10 +1,11 @@
 // src/store/login/authSlice.ts
 
+import type { Permission } from '@/constants/permissions';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
   token: string | null;
-  permissions: string[];
+  permissions: Permission[];
 }
 
 const initialState: AuthState = {
@@ -36,11 +37,14 @@ export const authSlice = createSlice({
       // 清除 sessionStorage 中的 token
       sessionStorage.removeItem('token');
     },
-    setPermissions: (state, action: PayloadAction<string[]>) => {
-      // 儲存 permissions 到 redux state
-      state.permissions = action.payload;
-      // 儲存 permissions 到 sessionStorage
-      sessionStorage.setItem('permissions', JSON.stringify(action.payload));
+    setPermissions: (state, action: PayloadAction<unknown>) => {
+      // 型別檢查，確保 payload 為 Permission[]
+      let permissions: Permission[] = [];
+      if (Array.isArray(action.payload)) {
+        permissions = action.payload.filter((item): item is Permission => typeof item === 'string');
+      }
+      state.permissions = permissions;
+      sessionStorage.setItem('permissions', JSON.stringify(permissions));
     },
     clearPermissions: (state) => {
       // 清除 redux state 中的 permissions
