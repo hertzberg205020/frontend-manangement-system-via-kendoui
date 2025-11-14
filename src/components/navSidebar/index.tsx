@@ -176,11 +176,6 @@ const NavSidebar: React.FC<NavSidebarProps> = ({ collapsed }) => {
       // 更新選單樹
       setMenuTree(antdMenuItems);
 
-      console.log('選單已根據權限更新', {
-        permissions: permissions.length,
-        menuItems: antdMenuItems.length
-      });
-
     } catch (error) {
       console.error('生成選單時發生錯誤:', error);
       // 發生錯誤時清空選單
