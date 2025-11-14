@@ -57,3 +57,98 @@ export interface UserResponse {
 export function getUserByEmpId(empId: string): Promise<ApiResponse<UserResponse>> {
   return get<UserResponse>(`/api/auth/${empId}`);
 }
+
+/**
+ * Permission tree node representing a hierarchical permission structure
+ * @interface PermissionTreeNode
+ * @since 1.0.0
+ */
+export interface PermissionTreeNode {
+  /** Unique key for the tree node (e.g., "users", "users.list", "users.list.read") */
+  key: string;
+  /** Display title for the tree node */
+  title: string;
+  /** Optional description explaining the permission or resource */
+  description?: string;
+  /** Permission ID (only present on leaf nodes) */
+  permissionId?: number;
+  /**
+   * Indicates whether this is a leaf node (actual permission) or a parent node
+   * (resource grouping)
+   */
+  isLeaf: boolean;
+  /** Child nodes in the hierarchy */
+  children?: PermissionTreeNode[];
+}
+
+/**
+ * Retrieve permission hierarchy tree structure
+ *
+ * Returns all permissions organized as a hierarchical tree structure, suitable for
+ * frontend permission selector components like Ant Design Tree. Permissions are
+ * organized by resource code hierarchy, where each '.' (except the last one) represents
+ * a resource level, and the final level combined with the action forms a leaf node.
+ *
+ * Hierarchical Structure Example:
+ * - For permission code "users.list.read", this generates:
+ *   * users (parent node)
+ *     * list (parent node)
+ *       * read (leaf node with permissionId)
+ *
+ * Use Cases:
+ * - Permission selector in role permission management pages
+ * - Tree display in permission configuration interfaces
+ * - UI components requiring hierarchical permission display
+ *
+ * @returns Promise resolving to ApiResponse containing array of PermissionTreeNode
+ * @throws {HttpError} 401 - Unauthorized (authentication required - missing or invalid JWT token)
+ * @throws {HttpError} 500 - Internal server error
+ *
+ * @example
+ * ```typescript
+ * // Fetch permission hierarchy for role management UI
+ * try {
+ *   const response = await getPermissionsHierarchy();
+ *   console.log('Permission tree:', response.data);
+ *
+ *   // Example response structure:
+ *   // [
+ *   //   {
+ *   //     key: "users",
+ *   //     title: "users",
+ *   //     isLeaf: false,
+ *   //     children: [
+ *   //       {
+ *   //         key: "users.list",
+ *   //         title: "list",
+ *   //         description: "使用者列表",
+ *   //         isLeaf: false,
+ *   //         children: [
+ *   //           {
+ *   //             key: "users.list.read",
+ *   //             title: "檢視",
+ *   //             description: "查看使用者列表",
+ *   //             permissionId: 1,
+ *   //             isLeaf: true
+ *   //           }
+ *   //         ]
+ *   //       }
+ *   //     ]
+ *   //   }
+ *   // ]
+ * } catch (error) {
+ *   if (error.code === 401) {
+ *     console.error('Authentication required');
+ *   }
+ * }
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link PermissionTreeNode} for the tree node structure
+ * @remarks
+ * Authorization: Requires valid JWT token. Recommended to restrict access to
+ * administrators or users with permission management capabilities.
+ */
+export function getPermissionsHierarchy(): Promise<ApiResponse<PermissionTreeNode[]>> {
+  return get<PermissionTreeNode[]>('/api/auth/permissions/hierarchy');
+}
