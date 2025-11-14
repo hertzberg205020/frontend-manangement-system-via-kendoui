@@ -82,45 +82,6 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
-  /api/auth/{empId}:
-    get:
-      tags:
-        - Auth
-      summary: Retrieve user information by employee ID
-      description: "Fetches detailed information about a specific user using their employee ID.\r\nOnly returns information for active users in the system.\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/EMP001\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"name\": \"John Doe\",\r\n            \"empId\": \"EMP001\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error response:\r\n            \r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"資源不存在\",\r\n        \"data\": null\r\n    }"
-      operationId: GetUser
-      parameters:
-        - name: empId
-          in: path
-          description: The employee ID to search for. Must be a valid, non-empty string representing an existing employee.
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: User found successfully. Returns the user information wrapped in ApiResponse.
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/UserResponseApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponseApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/UserResponseApiResponse'
-        '404':
-          description: User not found. The specified employee ID doesn't exist or the user is inactive.
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
   /api/auth/login:
     post:
       tags:
@@ -372,13 +333,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UserDtoPagedApiResponse'
+                $ref: '#/components/schemas/UserResponsePagedApiResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDtoPagedApiResponse'
+                $ref: '#/components/schemas/UserResponsePagedApiResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UserDtoPagedApiResponse'
+                $ref: '#/components/schemas/UserResponsePagedApiResponse'
         '400':
           description: Request parameter validation failed. Check page and pageSize values (page must be at least 1, pageSize must be between 1 and 100).
           content:
@@ -537,13 +498,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UserDtoApiResponse'
+                $ref: '#/components/schemas/UserResponseApiResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDtoApiResponse'
+                $ref: '#/components/schemas/UserResponseApiResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UserDtoApiResponse'
+                $ref: '#/components/schemas/UserResponseApiResponse'
         '401':
           description: Unauthorized. Valid JWT token is required.
           content:
@@ -1296,38 +1257,6 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ObjectApiResponse'
-  /api/auth/resources:
-    get:
-      tags:
-        - Resources
-      summary: 列出所有資源
-      description: "取得系統中所有資源的列表,包含啟用和停用的資源。\r\n            \r\n此 API 僅需要使用者已登入(有效的 JWT Token),不需要特定權限。\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/resources\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": [\r\n            {\r\n                \"id\": 1,\r\n                \"code\": \"users\",\r\n                \"description\": \"使用者管理資源\",\r\n                \"isActive\": true\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"code\": \"roles\",\r\n                \"description\": \"角色管理資源\",\r\n                \"isActive\": true\r\n            }\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token (僅需登入,無需特定權限)"
-      operationId: GetResources
-      responses:
-        '200':
-          description: 查詢成功,回傳資源列表
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResourceDtoListApiResponse'
-        '401':
-          description: 未授權
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '403':
-          description: 無權限
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '500':
-          description: 伺服器內部錯誤
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
 components:
   schemas:
     CreateRoleRequest:
@@ -1591,36 +1520,6 @@ components:
             type: integer
             format: int64
       additionalProperties: false
-    ResourceDto:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        code:
-          type: string
-          nullable: true
-        description:
-          type: string
-          nullable: true
-        isActive:
-          type: boolean
-      additionalProperties: false
-    ResourceDtoListApiResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string
-          nullable: true
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResourceDto'
-          nullable: true
-      additionalProperties: false
     RoleDto:
       type: object
       properties:
@@ -1781,7 +1680,7 @@ components:
         data:
           $ref: '#/components/schemas/UpdateUserResponse'
       additionalProperties: false
-    UserDto:
+    UserResponse:
       type: object
       properties:
         empId:
@@ -1805,7 +1704,7 @@ components:
           type: string
           format: date-time
       additionalProperties: false
-    UserDtoApiResponse:
+    UserResponseApiResponse:
       type: object
       properties:
         code:
@@ -1815,9 +1714,9 @@ components:
           type: string
           nullable: true
         data:
-          $ref: '#/components/schemas/UserDto'
+          $ref: '#/components/schemas/UserResponse'
       additionalProperties: false
-    UserDtoPagedApiResponse:
+    UserResponsePagedApiResponse:
       type: object
       properties:
         code:
@@ -1827,15 +1726,15 @@ components:
           type: string
           nullable: true
         data:
-          $ref: '#/components/schemas/UserDtoPagedData'
+          $ref: '#/components/schemas/UserResponsePagedData'
       additionalProperties: false
-    UserDtoPagedData:
+    UserResponsePagedData:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/UserDto'
+            $ref: '#/components/schemas/UserResponse'
           nullable: true
         total:
           type: integer
@@ -1849,34 +1748,6 @@ components:
         totalPages:
           type: integer
           format: int32
-      additionalProperties: false
-    UserResponse:
-      type: object
-      properties:
-        name:
-          type: string
-          nullable: true
-        empId:
-          type: string
-          nullable: true
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-      additionalProperties: false
-    UserResponseApiResponse:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string
-          nullable: true
-        data:
-          $ref: '#/components/schemas/UserResponse'
       additionalProperties: false
     UserRolesDto:
       type: object
@@ -1914,5 +1785,3 @@ security:
 tags:
   - name: Auth
     description: Authentication Controller - Handles user registration, authentication, and user management operations
-  - name: Resources
-    description: 資源管理 API 控制器
