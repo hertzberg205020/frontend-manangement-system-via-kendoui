@@ -4,6 +4,7 @@
  * @since 1.0.0
  */
 
+import type { PagedData } from '@/types/PagedData';
 import { get } from '@/utils/http/request';
 import type { ApiResponse } from '@/utils/http/request';
 
@@ -151,4 +152,128 @@ export interface PermissionTreeNode {
  */
 export function getPermissionsHierarchy(): Promise<ApiResponse<PermissionTreeNode[]>> {
   return get<PermissionTreeNode[]>('/api/auth/permissions/hierarchy');
+}
+
+/**
+ * User data transfer object representing a user in the system
+ * @interface UserDto
+ * @since 1.0.0
+ */
+export interface UserDto {
+  /** Employee ID (format: N + 9 digits, e.g., N123456789) */
+  empId: string;
+  /** User's full name */
+  name: string;
+  /** User active status (true for active, false for inactive) */
+  isActive: boolean;
+  /** Array of role IDs assigned to this user */
+  roleIds: number[];
+  /** Timestamp when the user was created (ISO 8601 format) */
+  createdAt: string;
+  /** Timestamp when the user was last updated (ISO 8601 format) */
+  updatedAt: string;
+}
+
+
+/**
+ * Query parameters for retrieving users with pagination and filtering
+ * @interface GetUsersParams
+ * @since 1.0.0
+ */
+export interface UserQuery {
+  /** Page number (must be >= 1). Default is 1. */
+  page?: number;
+  /** Number of items per page (range: 1-100). Default is 10. */
+  pageSize?: number;
+  /** Optional fuzzy search filter by user name (case-insensitive) */
+  name?: string;
+  /** Optional fuzzy search filter by employee ID (case-insensitive) */
+  empId?: string;
+  /** Optional filter by user active status (true for active, false for inactive) */
+  isActive?: boolean;
+}
+
+/**
+ * Retrieve a paginated list of users with filtering support
+ *
+ * Retrieves users from the system with support for pagination and filtering by name,
+ * employee ID, and active status. This endpoint requires authentication with appropriate
+ * permissions ('users.list.read') to access user data.
+ *
+ * Query Parameters:
+ * - page: Page number (default: 1, minimum: 1)
+ * - pageSize: Items per page (default: 10, range: 1-100)
+ * - name: Optional fuzzy search by user name (case-insensitive, partial match)
+ * - empId: Optional fuzzy search by employee ID (case-insensitive, partial match)
+ * - isActive: Optional filter by user active status (true/false)
+ *
+ * Pagination Details:
+ * - Pages are 1-indexed (first page is page 1)
+ * - Maximum page size is 100 to prevent excessive data loading
+ * - Response includes total count and total pages for client-side pagination UI
+ *
+ * @param params - Optional query parameters for pagination and filtering
+ * @returns Promise resolving to ApiResponse containing paginated user data
+ * @throws {HttpError} 400 - Request parameter validation failed (check page and pageSize values)
+ * @throws {HttpError} 401 - Unauthorized (valid JWT token with appropriate permissions is required)
+ * @throws {HttpError} 500 - Internal server error occurred while retrieving users
+ *
+ * @example
+ * ```typescript
+ * // Fetch first page with default page size (10)
+ * try {
+ *   const response = await getUsers({ page: 1 });
+ *   console.log('Total users:', response.data.total);
+ *   console.log('Users:', response.data.data);
+ * } catch (error) {
+ *   console.error('Failed to fetch users:', error);
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Search active users with name containing "John"
+ * try {
+ *   const response = await getUsers({
+ *     page: 1,
+ *     pageSize: 20,
+ *     name: 'John',
+ *     isActive: true
+ *   });
+ *   console.log(`Found ${response.data.total} users matching criteria`);
+ *   response.data.data.forEach(user => {
+ *     console.log(`${user.name} (${user.empId})`);
+ *   });
+ * } catch (error) {
+ *   if (error.code === 401) {
+ *     console.error('Authentication required');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Filter by employee ID and include inactive users
+ * try {
+ *   const response = await getUsers({
+ *     empId: 'N123',
+ *     isActive: false,
+ *     pageSize: 50
+ *   });
+ *   console.log('Inactive users found:', response.data.data);
+ * } catch (error) {
+ *   console.error('Error:', error);
+ * }
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link UserDto} for the user data structure
+ * @see {@link PagedData} for the paginated response structure
+ * @see {@link UserQuery} for query parameter details
+ * @remarks
+ * Authorization: Requires valid JWT token with 'users.list.read' permission.
+ * Include the token in the Authorization header: Bearer {token}
+ */
+export function getUsers(params?: UserQuery): Promise<ApiResponse<PagedData<UserDto>>> {
+  return get<PagedData<UserDto>>('/api/auth/users', params as Record<string, unknown>);
 }
