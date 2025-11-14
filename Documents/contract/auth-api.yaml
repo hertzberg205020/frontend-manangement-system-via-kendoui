@@ -286,6 +286,49 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ObjectApiResponse'
+  /api/auth/permissions/hierarchy:
+    get:
+      tags:
+        - Auth
+      summary: 取得權限階層樹狀結構
+      description: "回傳所有權限的階層樹狀結構，用於前端權限選擇器（如 Ant Design Tree 元件）。\r\n            \r\n此 endpoint 會將權限按照資源代碼（resource.code）的層級結構組織成樹狀格式。\r\n每個 '.'（除了最後一個）代表一層資源節點，最後一層與動作（action）組合成葉節點。\r\n            \r\n階層結構範例：\r\n- 若權限代碼為 \"users.list.read\"，會產生：\r\n  * users (父節點)\r\n    * list (父節點)\r\n      * read (葉節點，包含 permissionId)\r\n            \r\n使用場景：\r\n- 角色權限管理頁面的權限選擇器\r\n- 權限設定介面的樹狀展示\r\n- 需要階層式權限展示的 UI 元件\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/permissions/hierarchy\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": [\r\n            {\r\n                \"key\": \"users\",\r\n                \"title\": \"users\",\r\n                \"isLeaf\": false,\r\n                \"children\": [\r\n                    {\r\n                        \"key\": \"users.list\",\r\n                        \"title\": \"list\",\r\n                        \"description\": \"使用者列表\",\r\n                        \"isLeaf\": false,\r\n                        \"children\": [\r\n                            {\r\n                                \"key\": \"users.list.read\",\r\n                                \"title\": \"檢視\",\r\n                                \"description\": \"查看使用者列表\",\r\n                                \"permissionId\": 1,\r\n                                \"isLeaf\": true\r\n                            }\r\n                        ]\r\n                    }\r\n                ]\r\n            }\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized (未提供 token 或 token 無效)\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 500 - Internal Server Error\r\n    {\r\n        \"code\": 500,\r\n        \"message\": \"Internal Server Error\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\n建議僅管理員或具備權限管理相關權限的使用者可存取此 endpoint。"
+      responses:
+        '200':
+          description: 查詢成功，回傳權限階層樹狀結構
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PermissionTreeNodeListApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionTreeNodeListApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PermissionTreeNodeListApiResponse'
+        '401':
+          description: 未授權（未提供或無效的 JWT token）
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: 伺服器內部錯誤
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
   /api/auth/users:
     get:
       tags:
@@ -1452,6 +1495,45 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PermissionDto'
+          nullable: true
+      additionalProperties: false
+    PermissionTreeNode:
+      type: object
+      properties:
+        key:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        permissionId:
+          type: integer
+          format: int64
+          nullable: true
+        isLeaf:
+          type: boolean
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionTreeNode'
+          nullable: true
+      additionalProperties: false
+    PermissionTreeNodeListApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionTreeNode'
           nullable: true
       additionalProperties: false
     ProblemDetails:
