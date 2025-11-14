@@ -5,7 +5,7 @@
  */
 
 import type { PagedData } from '@/types/PagedData';
-import { get } from '@/utils/http/request';
+import { get, post } from '@/utils/http/request';
 import type { ApiResponse } from '@/utils/http/request';
 
 /**
@@ -276,4 +276,118 @@ export interface UserQuery {
  */
 export function getUsers(params?: UserQuery): Promise<ApiResponse<PagedData<UserDto>>> {
   return get<PagedData<UserDto>>('/api/auth/users', params as Record<string, unknown>);
+}
+
+/**
+ * Request payload for creating a new user
+ * @interface CreateUserRequest
+ * @since 1.0.0
+ */
+export interface CreateUserRequest {
+  /** Employee ID (format: N + 9 digits, e.g., N123456789) */
+  empId: string;
+  /** User's full name (length: 1-128 characters) */
+  name: string;
+  /** User's password (length: 8-64 characters) */
+  password: string;
+  /** Optional array of role IDs to assign to the user */
+  roleIds?: number[];
+}
+
+/**
+ * Response data after successfully creating a user
+ * @interface CreateUserResponse
+ * @since 1.0.0
+ */
+export interface CreateUserResponse {
+  /** Employee ID (format: N + 9 digits, e.g., N123456789) */
+  empId: string;
+  /** User's full name */
+  name: string;
+  /** User active status (true for active, false for inactive) */
+  isActive: boolean;
+  /** Array of role IDs assigned to this user */
+  roleIds: number[];
+  /** Timestamp when the user was created (ISO 8601 format) */
+  createdAt: string;
+  /** Timestamp when the user was last updated (ISO 8601 format) */
+  updatedAt: string;
+}
+
+/**
+ * Create a new user in the system
+ *
+ * Creates a new user account with optional role assignments. The employee ID must be unique
+ * across the system. For security, the password is hashed using BCrypt before storage.
+ *
+ * Validation Rules:
+ * - empId: Required, format N + 9 digits (e.g., N123456789)
+ * - name: Required, length 1-128 characters
+ * - password: Required, length 8-64 characters
+ * - roleIds: Optional, array of role IDs (no duplicates)
+ *
+ * Request Body:
+ * ```json
+ * {
+ *   "empId": "N123456789",
+ *   "name": "張三",
+ *   "password": "SecurePass123!",
+ *   "roleIds": [1, 2]
+ * }
+ * ```
+ *
+ * @param data - The user creation data containing empId, name, password, and optional roleIds
+ * @returns Promise resolving to ApiResponse containing CreateUserResponse data
+ * @throws {HttpError} 400 - Validation failed (invalid format or missing required fields)
+ * @throws {HttpError} 401 - Unauthorized (authentication required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions to create users)
+ * @throws {HttpError} 409 - Conflict (employee ID already exists in the system)
+ * @throws {HttpError} 500 - Internal server error occurred while creating user
+ *
+ * @example
+ * ```typescript
+ * // Create user with roles
+ * try {
+ *   const response = await createUser({
+ *     empId: 'N123456789',
+ *     name: '張三',
+ *     password: 'SecurePass123!',
+ *     roleIds: [1, 2]
+ *   });
+ *   console.log('User created:', response.data);
+ *   console.log('User ID:', response.data.empId);
+ *   console.log('Assigned roles:', response.data.roleIds);
+ * } catch (error) {
+ *   if (error.code === 409) {
+ *     console.error('Employee ID already exists');
+ *   } else if (error.code === 400) {
+ *     console.error('Validation failed - check input format');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Create user without roles
+ * try {
+ *   const response = await createUser({
+ *     empId: 'N987654321',
+ *     name: '李四',
+ *     password: 'MyPassword456!'
+ *   });
+ *   console.log('User created without roles:', response.data);
+ * } catch (error) {
+ *   console.error('Failed to create user:', error);
+ * }
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link CreateUserRequest} for the request body structure
+ * @see {@link CreateUserResponse} for the response data structure
+ * @remarks
+ * Authorization: Requires valid JWT token with user creation permissions.
+ * Include the token in the Authorization header: Bearer {token}
+ */
+export function createUser(data: CreateUserRequest): Promise<ApiResponse<CreateUserResponse>> {
+  return post<CreateUserResponse, CreateUserRequest>('/api/auth/users', data);
 }
