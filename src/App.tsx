@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import BASE_ROUTES from './router';
-import { useAppDispatch, useAppSelector, selectPermissions, selectToken } from '@/store';
+import { useAppSelector, selectPermissions, selectPermissionsLoaded, selectToken } from '@/store';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import type { RouteObject } from 'react-router';
 import { Spin } from 'antd';
@@ -10,7 +10,7 @@ import { generateRoutesFromPermissions } from './router/generateRouteFromPermiss
 function App() {
   const token = useAppSelector(selectToken);
   const permissions = useAppSelector(selectPermissions);
-  const dispatch = useAppDispatch();
+  const permissionsLoaded = useAppSelector(selectPermissionsLoaded);
 
   // 路由準備狀態
   const [isRoutesReady, setIsRoutesReady] = useState<boolean>(false);
@@ -37,11 +37,9 @@ function App() {
           return;
         }
 
-        // const permissions = await getUserPermissions();
-
-        // 將權限儲存到 Redux store
-        // dispatch(setPermissions(permissions));
-        console.log('User permissions:', permissions);
+        if (!permissionsLoaded) {
+          return;
+        }
 
         // 根據權限生成路由
         const userRoutes = generateRoutesFromPermissions(permissions);
@@ -75,16 +73,12 @@ function App() {
     };
 
     buildUserRoutes();
-  }, [token, dispatch, permissions]);
+  }, [token, permissions, permissionsLoaded]);
 
 
   const router = useMemo(() => {
-    if (isRoutesReady && routeTree) {
-      console.log('Final route tree:', routeTree);
-      return createBrowserRouter(routeTree);
-    }
-    return createBrowserRouter(BASE_ROUTES);
-  }, [routeTree, isRoutesReady]);
+    return createBrowserRouter(routeTree ?? BASE_ROUTES);
+  }, [routeTree]);
 
   /**
    * 載入狀態處理

@@ -6,11 +6,18 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 interface AuthState {
   token: string | null;
   permissions: Permission[];
+  permissionsLoaded: boolean;
 }
 
+const persistedPermissions = JSON.parse(
+  sessionStorage.getItem('permissions') || '[]'
+) as Permission[];
 const initialState: AuthState = {
   token: sessionStorage.getItem('token') || null,
-  permissions: JSON.parse(sessionStorage.getItem('permissions') || '[]'),
+  permissions: persistedPermissions,
+  permissionsLoaded:
+    sessionStorage.getItem('permissionsLoaded') === 'true' ||
+    persistedPermissions.length > 0,
 };
 
 /**
@@ -45,12 +52,16 @@ export const authSlice = createSlice({
       }
       state.permissions = permissions;
       sessionStorage.setItem('permissions', JSON.stringify(permissions));
+      state.permissionsLoaded = true;
+      sessionStorage.setItem('permissionsLoaded', 'true');
     },
     clearPermissions: (state) => {
       // 清除 redux state 中的 permissions
       state.permissions = [];
       // 清除 sessionStorage 中的 permissions
       sessionStorage.removeItem('permissions');
+      state.permissionsLoaded = false;
+      sessionStorage.removeItem('permissionsLoaded');
     },
   },
 });

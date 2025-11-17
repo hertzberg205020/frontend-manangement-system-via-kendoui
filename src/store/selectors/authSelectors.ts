@@ -11,6 +11,9 @@ export const selectToken = (state: RootState) => state.authSlice.token;
 // Selector 用於計算 permissions
 export const selectPermissions = (state: RootState) => state.authSlice.permissions;
 
+// Selector 用於檢查權限是否載入完成
+export const selectPermissionsLoaded = (state: RootState) => state.authSlice.permissionsLoaded;
+
 // Selector 用於取得用戶信息
 export const selectUserInfo = createSelector(
   [selectToken],

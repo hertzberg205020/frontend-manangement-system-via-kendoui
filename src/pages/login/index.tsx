@@ -5,7 +5,7 @@ import './index.scss';
 import { Button, Form, Input, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { getUserPermissions, login } from '@/api/users';
-import { setPermissions, setToken } from '@/store/login/authSlice';
+import { clearPermissions, clearToken, setPermissions, setToken } from '@/store/login/authSlice';
 import { jwtDecode } from 'jwt-decode';
 import JwtToken from '@/types/jwtPayload';
 import { useNavigate } from 'react-router';
@@ -62,13 +62,16 @@ function Login() {
 
       setLoading(false);
       // 導向首頁
-      navigate('/', { replace: true });
+      if (token) {
+        navigate('/', { replace: true });
+      }
 
     } catch (error) {
       setLoading(false);
+      message.error('登入失敗，請稍後再試');
       console.error('Login failed:', error);
-      // 處理登入失敗
-
+      dispatch(clearToken());
+      dispatch(clearPermissions());
     }
   };
 

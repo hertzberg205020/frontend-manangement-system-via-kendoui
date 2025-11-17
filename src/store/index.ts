@@ -23,6 +23,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export {
   selectToken,
   selectPermissions,
+  selectPermissionsLoaded,
   selectUserInfo,
   selectIsTokenExpired,
   selectIsAuthenticated,
