@@ -565,3 +565,136 @@ export function updateUser(
 export function deleteUser(empId: string): Promise<ApiResponse<string>> {
   return del<string>(`/api/auth/users/${empId}`);
 }
+
+/**
+ * Request payload for replacing user roles
+ * @interface ReplaceUserRolesRequest
+ * @since 1.0.0
+ */
+export interface ReplaceUserRolesRequest {
+  /** Array of role IDs to assign to the user (replaces all existing roles) */
+  roleIds: number[];
+}
+
+/**
+ * Response data after successfully replacing user roles
+ * @interface UserRolesDto
+ * @since 1.0.0
+ */
+export interface UserRolesDto {
+  /** Employee ID (format: N + 9 digits, e.g., N123456789) */
+  empId: string;
+  /** Array of role IDs currently assigned to the user */
+  roleIds: number[];
+}
+
+/**
+ * Replace all roles assigned to a user (full replacement)
+ *
+ * This endpoint completely replaces the user's role collection with the provided role IDs.
+ * It removes all existing roles and assigns the new set in a single atomic operation.
+ *
+ * Behavior Details:
+ * - Removes all existing roles from the user
+ * - Assigns the new set of roles provided in the request
+ * - If roleIds is an empty array, removes all roles from the user
+ * - Duplicate roleIds are automatically deduplicated
+ * - Operation is executed within a single transaction to ensure data consistency
+ *
+ * Validation Rules:
+ * - empId: Required, format N + 9 digits (e.g., N123456789)
+ * - roleIds: Required, can be an empty array
+ * - Each roleId must correspond to an existing role in the database
+ *
+ * Use Cases:
+ * - Changing user access levels by replacing their entire role set
+ * - Bulk role updates in user management interfaces
+ * - Resetting user permissions by clearing all roles (empty array)
+ *
+ * Request Body:
+ * ```json
+ * {
+ *   "roleIds": [1, 2, 3]
+ * }
+ * ```
+ *
+ * @param empId - Employee ID of the user whose roles will be replaced.
+ *   Must match pattern ^N\d{9}$ (e.g., N123456789).
+ * @param data - The role replacement request containing an array of role IDs
+ * @returns Promise resolving to ApiResponse containing UserRolesDto data
+ * @throws {HttpError} 400 - Validation failed or invalid role ID provided
+ * @throws {HttpError} 401 - Unauthorized (authentication required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions - requires admin role)
+ * @throws {HttpError} 404 - User not found (the specified employee ID doesn't exist)
+ * @throws {HttpError} 500 - Internal server error occurred while replacing roles
+ *
+ * @example
+ * ```typescript
+ * // Replace user roles with new set
+ * try {
+ *   const response = await replaceUserRoles('N123456789', {
+ *     roleIds: [1, 2, 3]
+ *   });
+ *   console.log('Roles updated:', response.data);
+ *   console.log('Employee ID:', response.data.empId);
+ *   console.log('New roles:', response.data.roleIds);
+ * } catch (error) {
+ *   if (error.code === 404) {
+ *     console.error('User not found');
+ *   } else if (error.code === 400) {
+ *     console.error('Invalid role ID provided');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Remove all roles from a user
+ * try {
+ *   const response = await replaceUserRoles('N987654321', {
+ *     roleIds: []
+ *   });
+ *   console.log('All roles removed for user:', response.data.empId);
+ * } catch (error) {
+ *   console.error('Failed to remove roles:', error);
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with Ant Design
+ * const handleRoleUpdate = async (empId: string, selectedRoles: number[]) => {
+ *   try {
+ *     const response = await replaceUserRoles(empId, {
+ *       roleIds: selectedRoles
+ *     });
+ *     message.success('使用者角色更新成功');
+ *     setUserRoles(response.data.roleIds);
+ *   } catch (error) {
+ *     if (error.code === 404) {
+ *       message.error('使用者不存在');
+ *     } else if (error.code === 403) {
+ *       message.error('無權限更新使用者角色');
+ *     } else if (error.code === 400) {
+ *       message.error('無效的角色 ID');
+ *     } else {
+ *       message.error('更新失敗');
+ *     }
+ *   }
+ * };
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link ReplaceUserRolesRequest} for the request body structure
+ * @see {@link UserRolesDto} for the response data structure
+ * @remarks
+ * Authorization: Requires a valid JWT token with admin role permissions.
+ * This operation is restricted to administrators due to its sensitive nature.
+ * Include the token in the Authorization header: Bearer {token}
+ */
+export function replaceUserRoles(
+  empId: string,
+  data: ReplaceUserRolesRequest
+): Promise<ApiResponse<UserRolesDto>> {
+  return put<UserRolesDto, ReplaceUserRolesRequest>(`/api/auth/users/${empId}/roles`, data);
+}
