@@ -2,7 +2,7 @@ import { useAppDispatch } from '@/store';
 import { addTab, setActiveTab } from '@/store/tabs/tabsSlice';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
-import { menuNodes } from '@/utils/menuItemsGenerator.ts';
+import { MENU_NODES } from '@/utils/menuItemsGenerator.ts';
 import type { MenuItemForDisplay } from '@/types/MenuItemForDisplay';
 
 function findMenuItemByKey(menuList: MenuItemForDisplay[], key: string): MenuItemForDisplay | null {
@@ -26,7 +26,7 @@ export const useRouteSync = () => {
   useEffect(() => {
     const currentPath = location.pathname;
 
-    const menuItem = findMenuItemByKey(menuNodes, currentPath);
+    const menuItem = findMenuItemByKey(MENU_NODES, currentPath);
 
     // 當 activeKey 變化時，tabsManager 會自動導航到對應的路由
     // navigate 的職責為 tabsManager

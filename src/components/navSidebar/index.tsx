@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector, selectPermissions, selectToken } from '
 import { useLocation, useNavigate } from 'react-router';
 import { addTab } from '@/store/tabs/tabsSlice';
 import type { MenuItemForDisplay } from '@/types/MenuItemForDisplay';
-import { generateMenuFromPermissions, menuNodes } from '@/utils/menuItemsGenerator';
+import { generateMenuFromPermissions, MENU_NODES } from '@/utils/menuItemsGenerator';
 
 /**
  * Antd Menu 元件使用的選單項目格式
@@ -61,7 +61,7 @@ function findMenuItemInfoByPath(path: string, nodes: MenuItemForDisplay[]): {
   label: string;
   description: string;
 } {
-  // 依據 menuNodes 中的路由資訊查找對應的選單項目
+  // 依據 MENU_NODES 中的路由資訊查找對應的選單項目
   if (!path) {
     throw new Error('路徑不能為空');
   }
@@ -123,7 +123,7 @@ const NavSidebar: React.FC<NavSidebarProps> = ({ collapsed }) => {
   const handleMenuItemClick = ({ key }: { key: string }) => {
     try {
       // 查找選單項目資訊
-      const menuItemInfo = findMenuItemInfoByPath(key, menuNodes);
+      const menuItemInfo = findMenuItemInfoByPath(key, MENU_NODES);
 
       if (menuItemInfo) {
         // 建立新標籤頁

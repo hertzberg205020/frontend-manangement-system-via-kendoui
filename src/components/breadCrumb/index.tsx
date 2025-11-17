@@ -5,7 +5,7 @@ import { Breadcrumb } from 'antd';
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
 import type { MenuItemForDisplay } from '@/types/MenuItemForDisplay';
-import { menuNodes } from '@/utils/menuItemsGenerator';
+import { MENU_NODES } from '@/utils/menuItemsGenerator';
 
 const _recursiveFind = (path: string, data: MenuItemForDisplay[]): string[] => {
 
@@ -68,7 +68,7 @@ const CustomBreadcrumb: React.FC = () => {
 
 
   const currentPath = activeKey || location.pathname;
-  const labels = findBreadcrumbPath(currentPath, menuNodes);
+  const labels = findBreadcrumbPath(currentPath, MENU_NODES);
   const items = labels.map(e => ({ title: e }));
 
 

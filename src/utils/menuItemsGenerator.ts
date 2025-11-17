@@ -9,7 +9,7 @@ import type { MenuItemForDisplay } from '@/types/MenuItemForDisplay';
 // 選單項目介面（用於側邊選單顯示）
 
 
-export const menuNodes: MenuItemForDisplay[] = [
+export const MENU_NODES: MenuItemForDisplay[] = [
   {
     key: RESOURCES.DASHBOARD,
     label: 'Dashboard',
@@ -226,7 +226,7 @@ export function generateMenuFromPermissions(permissions: Permission[]): MenuItem
     }, []);
   }
 
-  return filterMenu(menuNodes);
+  return filterMenu(MENU_NODES);
 }
 
 // 依據 permission 查出對應的路由資訊
