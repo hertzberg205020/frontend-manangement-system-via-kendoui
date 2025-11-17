@@ -1081,3 +1081,172 @@ export function createRole(data: CreateRoleRequest): Promise<ApiResponse<RoleDto
 export function getRoleById(id: number): Promise<ApiResponse<RoleDto>> {
   return get<RoleDto>(`/api/auth/roles/${id}`);
 }
+
+/**
+ * Request payload for replacing role permissions
+ * @interface ReplaceRolePermissionsRequest
+ * @since 1.0.0
+ */
+export interface ReplaceRolePermissionsRequest {
+  /** Array of permission IDs to assign to the role (replaces all existing permissions) */
+  permissionIds: number[];
+}
+
+/**
+ * Response data after successfully replacing role permissions
+ * @interface RolePermissionsDto
+ * @since 1.0.0
+ */
+export interface RolePermissionsDto {
+  /** Role ID */
+  roleId: number;
+  /** Array of permission IDs currently assigned to the role */
+  permissionIds: number[];
+}
+
+/**
+ * Replace all permissions assigned to a role (full replacement)
+ *
+ * This endpoint completely replaces the role's permission collection with the provided
+ * permission IDs. It removes all existing permissions and assigns the new set in a single
+ * atomic operation.
+ *
+ * Behavior Details:
+ * - Removes all existing permissions from the role
+ * - Assigns the new set of permissions provided in the request
+ * - If permissionIds is an empty array, removes all permissions from the role
+ * - Duplicate permissionIds are automatically deduplicated
+ * - Operation is executed within a single transaction to ensure data consistency
+ * - All permission IDs must correspond to valid, active, and non-deprecated permissions
+ *
+ * Validation Rules:
+ * - id: Required, must be a valid role ID (positive integer > 0)
+ * - permissionIds: Required, can be an empty array to clear all permissions
+ * - Each permissionId must correspond to an existing, active, and non-deprecated permission
+ *
+ * Use Cases:
+ * - Changing role access levels by replacing the entire permission set
+ * - Bulk permission updates in role management interfaces
+ * - Resetting role permissions by clearing all permissions (empty array)
+ * - Configuring permissions for newly created roles
+ *
+ * Request Body:
+ * ```json
+ * {
+ *   "permissionIds": [1, 2, 3, 5, 8]
+ * }
+ * ```
+ *
+ * @param id - Role ID whose permissions will be replaced. Must be a positive integer (>= 1).
+ * @param data - The permission replacement request containing an array of permission IDs
+ * @returns Promise resolving to ApiResponse containing RolePermissionsDto data
+ * @throws {HttpError} 400 - Validation failed or invalid permission ID provided
+ * @throws {HttpError} 401 - Unauthorized (authentication required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions to update role permissions)
+ * @throws {HttpError} 404 - Role not found (the specified role ID doesn't exist)
+ * @throws {HttpError} 500 - Internal server error occurred while replacing permissions
+ *
+ * @example
+ * ```typescript
+ * // Replace role permissions with new set
+ * try {
+ *   const response = await replaceRolePermissions(1, {
+ *     permissionIds: [1, 2, 3, 5, 8]
+ *   });
+ *   console.log('Permissions updated:', response.data);
+ *   console.log('Role ID:', response.data.roleId);
+ *   console.log('New permissions:', response.data.permissionIds);
+ * } catch (error) {
+ *   if (error.code === 404) {
+ *     console.error('Role not found');
+ *   } else if (error.code === 400) {
+ *     console.error('Invalid permission ID provided');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Remove all permissions from a role
+ * try {
+ *   const response = await replaceRolePermissions(2, {
+ *     permissionIds: []
+ *   });
+ *   console.log('All permissions removed for role:', response.data.roleId);
+ * } catch (error) {
+ *   console.error('Failed to remove permissions:', error);
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with Ant Design Tree
+ * const handlePermissionUpdate = async (roleId: number, selectedPermissions: number[]) => {
+ *   try {
+ *     const response = await replaceRolePermissions(roleId, {
+ *       permissionIds: selectedPermissions
+ *     });
+ *     message.success('角色權限更新成功');
+ *     setRolePermissions(response.data.permissionIds);
+ *   } catch (error) {
+ *     if (error.code === 404) {
+ *       message.error('角色不存在');
+ *     } else if (error.code === 403) {
+ *       message.error('無權限更新角色權限');
+ *     } else if (error.code === 400) {
+ *       message.error('無效的權限 ID');
+ *     } else {
+ *       message.error('更新失敗');
+ *     }
+ *   }
+ * };
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Configure permissions for a newly created role
+ * const setupNewRole = async () => {
+ *   try {
+ *     // First, create the role
+ *     const createResponse = await createRole({
+ *       name: 'Content Editor',
+ *       description: 'Can create and edit content'
+ *     });
+ *
+ *     // Then assign permissions to it
+ *     const permissionsResponse = await replaceRolePermissions(createResponse.data.id, {
+ *       permissionIds: [10, 11, 12] // Content-related permissions
+ *     });
+ *
+ *     message.success(`角色 "${createResponse.data.name}" 建立並配置成功`);
+ *     console.log('Role with permissions:', permissionsResponse.data);
+ *   } catch (error) {
+ *     message.error('角色設定失敗');
+ *   }
+ * };
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link ReplaceRolePermissionsRequest} for the request body structure
+ * @see {@link RolePermissionsDto} for the response data structure
+ * @see {@link createRole} for creating new roles
+ * @see {@link getPermissionsHierarchy} for retrieving available permissions
+ * @remarks
+ * Authorization: Requires a valid JWT token with role permission management capabilities.
+ * This operation is typically restricted to administrators due to its sensitive nature.
+ * Include the token in the Authorization header: Bearer {token}
+ *
+ * Note: This is a full replacement operation, not an incremental update. All existing
+ * permissions will be removed and replaced with the new set. If you need to add or remove
+ * specific permissions while keeping others, fetch the current permissions first using
+ * {@link getRoleById}, modify the array, and then call this endpoint with the updated array.
+ */
+export function replaceRolePermissions(
+  id: number,
+  data: ReplaceRolePermissionsRequest
+): Promise<ApiResponse<RolePermissionsDto>> {
+  return put<RolePermissionsDto, ReplaceRolePermissionsRequest>(
+    `/api/auth/roles/${id}/permissions`,
+    data
+  );
+}
