@@ -11,6 +11,7 @@ import {
   getRoles,
   createRole as createRoleApi,
   updateRole as updateRoleApi,
+  deleteRole as deleteRoleApi,
   replaceRolePermissions,
   type UserResponse,
   type RoleDto,
@@ -167,14 +168,23 @@ export const useAuthorizationData = () => {
     }
   };
 
-  const deleteRole = async (_id: number): Promise<void> => {
+  const deleteRole = async (id: number): Promise<void> => {
     try {
-      // Note: The API doesn't have a delete role endpoint
-      message.warning('角色刪除功能尚未實作');
+      await deleteRoleApi(id);
+      message.success(MESSAGES.ROLE_DELETED);
       await fetchRoles();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete role:', error);
-      message.error('刪除角色失敗');
+      // 處理 HTTP 409 衝突：角色已分配給使用者
+      if (error?.code === 409 || error?.response?.status === 409) {
+        message.error('無法刪除角色，該角色已分配給一或多位使用者');
+      } else if (error?.code === 404 || error?.response?.status === 404) {
+        message.error('角色不存在');
+      } else if (error?.code === 403 || error?.response?.status === 403) {
+        message.error('無權限刪除角色');
+      } else {
+        message.error('刪除角色失敗');
+      }
     }
   };
 
