@@ -341,3 +341,72 @@ export interface CreateUserResponse {
 export function createUser(data: CreateUserRequest): Promise<ApiResponse<CreateUserResponse>> {
   return post<CreateUserResponse, CreateUserRequest>('/api/auth/users', data);
 }
+
+/**
+ * Retrieve a single user by employee ID
+ *
+ * Fetches detailed information about a specific user using their employee ID.
+ * This endpoint returns user information including their assigned role IDs and account status.
+ *
+ * Employee ID Format:
+ * - Must match the pattern: ^N\d{9}$ (e.g., N123456789)
+ * - The 'N' prefix is followed by exactly 9 digits
+ *
+ * Response includes:
+ * - Employee ID (empId)
+ * - User's full name
+ * - Active status (isActive)
+ * - List of assigned role IDs
+ * - Account creation timestamp
+ * - Last update timestamp
+ *
+ * @param empId - The employee ID to search for. Must match pattern ^N\d{9}$ (e.g., N123456789).
+ * @returns Promise resolving to ApiResponse containing UserResponse data
+ * @throws {HttpError} 401 - Unauthorized (valid JWT token is required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions to access this resource)
+ * @throws {HttpError} 404 - User not found (the specified employee ID doesn't exist)
+ *
+ * @example
+ * ```typescript
+ * // Fetch a specific user by empId
+ * try {
+ *   const response = await getUserByEmpId('N123456789');
+ *   console.log('User details:', response.data);
+ *   console.log('User name:', response.data.name);
+ *   console.log('Is active:', response.data.isActive);
+ *   console.log('Roles:', response.data.roleIds);
+ * } catch (error) {
+ *   if (error.code === 404) {
+ *     console.error('User not found');
+ *   } else if (error.code === 403) {
+ *     console.error('Access denied - insufficient permissions');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with error handling
+ * const fetchUserDetails = async (empId: string) => {
+ *   try {
+ *     const response = await getUserByEmpId(empId);
+ *     setUser(response.data);
+ *   } catch (error) {
+ *     if (error.code === 404) {
+ *       message.error('使用者不存在');
+ *     } else {
+ *       message.error('獲取使用者資訊失敗');
+ *     }
+ *   }
+ * };
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link UserResponse} for the response data structure
+ * @remarks
+ * Authorization: Requires a valid JWT token with 'users.list.read' permission.
+ * Include the token in the Authorization header: Bearer {token}
+ */
+export function getUserByEmpId(empId: string): Promise<ApiResponse<UserResponse>> {
+  return get<UserResponse>(`/api/auth/users/${empId}`);
+}
