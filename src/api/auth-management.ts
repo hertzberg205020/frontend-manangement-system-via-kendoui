@@ -51,12 +51,12 @@ export interface PermissionTreeNode {
  * - Tree display in permission configuration interfaces
  * - UI components requiring hierarchical permission display
  *
- * @returns Promise resolving to ApiResponse containing array of PermissionTreeNode
+ * @returns Promise resolving to ApiResponse containing an array of PermissionTreeNode
  * @throws {HttpError} 401 - Unauthorized (authentication required - missing or invalid JWT token)
  * @throws {HttpError} 500 - Internal server error
  *
  * @example
- * ```typescript
+ * ```typeScript
  * // Fetch permission hierarchy for role management UI
  * try {
  *   const response = await getPermissionsHierarchy();
@@ -97,7 +97,7 @@ export interface PermissionTreeNode {
  * @since 1.0.0
  * @see {@link PermissionTreeNode} for the tree node structure
  * @remarks
- * Authorization: Requires valid JWT token. Recommended to restrict access to
+ * Authorization: Requires a valid JWT token. Recommended to restrict access to
  * administrators or users with permission management capabilities.
  */
 export function getPermissionsHierarchy(): Promise<ApiResponse<PermissionTreeNode[]>> {
@@ -127,7 +127,7 @@ export interface UserDto {
 
 /**
  * Query parameters for retrieving users with pagination and filtering
- * @interface GetUsersParams
+ * @interface UserQuery
  * @since 1.0.0
  */
 export interface UserQuery {
@@ -135,7 +135,7 @@ export interface UserQuery {
   page?: number;
   /** Number of items per page (range: 1-100). Default is 10. */
   pageSize?: number;
-  /** Optional fuzzy search filter by user name (case-insensitive) */
+  /** Optional fuzzy search filter by a username (case-insensitive) */
   name?: string;
   /** Optional fuzzy search filter by employee ID (case-insensitive) */
   empId?: string;
@@ -153,7 +153,7 @@ export interface UserQuery {
  * Query Parameters:
  * - page: Page number (default: 1, minimum: 1)
  * - pageSize: Items per page (default: 10, range: 1-100)
- * - name: Optional fuzzy search by user name (case-insensitive, partial match)
+ * - name: Optional fuzzy search by username (case-insensitive, partial match)
  * - empId: Optional fuzzy search by employee ID (case-insensitive, partial match)
  * - isActive: Optional filter by user active status (true/false)
  *
@@ -221,7 +221,7 @@ export interface UserQuery {
  * @see {@link PagedData} for the paginated response structure
  * @see {@link UserQuery} for query parameter details
  * @remarks
- * Authorization: Requires valid JWT token with 'users.list.read' permission.
+ * Authorization: Requires a valid JWT token with 'users.list.read' permission.
  * Include the token in the Authorization header: Bearer {token}
  */
 export function getUsers(params?: UserQuery): Promise<ApiResponse<PagedData<UserDto>>> {
@@ -335,7 +335,7 @@ export interface CreateUserResponse {
  * @see {@link CreateUserRequest} for the request body structure
  * @see {@link CreateUserResponse} for the response data structure
  * @remarks
- * Authorization: Requires valid JWT token with user creation permissions.
+ * Authorization: Requires a valid JWT token with user creation permissions.
  * Include the token in the Authorization header: Bearer {token}
  */
 export function createUser(data: CreateUserRequest): Promise<ApiResponse<CreateUserResponse>> {
