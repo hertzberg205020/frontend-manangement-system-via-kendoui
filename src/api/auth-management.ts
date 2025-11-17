@@ -1250,3 +1250,157 @@ export function replaceRolePermissions(
     data
   );
 }
+
+/**
+ * Permission data transfer object representing a permission in the system
+ * @interface PermissionDto
+ * @since 1.0.0
+ */
+export interface PermissionDto {
+  /** Unique permission identifier */
+  id: number;
+  /** Associated resource identifier */
+  resourceId: number;
+  /** Action type (read, create, edit, delete) */
+  action: string;
+  /** Permission code in format {resource_code}.{action} (e.g., users.list.read) */
+  code: string;
+  /** Human-readable description of the permission */
+  description?: string;
+}
+
+/**
+ * Retrieve all active and valid permissions in the system
+ *
+ * Returns a complete list of all active permissions that are not deprecated. Each permission
+ * includes its ID, resource ID, action type, permission code, and description. This endpoint
+ * is useful for permission management pages, role assignment interfaces, and displaying
+ * available permissions to administrators.
+ *
+ * Response Structure:
+ * - Success: Array of PermissionDto objects sorted by resource code and action type
+ * - Each permission includes:
+ *   * id: Permission's unique identifier
+ *   * resourceId: ID of the resource this permission applies to
+ *   * action: Action type (read, create, edit, delete)
+ *   * code: Permission code in format {resource_code}.{action}
+ *   * description: Human-readable description of what the permission allows
+ *
+ * Permission Code Format:
+ * - Composed of resource code and action, separated by dots
+ * - Examples: users.list.read, roles.create.create, equipment.read
+ * - Format: {resource_code}.{action} or {resource_code}.{sub_resource}.{action}
+ *
+ * Use Cases:
+ * - Permission management interfaces
+ * - Role permission assignment forms
+ * - Displaying available permissions for selection
+ * - Building permission-based access control UIs
+ * - Audit logs showing what permissions exist in the system
+ *
+ * @returns Promise resolving to ApiResponse containing an array of PermissionDto objects
+ * @throws {HttpError} 401 - Unauthorized (valid JWT token is required)
+ * @throws {HttpError} 403 - Forbidden (token is valid but lacks sufficient permissions)
+ * @throws {HttpError} 500 - Internal server error occurred while retrieving permissions
+ *
+ * @example
+ * ```typescript
+ * // Fetch all permissions for a permission management page
+ * try {
+ *   const response = await getPermissions();
+ *   console.log('Total permissions:', response.data.length);
+ *   response.data.forEach(permission => {
+ *     console.log(`${permission.code}: ${permission.description}`);
+ *   });
+ *
+ *   // Example response structure:
+ *   // [
+ *   //   {
+ *   //     id: 1,
+ *   //     resourceId: 1,
+ *   //     action: "read",
+ *   //     code: "users.list.read",
+ *   //     description: "讀取使用者列表"
+ *   //   },
+ *   //   {
+ *   //     id: 2,
+ *   //     resourceId: 1,
+ *   //     action: "create",
+ *   //     code: "users.create.create",
+ *   //     description: "建立新使用者"
+ *   //   }
+ *   // ]
+ * } catch (error) {
+ *   if (error.code === 401) {
+ *     console.error('Authentication required');
+ *   } else if (error.code === 403) {
+ *     console.error('Insufficient permissions');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with Ant Design Checkbox Group
+ * const [permissions, setPermissions] = useState<PermissionDto[]>([]);
+ *
+ * useEffect(() => {
+ *   const fetchPermissions = async () => {
+ *     try {
+ *       const response = await getPermissions();
+ *       setPermissions(response.data);
+ *     } catch (error) {
+ *       if (error.code === 401) {
+ *         message.error('請先登入');
+ *       } else if (error.code === 403) {
+ *         message.error('無權限查看權限列表');
+ *       } else {
+ *         message.error('獲取權限列表失敗');
+ *       }
+ *     }
+ *   };
+ *   fetchPermissions();
+ * }, []);
+ *
+ * // Render permission list
+ * return (
+ *   <Checkbox.Group>
+ *     {permissions.map(permission => (
+ *       <Checkbox key={permission.id} value={permission.id}>
+ *         {permission.code} - {permission.description}
+ *       </Checkbox>
+ *     ))}
+ *   </Checkbox.Group>
+ * );
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Group permissions by resource for better UI organization
+ * try {
+ *   const response = await getPermissions();
+ *   const groupedPermissions = response.data.reduce((acc, permission) => {
+ *     const resourceCode = permission.code.split('.')[0];
+ *     if (!acc[resourceCode]) {
+ *       acc[resourceCode] = [];
+ *     }
+ *     acc[resourceCode].push(permission);
+ *     return acc;
+ *   }, {} as Record<string, PermissionDto[]>);
+ *
+ *   console.log('Permissions grouped by resource:', groupedPermissions);
+ * } catch (error) {
+ *   message.error('載入權限資料失敗');
+ * }
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link PermissionDto} for the permission data structure
+ * @remarks
+ * Authorization: Requires a valid JWT token. This endpoint only requires authentication
+ * and does not need specific permissions - all logged-in users can query the permission list.
+ * Include the token in the Authorization header: Bearer {token}
+ */
+export function getPermissions(): Promise<ApiResponse<PermissionDto[]>> {
+  return get<PermissionDto[]>('/api/auth/permissions');
+}
