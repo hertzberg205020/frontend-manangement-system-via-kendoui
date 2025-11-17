@@ -189,7 +189,7 @@ export const MENU_NODES: MenuItemForDisplay[] = [
  * @returns 選單項目陣列
  */
 export function generateMenuFromPermissions(permissions: Permission[]): MenuItemForDisplay[] {
-  // 遞迴處理 menuNodes，過濾沒有權限的選單
+  // 遞迴處理 MENU_NODES，過濾沒有權限的選單
   function filterMenu(menuList: MenuItemForDisplay[]): MenuItemForDisplay[] {
     // 如果沒有傳入選單，直接返回空陣列
     if (!menuList || !Array.isArray(menuList) || menuList.length === 0) {
@@ -197,29 +197,31 @@ export function generateMenuFromPermissions(permissions: Permission[]): MenuItem
     }
 
     return menuList.reduce<MenuItemForDisplay[]>((acc, item) => {
-
-
-      // 判斷這個選單項目是否有權限
-      const hasMenuPermission =
-        item.requiredPermissions.length === 0 || // 無權限要求的都顯示
-        item.requiredPermissions.some(p => permissions.includes(p));
-
-      // 處理子選單
+      // 處理子選單（先遞迴過濾子選單）
       let children: MenuItemForDisplay[] = [];
 
       if (item.children) {
         children = filterMenu(item.children);
       }
 
+      // 判斷這個選單項目是否有權限
+      const hasMenuPermission =
+        item.requiredPermissions.length > 0 && // 有明確權限要求
+        item.requiredPermissions.some(p => permissions.includes(p));
+
       // 判斷要不要顯示這個節點
-      // 1. 有權限就顯示
-      // 2. 沒權限但有 children（children 被過濾後還剩的）也顯示
-      // 3. 其他情況（無權限且無可用子選單）不顯示
-      if (hasMenuPermission || (children.length > 0)) {
+      // 1. 如果有明確的權限要求且用戶有權限，顯示
+      // 2. 如果沒有權限要求（父節點）但有可訪問的子節點，顯示
+      // 3. 其他情況不顯示
+      const shouldShow =
+        hasMenuPermission || // 有權限
+        (item.requiredPermissions.length === 0 && children.length > 0); // 無權限要求的父節點，但有可用子選單
+
+      if (shouldShow) {
         acc.push({
           ...item,
           // 若有 children 才傳回
-          ...(children ? { children } : {})
+          ...(children.length > 0 ? { children } : {})
         });
       }
       return acc;
