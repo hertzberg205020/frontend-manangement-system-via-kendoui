@@ -12,6 +12,7 @@ interface UserManagementProps {
   onCreateUser: (values: UserFormValues) => Promise<void>;
   onUpdateUser: (empId: string, values: UserFormValues) => Promise<void>;
   onDeleteUser: (empId: string) => Promise<void>;
+  onRestoreUser: (empId: string) => Promise<void>;
   onAssignRole: (user: User, roleIds: number[]) => Promise<void>;
   loading?: boolean;
 }
@@ -22,6 +23,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
   onCreateUser,
   onUpdateUser,
   onDeleteUser,
+  onRestoreUser,
   onAssignRole,
   loading = false,
 }) => {
@@ -72,6 +74,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
     onAdd: handleAdd,
     onEdit: handleEdit,
     onDelete: onDeleteUser,
+    onRestore: onRestoreUser,
     onAssignRole: handleAssignRole,
   };
 

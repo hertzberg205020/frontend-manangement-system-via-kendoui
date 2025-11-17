@@ -7,6 +7,7 @@ import {
   createUser as createUserApi,
   updateUser as updateUserApi,
   deleteUser as deleteUserApi,
+  restoreUser as restoreUserApi,
   replaceUserRoles,
   getRoles,
   createRole as createRoleApi,
@@ -126,6 +127,17 @@ export const useAuthorizationData = () => {
     }
   };
 
+  const restoreUser = async (empId: string): Promise<void> => {
+    try {
+      await restoreUserApi(empId);
+      message.success(MESSAGES.USER_RESTORED);
+      await fetchUsers();
+    } catch (error) {
+      console.error('Failed to restore user:', error);
+      message.error('恢復使用者失敗');
+    }
+  };
+
   const assignRole = async (user: User, roleIds: number[]): Promise<void> => {
     try {
       await replaceUserRoles(user.empId, { roleIds });
@@ -216,6 +228,7 @@ export const useAuthorizationData = () => {
     createUser,
     updateUser,
     deleteUser,
+    restoreUser,
     assignRole,
     // 角色操作
     createRole,

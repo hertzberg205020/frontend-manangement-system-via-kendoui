@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Button, Space, Badge, Tag, Popconfirm } from 'antd';
-import { EditOutlined, DeleteOutlined, KeyOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, KeyOutlined, UndoOutlined } from '@ant-design/icons';
 import type { User, UserActions, Role } from '../../types';
 import { TABLE_PAGINATION_CONFIG, MESSAGES } from '../../constants';
 
@@ -73,7 +73,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = 
     {
       title: '操作',
       key: 'action',
-      width: 150,
+      width: 180,
       render: (_: unknown, record: User) => (
         <Space>
           <Button
@@ -90,14 +90,25 @@ const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = 
           >
             分配角色
           </Button>
-          <Popconfirm
-            title={MESSAGES.DELETE_USER_CONFIRM}
-            onConfirm={() => actions.onDelete(record.empId)}
-          >
-            <Button type="text" danger icon={<DeleteOutlined />}>
-              停權
-            </Button>
-          </Popconfirm>
+          {record.isActive ? (
+            <Popconfirm
+              title={MESSAGES.DELETE_USER_CONFIRM}
+              onConfirm={() => actions.onDelete(record.empId)}
+            >
+              <Button type="text" danger icon={<DeleteOutlined />}>
+                停權
+              </Button>
+            </Popconfirm>
+          ) : (
+            <Popconfirm
+              title={MESSAGES.RESTORE_USER_CONFIRM}
+              onConfirm={() => actions.onRestore(record.empId)}
+            >
+              <Button type="text" icon={<UndoOutlined />}>
+                恢復
+              </Button>
+            </Popconfirm>
+          )}
         </Space>
       ),
     },

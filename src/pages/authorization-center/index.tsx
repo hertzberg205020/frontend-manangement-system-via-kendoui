@@ -22,6 +22,7 @@ const AuthorizationCenter: React.FC = () => {
     createUser,
     updateUser,
     deleteUser,
+    restoreUser,
     assignRole,
     // 角色操作
     createRole,
@@ -46,6 +47,7 @@ const AuthorizationCenter: React.FC = () => {
           onCreateUser={createUser}
           onUpdateUser={updateUser}
           onDeleteUser={deleteUser}
+          onRestoreUser={restoreUser}
           onAssignRole={assignRole}
           loading={loading}
         />

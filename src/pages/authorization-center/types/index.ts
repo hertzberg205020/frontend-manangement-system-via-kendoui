@@ -45,6 +45,7 @@ export interface UserActions {
   onAdd: () => void;
   onEdit: (user: User) => void;
   onDelete: (empId: string) => void;
+  onRestore: (empId: string) => void;
   onAssignRole: (user: User) => void;
 }
 
