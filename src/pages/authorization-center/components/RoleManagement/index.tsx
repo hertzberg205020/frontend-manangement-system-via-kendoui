@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Modal, Tree, Spin } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import type { DataNode } from 'antd/es/tree';
 import type { Role, RoleFormValues } from '../../types';
 import RoleTable from './RoleTable';
 import RoleModal from './RoleModal';
@@ -116,7 +117,7 @@ const RoleManagement: React.FC<RoleManagementProps> = ({
   };
 
   // Convert PermissionTreeNode to Ant Design Tree data format
-  const convertToTreeData = (nodes: PermissionTreeNode[]): any[] => {
+  const convertToTreeData = (nodes: PermissionTreeNode[]): DataNode[] => {
     return nodes.map(node => ({
       title: node.title,
       key: node.isLeaf && node.permissionId ? `permission-${node.permissionId}` : node.key,
