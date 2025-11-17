@@ -85,17 +85,7 @@ const AuthorizationCenter: React.FC = () => {
           onPermissionConfig={handlePermissionConfig}
         />
       ),
-    },
-    {
-      key: 'permissions',
-      label: (
-        <span>
-          <SettingOutlined />
-          權限總覽
-        </span>
-      ),
-      children: <PermissionOverview resources={resources} permissions={permissions} />,
-    },
+    }
   ];
 
   return (
