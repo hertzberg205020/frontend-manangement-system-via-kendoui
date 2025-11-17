@@ -48,6 +48,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = 
       title: '角色名稱',
       dataIndex: 'roleIds',
       key: 'roleIds',
+      width: 280,
       render: (roleIds: number[]) => (
         <>
           {roleIds.length > 0 ? (
@@ -66,13 +67,13 @@ const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = 
       title: '建立時間',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: 180,
+      width: 150,
       render: (text: string) => new Date(text).toLocaleString('zh-TW'),
     },
     {
       title: '操作',
       key: 'action',
-      width: 180,
+      width: 150,
       render: (_: unknown, record: User) => (
         <Space>
           <Button
@@ -94,7 +95,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = 
             onConfirm={() => actions.onDelete(record.empId)}
           >
             <Button type="text" danger icon={<DeleteOutlined />}>
-              刪除
+              停權
             </Button>
           </Popconfirm>
         </Space>
