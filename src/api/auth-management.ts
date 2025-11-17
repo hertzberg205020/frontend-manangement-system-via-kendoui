@@ -106,10 +106,10 @@ export function getPermissionsHierarchy(): Promise<ApiResponse<PermissionTreeNod
 
 /**
  * User data transfer object representing a user in the system
- * @interface UserDto
+ * @interface UserResponse
  * @since 1.0.0
  */
-export interface UserDto {
+export interface UserResponse {
   /** Employee ID (format: N + 9 digits, e.g., N123456789) */
   empId: string;
   /** User's full name */
@@ -217,15 +217,15 @@ export interface UserQuery {
  * ```
  *
  * @since 1.0.0
- * @see {@link UserDto} for the user data structure
+ * @see {@link UserResponse} for the user data structure
  * @see {@link PagedData} for the paginated response structure
  * @see {@link UserQuery} for query parameter details
  * @remarks
  * Authorization: Requires a valid JWT token with 'users.list.read' permission.
  * Include the token in the Authorization header: Bearer {token}
  */
-export function getUsers(params?: UserQuery): Promise<ApiResponse<PagedData<UserDto>>> {
-  return get<PagedData<UserDto>>('/api/auth/users', params as Record<string, unknown>);
+export function getUsers(params?: UserQuery): Promise<ApiResponse<PagedData<UserResponse>>> {
+  return get<PagedData<UserResponse>>('/api/auth/users', params as Record<string, unknown>);
 }
 
 /**
