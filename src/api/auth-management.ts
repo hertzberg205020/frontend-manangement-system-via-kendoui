@@ -5,7 +5,7 @@
  */
 
 import type { PagedData } from '@/types/PagedData';
-import { get, post, put } from '@/utils/http/request';
+import { del, get, post, put } from '@/utils/http/request';
 import type { ApiResponse } from '@/utils/http/request';
 
 
@@ -529,4 +529,39 @@ export function updateUser(
   data: UpdateUserRequest
 ): Promise<ApiResponse<UserResponse>> {
   return put<UserResponse, UpdateUserRequest>(`/api/auth/users/${empId}`, data);
+}
+
+/**
+ * Soft delete (deactivate) a user by employee ID
+ *
+ * Performs a soft delete operation by setting the user's isActive flag to false. This preserves
+ * the user's historical data and role assignments for auditability while preventing future logins.
+ *
+ * Behavior Details:
+ * - Only administrators or users with delete permissions can perform this action
+ * - The user remains in the database, allowing potential reactivation via {@link updateUser}
+ * - Roles remain associated but effectively inactive due to the user's disabled state
+ *
+ * @param empId - Employee ID of the user to deactivate (format: ^N\d{9}$)
+ * @returns Promise resolving to ApiResponse with null data on success
+ * @throws {HttpError} 400 - Invalid empId format or validation failure
+ * @throws {HttpError} 401 - Unauthorized (missing or invalid JWT)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions)
+ * @throws {HttpError} 404 - User not found
+ * @throws {HttpError} 500 - Internal server error during deletion
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await deleteUser('N123456789');
+ *   message.success('使用者已停用');
+ * } catch (error) {
+ *   message.error(error.message);
+ * }
+ * ```
+ *
+ * @since 1.0.0
+ */
+export function deleteUser(empId: string): Promise<ApiResponse<string>> {
+  return del<string>(`/api/auth/users/${empId}`);
 }
