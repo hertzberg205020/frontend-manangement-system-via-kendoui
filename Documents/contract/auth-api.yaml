@@ -747,6 +747,304 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /api/auth/roles/{id}:
+    delete:
+      tags:
+        - Auth
+      summary: 刪除指定 ID 的角色
+      description: "刪除系統中的指定角色。刪除前會進行以下檢查：\r\n- 角色是否存在\r\n- 角色是否有任何使用者關聯（如有關聯則無法刪除）\r\n            \r\n刪除操作會同時移除角色的所有權限關聯。\r\n            \r\nPath Parameters:\r\n- id: 必填，角色 ID（必須大於 0）\r\n            \r\nSample request:\r\n            \r\n    DELETE /api/auth/roles/5\r\n            \r\nSample success response (204):\r\n            \r\n    No content (HTTP 204 No Content)\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - Role not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 409 - Role is in use\r\n    {\r\n        \"code\": 409,\r\n        \"message\": \"Cannot delete role because it is assigned to one or more users\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備管理員權限"
+      parameters:
+        - name: id
+          in: path
+          description: 角色 ID，必須大於 0
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: 刪除成功
+        '400':
+          description: 請求驗證失敗（ID 無效）
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: 未授權
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: 角色不存在
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '409':
+          description: 角色仍有使用者關聯，無法刪除
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: 伺服器內部錯誤
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    get:
+      tags:
+        - Auth
+      summary: 取得單一角色
+      description: "根據角色 ID 取得指定角色的詳細資訊。此端點回傳單一角色的完整資訊,\r\n包括角色 ID、名稱、描述、建立/更新時間,以及該角色擁有的權限 ID 列表。\r\n            \r\n使用情境:\r\n- 查看角色的詳細資訊\r\n- 編輯角色前取得現有資料\r\n- 權限管理頁面顯示角色資訊\r\n            \r\n路徑參數:\r\n- id: 必填,角色 ID(正整數,minimum: 1)\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/roles/1\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"id\": 1,\r\n            \"name\": \"admin\",\r\n            \"description\": \"系統管理員\",\r\n            \"permissionIds\": [1, 2, 3, 5, 8, 10],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - Role not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\nInclude the token in the Authorization header: Bearer {token}"
+      operationId: GetRoleById
+      parameters:
+        - name: id
+          in: path
+          description: 角色 ID(必須大於 0)
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功取得角色資訊
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+        '401':
+          description: 未授權
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: 角色不存在
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+    put:
+      tags:
+        - Auth
+      summary: 更新角色資訊
+      description: "更新指定角色的名稱和描述。此端點不支援更新角色權限,\r\n角色權限的更新應使用專用的權限管理端點 (PUT /api/auth/roles/{id}/permissions)。\r\n            \r\n可更新的欄位:\r\n- name: 角色名稱（1-100 字元）\r\n- description: 角色描述（可選，最大 512 字元）\r\n            \r\n不可更新的欄位:\r\n- id: 角色 ID（作為識別鍵，無法變更）\r\n- permissionIds: 角色權限（需使用專用的權限管理端點）\r\n            \r\n路徑參數:\r\n- id: 必填，角色 ID（正整數，minimum: 1）\r\n            \r\n驗證規則:\r\n- name: 必填，長度 1-100 字元，系統內唯一（不區分大小寫）\r\n- description: 可選，最大長度 512 字元\r\n            \r\nSample request:\r\n            \r\n    PUT /api/auth/roles/1\r\n    {\r\n        \"name\": \"Super Admin\",\r\n        \"description\": \"系統超級管理員，擁有所有權限\"\r\n    }\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"id\": 1,\r\n            \"name\": \"Super Admin\",\r\n            \"description\": \"系統超級管理員，擁有所有權限\",\r\n            \"permissionIds\": [1, 2, 3, 5, 8, 10],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-16T14:25:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - Role not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 409 - Role name already exists\r\n    {\r\n        \"code\": 409,\r\n        \"message\": \"Role name already exists\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備管理員角色（admin role）"
+      parameters:
+        - name: id
+          in: path
+          description: 角色 ID（必須大於 0）
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: 更新角色請求資料
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleRequest'
+      responses:
+        '200':
+          description: 更新成功，回傳角色資訊
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/RoleDtoApiResponse'
+        '400':
+          description: 請求驗證失敗
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: 未授權
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: 無權限
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: 角色不存在
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '409':
+          description: 角色名稱重複
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: 伺服器內部錯誤
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/auth/users/{empId}/roles:
     put:
       tags:
@@ -993,204 +1291,6 @@ paths:
                 $ref: '#/components/schemas/ObjectApiResponse'
         '500':
           description: Internal Server Error
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        default:
-          description: Error
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-  /api/auth/roles/{id}:
-    get:
-      tags:
-        - Auth
-      summary: 取得單一角色
-      description: "根據角色 ID 取得指定角色的詳細資訊。此端點回傳單一角色的完整資訊,\r\n包括角色 ID、名稱、描述、建立/更新時間,以及該角色擁有的權限 ID 列表。\r\n            \r\n使用情境:\r\n- 查看角色的詳細資訊\r\n- 編輯角色前取得現有資料\r\n- 權限管理頁面顯示角色資訊\r\n            \r\n路徑參數:\r\n- id: 必填,角色 ID(正整數,minimum: 1)\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/roles/1\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"id\": 1,\r\n            \"name\": \"admin\",\r\n            \"description\": \"系統管理員\",\r\n            \"permissionIds\": [1, 2, 3, 5, 8, 10],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - Role not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\nInclude the token in the Authorization header: Bearer {token}"
-      operationId: GetRoleById
-      parameters:
-        - name: id
-          in: path
-          description: 角色 ID(必須大於 0)
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: 成功取得角色資訊
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/RoleDtoApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RoleDtoApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/RoleDtoApiResponse'
-        '401':
-          description: 未授權
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '403':
-          description: 無權限
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '404':
-          description: 角色不存在
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '500':
-          description: Internal Server Error
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-    put:
-      tags:
-        - Auth
-      summary: 更新角色資訊
-      description: "更新指定角色的名稱和描述。此端點不支援更新角色權限,\r\n角色權限的更新應使用專用的權限管理端點 (PUT /api/auth/roles/{id}/permissions)。\r\n            \r\n可更新的欄位:\r\n- name: 角色名稱（1-100 字元）\r\n- description: 角色描述（可選，最大 512 字元）\r\n            \r\n不可更新的欄位:\r\n- id: 角色 ID（作為識別鍵，無法變更）\r\n- permissionIds: 角色權限（需使用專用的權限管理端點）\r\n            \r\n路徑參數:\r\n- id: 必填，角色 ID（正整數，minimum: 1）\r\n            \r\n驗證規則:\r\n- name: 必填，長度 1-100 字元，系統內唯一（不區分大小寫）\r\n- description: 可選，最大長度 512 字元\r\n            \r\nSample request:\r\n            \r\n    PUT /api/auth/roles/1\r\n    {\r\n        \"name\": \"Super Admin\",\r\n        \"description\": \"系統超級管理員，擁有所有權限\"\r\n    }\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"id\": 1,\r\n            \"name\": \"Super Admin\",\r\n            \"description\": \"系統超級管理員，擁有所有權限\",\r\n            \"permissionIds\": [1, 2, 3, 5, 8, 10],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-16T14:25:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - Role not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 409 - Role name already exists\r\n    {\r\n        \"code\": 409,\r\n        \"message\": \"Role name already exists\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備管理員角色（admin role）"
-      parameters:
-        - name: id
-          in: path
-          description: 角色 ID（必須大於 0）
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: 更新角色請求資料
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRoleRequest'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRoleRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/UpdateRoleRequest'
-      responses:
-        '200':
-          description: 更新成功，回傳角色資訊
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/RoleDtoApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RoleDtoApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/RoleDtoApiResponse'
-        '400':
-          description: 請求驗證失敗
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '401':
-          description: 未授權
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '403':
-          description: 無權限
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '404':
-          description: 角色不存在
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '409':
-          description: 角色名稱重複
-          content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-            text/json:
-              schema:
-                $ref: '#/components/schemas/ObjectApiResponse'
-        '500':
-          description: 伺服器內部錯誤
           content:
             text/plain:
               schema:
