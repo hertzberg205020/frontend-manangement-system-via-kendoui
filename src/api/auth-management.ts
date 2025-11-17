@@ -698,3 +698,155 @@ export function replaceUserRoles(
 ): Promise<ApiResponse<UserRolesDto>> {
   return put<UserRolesDto, ReplaceUserRolesRequest>(`/api/auth/users/${empId}/roles`, data);
 }
+
+/**
+ * Role data transfer object representing a role in the system
+ * @interface RoleDto
+ * @since 1.0.0
+ */
+export interface RoleDto {
+  /** Role ID (unique identifier) */
+  id: number;
+  /** Role name (unique, max 100 characters) */
+  name: string;
+  /** Optional description of the role (max 512 characters) */
+  description?: string;
+  /** Timestamp when the role was created (ISO 8601 format) */
+  createdAt: string;
+  /** Timestamp when the role was last updated (ISO 8601 format) */
+  updatedAt: string;
+  /** Array of permission IDs assigned to this role */
+  permissionIds: number[];
+}
+
+/**
+ * Retrieve all available roles with their assigned permissions
+ *
+ * Fetches a complete list of all roles in the system, including their associated permissions.
+ * This endpoint is designed for permission management pages and provides a comprehensive view
+ * of all roles and their permissions in a single request, avoiding N+1 query issues and
+ * improving performance.
+ *
+ * Key Features:
+ * - Returns all roles with their permission IDs in one request
+ * - Reduces the number of API calls needed for permission management UIs
+ * - Roles are sorted by creation time (newest first)
+ * - If no roles exist, returns an empty array
+ * - Each role object includes its complete permission ID list
+ *
+ * Response Structure:
+ * - Success: Array of RoleDto objects, each containing:
+ *   * id: Role's unique identifier
+ *   * name: Role name (e.g., "admin", "user")
+ *   * description: Optional role description
+ *   * permissionIds: Array of permission IDs assigned to the role
+ *   * createdAt: ISO 8601 timestamp of creation
+ *   * updatedAt: ISO 8601 timestamp of last update
+ *
+ * Use Cases:
+ * - Permission management interfaces
+ * - Role configuration pages
+ * - User role assignment forms
+ * - Role-based access control (RBAC) setup
+ *
+ * @returns Promise resolving to ApiResponse containing an array of RoleDto objects
+ * @throws {HttpError} 401 - Unauthorized (valid JWT token is required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions to access roles)
+ * @throws {HttpError} 500 - Internal server error occurred while retrieving roles
+ *
+ * @example
+ * ```typescript
+ * // Fetch all roles for a permission management page
+ * try {
+ *   const response = await getRoles();
+ *   console.log('Total roles:', response.data.length);
+ *   response.data.forEach(role => {
+ *     console.log(`${role.name}: ${role.permissionIds.length} permissions`);
+ *   });
+ *
+ *   // Example response:
+ *   // [
+ *   //   {
+ *   //     id: 1,
+ *   //     name: "admin",
+ *   //     description: "系統管理員",
+ *   //     permissionIds: [1, 2, 3, 5, 8, 10],
+ *   //     createdAt: "2024-01-15T10:30:00Z",
+ *   //     updatedAt: "2024-01-15T10:30:00Z"
+ *   //   },
+ *   //   {
+ *   //     id: 2,
+ *   //     name: "user",
+ *   //     description: "一般使用者",
+ *   //     permissionIds: [1, 2],
+ *   //     createdAt: "2024-01-16T11:45:00Z",
+ *   //     updatedAt: "2024-01-16T11:45:00Z"
+ *   //   }
+ *   // ]
+ * } catch (error) {
+ *   console.error('Failed to fetch roles:', error);
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with Ant Design Select
+ * const [roles, setRoles] = useState<RoleDto[]>([]);
+ *
+ * useEffect(() => {
+ *   const fetchRoles = async () => {
+ *     try {
+ *       const response = await getRoles();
+ *       setRoles(response.data);
+ *     } catch (error) {
+ *       if (error.code === 401) {
+ *         message.error('請先登入');
+ *       } else if (error.code === 403) {
+ *         message.error('無權限查看角色列表');
+ *       } else {
+ *         message.error('獲取角色列表失敗');
+ *       }
+ *     }
+ *   };
+ *   fetchRoles();
+ * }, []);
+ *
+ * // Render role selector
+ * return (
+ *   <Select placeholder="選擇角色">
+ *     {roles.map(role => (
+ *       <Select.Option key={role.id} value={role.id}>
+ *         {role.name} - {role.description}
+ *       </Select.Option>
+ *     ))}
+ *   </Select>
+ * );
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Display roles in a permission management table
+ * try {
+ *   const response = await getRoles();
+ *   const tableData = response.data.map(role => ({
+ *     key: role.id,
+ *     name: role.name,
+ *     description: role.description,
+ *     permissionCount: role.permissionIds.length,
+ *     createdAt: new Date(role.createdAt).toLocaleDateString(),
+ *   }));
+ *   setDataSource(tableData);
+ * } catch (error) {
+ *   message.error('載入角色資料失敗');
+ * }
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link RoleDto} for the role data structure
+ * @remarks
+ * Authorization: Requires a valid JWT token. Include the token in the
+ * Authorization header: Bearer {token}
+ */
+export function getRoles(): Promise<ApiResponse<RoleDto[]>> {
+  return get<RoleDto[]>('/api/auth/roles');
+}
