@@ -10,12 +10,14 @@ import {
   replaceUserRoles,
   getRoles,
   createRole as createRoleApi,
+  updateRole as updateRoleApi,
   replaceRolePermissions,
   type UserResponse,
   type RoleDto,
   type CreateUserRequest,
   type UpdateUserRequest,
   type CreateRoleRequest,
+  type UpdateRoleRequest,
 } from '@/api/auth-management';
 
 // Helper function to convert UserResponse to User
@@ -150,12 +152,14 @@ export const useAuthorizationData = () => {
     }
   };
 
-  const updateRole = async (_id: number, _values: RoleFormValues): Promise<void> => {
+  const updateRole = async (id: number, values: RoleFormValues): Promise<void> => {
     try {
-      // Note: The API doesn't have an update role endpoint for name/description
-      // We would need to fetch the role, then update it
-      // For now, we'll just refetch the roles
-      message.warning('角色更新功能尚未實作');
+      const updateData: UpdateRoleRequest = {
+        name: values.name,
+        description: values.description,
+      };
+      await updateRoleApi(id, updateData);
+      message.success(MESSAGES.ROLE_UPDATED);
       await fetchRoles();
     } catch (error) {
       console.error('Failed to update role:', error);
