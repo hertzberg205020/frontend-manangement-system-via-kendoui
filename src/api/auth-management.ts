@@ -966,3 +966,118 @@ export interface CreateRoleRequest {
 export function createRole(data: CreateRoleRequest): Promise<ApiResponse<RoleDto>> {
   return post<RoleDto, CreateRoleRequest>('/api/auth/roles', data);
 }
+
+/**
+ * Retrieve a single role by role ID
+ *
+ * Fetches detailed information about a specific role using its role ID.
+ * This endpoint returns complete role information including the role's assigned permission IDs,
+ * which is useful for role editing interfaces and permission management pages.
+ *
+ * Path Parameters:
+ * - id: Required, role ID (positive integer, minimum: 1)
+ *
+ * Response includes:
+ * - Role ID (id)
+ * - Role name (unique identifier)
+ * - Role description (optional)
+ * - List of assigned permission IDs
+ * - Account creation timestamp
+ * - Last update timestamp
+ *
+ * Use Cases:
+ * - Viewing detailed role information
+ * - Fetching existing data before editing a role
+ * - Displaying role information in permission management pages
+ * - Pre-populating role edit forms
+ *
+ * @param id - The role ID to search for. Must be a positive integer (>= 1).
+ * @returns Promise resolving to ApiResponse containing RoleDto data
+ * @throws {HttpError} 401 - Unauthorized (valid JWT token is required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions to access this resource)
+ * @throws {HttpError} 404 - Role not found (the specified role ID doesn't exist)
+ * @throws {HttpError} 500 - Internal server error occurred while retrieving role
+ *
+ * @example
+ * ```typescript
+ * // Fetch a specific role by ID
+ * try {
+ *   const response = await getRoleById(1);
+ *   console.log('Role details:', response.data);
+ *   console.log('Role name:', response.data.name);
+ *   console.log('Description:', response.data.description);
+ *   console.log('Permissions:', response.data.permissionIds);
+ *   console.log('Created at:', response.data.createdAt);
+ *
+ *   // Example response structure:
+ *   // {
+ *   //   id: 1,
+ *   //   name: "admin",
+ *   //   description: "系統管理員",
+ *   //   permissionIds: [1, 2, 3, 5, 8, 10],
+ *   //   createdAt: "2024-01-15T10:30:00Z",
+ *   //   updatedAt: "2024-01-15T10:30:00Z"
+ *   // }
+ * } catch (error) {
+ *   if (error.code === 404) {
+ *     console.error('Role not found');
+ *   } else if (error.code === 403) {
+ *     console.error('Access denied - insufficient permissions');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component for role editing
+ * const fetchRoleForEdit = async (roleId: number) => {
+ *   try {
+ *     const response = await getRoleById(roleId);
+ *     // Pre-populate form with existing role data
+ *     form.setFieldsValue({
+ *       name: response.data.name,
+ *       description: response.data.description,
+ *       permissionIds: response.data.permissionIds,
+ *     });
+ *   } catch (error) {
+ *     if (error.code === 404) {
+ *       message.error('角色不存在');
+ *       navigate('/roles');
+ *     } else {
+ *       message.error('獲取角色資訊失敗');
+ *     }
+ *   }
+ * };
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Display role details in a modal
+ * const showRoleDetails = async (roleId: number) => {
+ *   try {
+ *     const response = await getRoleById(roleId);
+ *     Modal.info({
+ *       title: response.data.name,
+ *       content: (
+ *         <div>
+ *           <p>描述: {response.data.description}</p>
+ *           <p>權限數量: {response.data.permissionIds.length}</p>
+ *           <p>建立時間: {new Date(response.data.createdAt).toLocaleDateString()}</p>
+ *         </div>
+ *       ),
+ *     });
+ *   } catch (error) {
+ *     message.error('無法載入角色詳情');
+ *   }
+ * };
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link RoleDto} for the response data structure
+ * @remarks
+ * Authorization: Requires a valid JWT token.
+ * Include the token in the Authorization header: Bearer {token}
+ */
+export function getRoleById(id: number): Promise<ApiResponse<RoleDto>> {
+  return get<RoleDto>(`/api/auth/roles/${id}`);
+}
