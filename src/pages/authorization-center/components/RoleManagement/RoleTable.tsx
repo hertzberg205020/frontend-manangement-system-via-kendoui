@@ -28,7 +28,13 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, actions, loading = false }
       dataIndex: 'permissionIds',
       key: 'permissionIds',
       width: 120,
-      render: (permissionIds: number[]) => <Badge count={permissionIds.length} color="green" />,
+      render: (permissionIds: number[]) => (
+        <Badge
+          count={permissionIds.length}
+          showZero
+          color="green"
+        />
+      ),
     },
     {
       title: '建立時間',
