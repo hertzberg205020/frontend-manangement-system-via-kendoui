@@ -5,7 +5,7 @@
  */
 
 import type { PagedData } from '@/types/PagedData';
-import { get, post } from '@/utils/http/request';
+import { get, post, put } from '@/utils/http/request';
 import type { ApiResponse } from '@/utils/http/request';
 
 
@@ -229,6 +229,18 @@ export function getUsers(params?: UserQuery): Promise<ApiResponse<PagedData<User
 }
 
 /**
+ * Request payload for updating an existing user
+ * @interface UpdateUserRequest
+ * @since 1.0.0
+ */
+export interface UpdateUserRequest {
+  /** User's full name (length: 1-128 characters) */
+  name: string;
+  /** User active status (true for active, false for inactive) */
+  isActive: boolean;
+}
+
+/**
  * Request payload for creating a new user
  * @interface CreateUserRequest
  * @since 1.0.0
@@ -409,4 +421,112 @@ export function createUser(data: CreateUserRequest): Promise<ApiResponse<CreateU
  */
 export function getUserByEmpId(empId: string): Promise<ApiResponse<UserResponse>> {
   return get<UserResponse>(`/api/auth/users/${empId}`);
+}
+
+/**
+ * Update user information
+ *
+ * Updates the name and active status of a specified user. This endpoint does not support
+ * updating password, employee ID, or roles.
+ *
+ * Fields that can be updated:
+ * - name: User's name (1-128 characters)
+ * - isActive: Account active status (boolean)
+ *
+ * Fields that cannot be updated:
+ * - empId: Employee ID (used as identification key, cannot be changed)
+ * - password: Password (requires dedicated password change endpoint)
+ * - roleIds: Roles (requires dedicated role assignment endpoint)
+ *
+ * Path Parameters:
+ * - empId: Required, format N + 9 digits (e.g., N123456789)
+ *
+ * Validation Rules:
+ * - name: Required, length 1-128 characters
+ * - isActive: Required, boolean value
+ *
+ * Request Body:
+ * ```json
+ * {
+ *   "name": "李四",
+ *   "isActive": false
+ * }
+ * ```
+ *
+ * @param empId - The employee ID of the user to update.
+ *   Must match pattern ^N\d{9}$ (e.g., N123456789).
+ * @param data - The user update data containing name and isActive
+ * @returns Promise resolving to ApiResponse containing UpdateUserResponse data
+ * @throws {HttpError} 400 - Validation failed (invalid format or missing required fields)
+ * @throws {HttpError} 401 - Unauthorized (authentication required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions to update users)
+ * @throws {HttpError} 404 - User not found (the specified employee ID doesn't exist)
+ * @throws {HttpError} 500 - Internal server error occurred while updating user
+ *
+ * @example
+ * ```typescript
+ * // Update user name and status
+ * try {
+ *   const response = await updateUser('N123456789', {
+ *     name: '李四',
+ *     isActive: false
+ *   });
+ *   console.log('User updated:', response.data);
+ *   console.log('Updated name:', response.data.name);
+ *   console.log('Is active:', response.data.isActive);
+ * } catch (error) {
+ *   if (error.code === 404) {
+ *     console.error('User not found');
+ *   } else if (error.code === 400) {
+ *     console.error('Validation failed - check input format');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Deactivate a user account
+ * try {
+ *   const response = await updateUser('N987654321', {
+ *     name: '張三',
+ *     isActive: false
+ *   });
+ *   console.log('User deactivated:', response.data);
+ * } catch (error) {
+ *   console.error('Failed to update user:', error);
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with form handling
+ * const handleSubmit = async (empId: string, values: UpdateUserRequest) => {
+ *   try {
+ *     const response = await updateUser(empId, values);
+ *     message.success('使用者資訊更新成功');
+ *     setUser(response.data);
+ *   } catch (error) {
+ *     if (error.code === 404) {
+ *       message.error('使用者不存在');
+ *     } else if (error.code === 403) {
+ *       message.error('無權限更新使用者資訊');
+ *     } else {
+ *       message.error('更新失敗');
+ *     }
+ *   }
+ * };
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link UpdateUserRequest} for the request body structure
+ * @see {@link UserResponse} for the response data structure
+ * @remarks
+ * Authorization: Requires a valid JWT token with user update permissions.
+ * Include the token in the Authorization header: Bearer {token}
+ */
+export function updateUser(
+  empId: string,
+  data: UpdateUserRequest
+): Promise<ApiResponse<UserResponse>> {
+  return put<UserResponse, UpdateUserRequest>(`/api/auth/users/${empId}`, data);
 }
