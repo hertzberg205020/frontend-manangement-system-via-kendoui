@@ -567,6 +567,165 @@ export function deleteUser(empId: string): Promise<ApiResponse<string>> {
 }
 
 /**
+ * Restore a previously deleted (soft-deleted) user by employee ID
+ *
+ * Restores a soft-deleted user by setting the user's isActive field back to true. This operation
+ * allows previously deactivated users to regain access to the system. This is the reverse operation
+ * of the {@link deleteUser} endpoint.
+ *
+ * Restoration Process:
+ * - Validates empId format (must match ^N\d{9}$ pattern)
+ * - Locates the user by empId
+ * - Sets isActive to true
+ * - Updates the updatedAt timestamp
+ * - User roles remain intact and become active with the user
+ *
+ * Path Parameters:
+ * - empId: Required, format N + 9 digits (e.g., N123456789)
+ *
+ * Use Cases:
+ * - Restore accidentally deleted users
+ * - Reactivate temporarily disabled accounts
+ * - Undo soft delete operations
+ * - Re-enable user access after investigation or temporary suspension
+ *
+ * @param empId - Employee ID of the user to restore.
+ *   Must match pattern ^N\d{9}$ (e.g., N123456789).
+ * @returns Promise resolving to ApiResponse with null data on success (HTTP 200)
+ * @throws {HttpError} 400 - Request validation failed (invalid empId format)
+ * @throws {HttpError} 401 - Unauthorized (authentication required - missing or invalid JWT)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions - requires admin role)
+ * @throws {HttpError} 404 - User not found (the specified employee ID doesn't exist)
+ * @throws {HttpError} 500 - Internal server error occurred while restoring user
+ *
+ * @example
+ * ```typescript
+ * // Restore a soft-deleted user
+ * try {
+ *   await restoreUser('N123456789');
+ *   console.log('User restored successfully');
+ *   message.success('使用者已恢復');
+ * } catch (error) {
+ *   if (error.code === 404) {
+ *     console.error('User not found');
+ *     message.error('使用者不存在');
+ *   } else if (error.code === 403) {
+ *     console.error('Access denied');
+ *     message.error('無權限恢復使用者');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with confirmation modal
+ * const handleRestoreUser = async (empId: string, userName: string) => {
+ *   Modal.confirm({
+ *     title: '確認恢復',
+ *     content: `確定要恢復使用者 "${userName}" 嗎？`,
+ *     okText: '確認',
+ *     cancelText: '取消',
+ *     onOk: async () => {
+ *       try {
+ *         await restoreUser(empId);
+ *         message.success('使用者恢復成功');
+ *         // Refresh user list or update local state
+ *         fetchUsers();
+ *       } catch (error) {
+ *         if (error.code === 404) {
+ *           message.error('使用者不存在');
+ *         } else if (error.code === 403) {
+ *           message.error('無權限恢復使用者');
+ *         } else {
+ *           message.error('恢復失敗');
+ *         }
+ *       }
+ *     }
+ *   });
+ * };
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a user management table with restore action for inactive users
+ * const columns = [
+ *   // ... other columns
+ *   {
+ *     title: '狀態',
+ *     key: 'isActive',
+ *     render: (_, record) => (
+ *       <Tag color={record.isActive ? 'green' : 'red'}>
+ *         {record.isActive ? '啟用' : '停用'}
+ *       </Tag>
+ *     ),
+ *   },
+ *   {
+ *     title: '操作',
+ *     key: 'action',
+ *     render: (_, record) => (
+ *       <Space>
+ *         {record.isActive ? (
+ *           <>
+ *             <Button onClick={() => handleEditUser(record.empId)}>編輯</Button>
+ *             <Button danger onClick={() => handleDeleteUser(record.empId)}>
+ *               停用
+ *             </Button>
+ *           </>
+ *         ) : (
+ *           <Button type="primary" onClick={() => handleRestoreUser(record.empId, record.name)}>
+ *             恢復
+ *           </Button>
+ *         )}
+ *       </Space>
+ *     ),
+ *   },
+ * ];
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Batch restore multiple users
+ * const handleBatchRestore = async (empIds: string[]) => {
+ *   try {
+ *     const results = await Promise.allSettled(
+ *       empIds.map(empId => restoreUser(empId))
+ *     );
+ *
+ *     const successCount = results.filter(r => r.status === 'fulfilled').length;
+ *     const failCount = results.filter(r => r.status === 'rejected').length;
+ *
+ *     if (successCount > 0) {
+ *       message.success(`成功恢復 ${successCount} 位使用者`);
+ *     }
+ *     if (failCount > 0) {
+ *       message.warning(`${failCount} 位使用者恢復失敗`);
+ *     }
+ *
+ *     // Refresh the user list
+ *     fetchUsers();
+ *   } catch (error) {
+ *     message.error('批次恢復失敗');
+ *   }
+ * };
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link deleteUser} for soft-deleting users
+ * @see {@link updateUser} for updating user information including active status
+ * @remarks
+ * Authorization: Requires a valid JWT token with admin role permissions.
+ * Restore operations are restricted to administrators due to their sensitive nature.
+ * Include the token in the Authorization header: Bearer {token}
+ *
+ * Note: This endpoint sets the user's isActive flag to true. If you need to update
+ * other user properties at the same time, consider using {@link updateUser} instead,
+ * which allows updating both name and isActive status together.
+ */
+export function restoreUser(empId: string): Promise<ApiResponse<null>> {
+  return post<null>(`/api/auth/users/${empId}/restore`);
+}
+
+/**
  * Request payload for replacing user roles
  * @interface ReplaceUserRolesRequest
  * @since 1.0.0
