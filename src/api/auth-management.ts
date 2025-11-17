@@ -1418,6 +1418,142 @@ export function replaceRolePermissions(
 }
 
 /**
+ * Delete a role by role ID
+ *
+ * Deletes the specified role from the system. Before deletion, the following checks are performed:
+ * - Verifies the role exists
+ * - Ensures the role has no associated users (cannot delete roles that are in use)
+ *
+ * The deletion operation also removes all permission associations for the role.
+ *
+ * Path Parameters:
+ * - id: Required, role ID (must be greater than 0)
+ *
+ * Behavior Details:
+ * - Only roles without user assignments can be deleted
+ * - All role-permission associations are automatically removed
+ * - Deletion is permanent and cannot be undone
+ * - Returns HTTP 204 No Content on successful deletion
+ *
+ * Use Cases:
+ * - Removing obsolete or unused roles from the system
+ * - Cleaning up test or temporary roles
+ * - Consolidating role structures by removing redundant roles
+ *
+ * @param id - Role ID to delete. Must be a positive integer (>= 1).
+ * @returns Promise resolving to ApiResponse with null data on success (HTTP 204)
+ * @throws {HttpError} 400 - Validation failed (invalid role ID format)
+ * @throws {HttpError} 401 - Unauthorized (authentication required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions - requires admin role)
+ * @throws {HttpError} 404 - Role not found (the specified role ID doesn't exist)
+ * @throws {HttpError} 409 - Conflict (role is still assigned to one or more users and cannot be
+ *   deleted)
+ * @throws {HttpError} 500 - Internal server error occurred while deleting role
+ *
+ * @example
+ * ```typescript
+ * // Delete a role that is not in use
+ * try {
+ *   await deleteRole(5);
+ *   console.log('Role deleted successfully');
+ *   message.success('角色刪除成功');
+ * } catch (error) {
+ *   if (error.code === 409) {
+ *     console.error('Cannot delete role - it is still assigned to users');
+ *     message.error('無法刪除角色 - 仍有使用者使用此角色');
+ *   } else if (error.code === 404) {
+ *     console.error('Role not found');
+ *     message.error('角色不存在');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with confirmation modal
+ * const handleDeleteRole = async (roleId: number, roleName: string) => {
+ *   Modal.confirm({
+ *     title: '確認刪除',
+ *     content: `確定要刪除角色 "${roleName}" 嗎？此操作無法復原。`,
+ *     okText: '確認',
+ *     cancelText: '取消',
+ *     okType: 'danger',
+ *     onOk: async () => {
+ *       try {
+ *         await deleteRole(roleId);
+ *         message.success('角色刪除成功');
+ *         // Refresh role list or update local state
+ *         fetchRoles();
+ *       } catch (error) {
+ *         if (error.code === 409) {
+ *           message.error('此角色仍有使用者使用，無法刪除');
+ *         } else if (error.code === 404) {
+ *           message.error('角色不存在');
+ *         } else if (error.code === 403) {
+ *           message.error('無權限刪除角色');
+ *         } else {
+ *           message.error('刪除失敗');
+ *         }
+ *       }
+ *     }
+ *   });
+ * };
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a role management table with delete action
+ * const columns = [
+ *   // ... other columns
+ *   {
+ *     title: '操作',
+ *     key: 'action',
+ *     render: (_, record) => (
+ *       <Space>
+ *         <Button onClick={() => handleEditRole(record.id)}>編輯</Button>
+ *         <Popconfirm
+ *           title="確定要刪除此角色嗎？"
+ *           description="此操作無法復原。若角色仍有使用者使用，則無法刪除。"
+ *           onConfirm={async () => {
+ *             try {
+ *               await deleteRole(record.id);
+ *               message.success('刪除成功');
+ *               fetchRoles(); // Refresh the table
+ *             } catch (error) {
+ *               if (error.code === 409) {
+ *                 message.error('此角色仍有使用者使用');
+ *               } else {
+ *                 message.error('刪除失敗');
+ *               }
+ *             }
+ *           }}
+ *         >
+ *           <Button danger>刪除</Button>
+ *         </Popconfirm>
+ *       </Space>
+ *     ),
+ *   },
+ * ];
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link getRoles} for retrieving all roles
+ * @see {@link getRoleById} for checking role details before deletion
+ * @remarks
+ * Authorization: Requires a valid JWT token with admin role permissions.
+ * This operation is restricted to administrators due to its sensitive nature.
+ * Include the token in the Authorization header: Bearer {token}
+ *
+ * Important: Before attempting to delete a role, ensure that no users are assigned to it.
+ * If users are still using the role, the deletion will fail with a 409 Conflict error.
+ * Consider removing all user assignments first using {@link replaceUserRoles} or displaying
+ * a list of affected users to the administrator.
+ */
+export function deleteRole(id: number): Promise<ApiResponse<null>> {
+  return del<null>(`/api/auth/roles/${id}`);
+}
+
+/**
  * Permission data transfer object representing a permission in the system
  * @interface PermissionDto
  * @since 1.0.0
