@@ -850,3 +850,119 @@ export interface RoleDto {
 export function getRoles(): Promise<ApiResponse<RoleDto[]>> {
   return get<RoleDto[]>('/api/auth/roles');
 }
+
+/**
+ * Request payload for creating a new role
+ * @interface CreateRoleRequest
+ * @since 1.0.0
+ */
+export interface CreateRoleRequest {
+  /** Role name (required, unique, max 100 characters) */
+  name: string;
+  /** Optional description of the role (max 512 characters) */
+  description?: string;
+}
+
+/**
+ * Create a new role in the system
+ *
+ * Creates a new role with a unique name. Role names are case-insensitive and must be unique
+ * across the system. The newly created role initially has no permissions assigned and must
+ * be configured separately through the role permissions endpoint.
+ *
+ * Validation Rules:
+ * - name: Required, length 1-100 characters, must be unique (case-insensitive)
+ * - description: Optional, maximum length 512 characters
+ *
+ * Use Cases:
+ * - Creating new user role types for RBAC (Role-Based Access Control)
+ * - Setting up organizational roles (e.g., "Project Manager", "Team Lead")
+ * - Defining custom access levels for different user groups
+ *
+ * Request Body:
+ * ```json
+ * {
+ *   "name": "Project Manager",
+ *   "description": "Manages project planning and execution"
+ * }
+ * ```
+ *
+ * @param data - The role creation data containing name and optional description
+ * @returns Promise resolving to ApiResponse containing RoleDto data
+ * @throws {HttpError} 400 - Validation failed (invalid format or missing required fields)
+ * @throws {HttpError} 401 - Unauthorized (authentication required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions - requires admin role)
+ * @throws {HttpError} 409 - Conflict (role name already exists in the system)
+ * @throws {HttpError} 500 - Internal server error occurred while creating role
+ *
+ * @example
+ * ```typescript
+ * // Create a new role with description
+ * try {
+ *   const response = await createRole({
+ *     name: 'Project Manager',
+ *     description: 'Manages project planning and execution'
+ *   });
+ *   console.log('Role created:', response.data);
+ *   console.log('Role ID:', response.data.id);
+ *   console.log('Role name:', response.data.name);
+ *   console.log('Initial permissions:', response.data.permissionIds); // Should be []
+ * } catch (error) {
+ *   if (error.code === 409) {
+ *     console.error('Role name already exists');
+ *   } else if (error.code === 400) {
+ *     console.error('Validation failed - check input format');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Create a role without description
+ * try {
+ *   const response = await createRole({
+ *     name: 'Guest User'
+ *   });
+ *   console.log('Guest role created:', response.data);
+ * } catch (error) {
+ *   console.error('Failed to create role:', error);
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with form handling
+ * const handleCreateRole = async (values: CreateRoleRequest) => {
+ *   try {
+ *     const response = await createRole(values);
+ *     message.success('角色建立成功');
+ *     // Navigate to role list or update local state
+ *     navigate('/roles');
+ *   } catch (error) {
+ *     if (error.code === 409) {
+ *       message.error('角色名稱已存在');
+ *     } else if (error.code === 403) {
+ *       message.error('無權限建立角色');
+ *     } else if (error.code === 400) {
+ *       message.error('輸入驗證失敗');
+ *     } else {
+ *       message.error('建立失敗');
+ *     }
+ *   }
+ * };
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link CreateRoleRequest} for the request body structure
+ * @see {@link RoleDto} for the response data structure
+ * @remarks
+ * Authorization: Requires a valid JWT token with admin role permissions.
+ * This operation is restricted to administrators due to its sensitive nature.
+ * Include the token in the Authorization header: Bearer {token}
+ *
+ * Note: The newly created role will have an empty permissionIds array. Use the
+ * PUT /api/auth/roles/{id}/permissions endpoint to assign permissions to the role.
+ */
+export function createRole(data: CreateRoleRequest): Promise<ApiResponse<RoleDto>> {
+  return post<RoleDto, CreateRoleRequest>('/api/auth/roles', data);
+}
