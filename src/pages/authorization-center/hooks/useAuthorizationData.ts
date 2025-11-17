@@ -173,14 +173,22 @@ export const useAuthorizationData = () => {
       await deleteRoleApi(id);
       message.success(MESSAGES.ROLE_DELETED);
       await fetchRoles();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete role:', error);
       // 處理 HTTP 409 衝突：角色已分配給使用者
-      if (error?.code === 409 || error?.response?.status === 409) {
+      const hasCode = (err: unknown): err is { code: number } =>
+        typeof err === 'object' && err !== null && 'code' in err;
+      const hasResponse = (err: unknown): err is { response: { status: number } } =>
+        typeof err === 'object' && err !== null && 'response' in err;
+
+      const errorCode = hasCode(error) ? error.code : undefined;
+      const responseStatus = hasResponse(error) ? error.response?.status : undefined;
+
+      if (errorCode === 409 || responseStatus === 409) {
         message.error('無法刪除角色，該角色已分配給一或多位使用者');
-      } else if (error?.code === 404 || error?.response?.status === 404) {
+      } else if (errorCode === 404 || responseStatus === 404) {
         message.error('角色不存在');
-      } else if (error?.code === 403 || error?.response?.status === 403) {
+      } else if (errorCode === 403 || responseStatus === 403) {
         message.error('無權限刪除角色');
       } else {
         message.error('刪除角色失敗');
