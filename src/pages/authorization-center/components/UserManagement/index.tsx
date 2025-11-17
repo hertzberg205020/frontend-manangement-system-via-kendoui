@@ -91,7 +91,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
           </Button>
         }
       >
-        <UserTable users={users} actions={userActions} loading={loading} />
+        <UserTable users={users} roles={roles} actions={userActions} loading={loading} />
       </Card>
 
       <UserModal

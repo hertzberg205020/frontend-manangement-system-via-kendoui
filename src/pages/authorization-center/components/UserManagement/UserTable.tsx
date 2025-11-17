@@ -1,16 +1,24 @@
 import React from 'react';
 import { Table, Button, Space, Badge, Tag, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, KeyOutlined } from '@ant-design/icons';
-import type { User, UserActions } from '../../types';
+import type { User, UserActions, Role } from '../../types';
 import { TABLE_PAGINATION_CONFIG, MESSAGES } from '../../constants';
 
 interface UserTableProps {
   users: User[];
+  roles: Role[];
   actions: UserActions;
   loading?: boolean;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ users, actions, loading = false }) => {
+const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = false }) => {
+  // 建立角色 ID 到名稱的對應表
+  const roleMap = React.useMemo(() => {
+    return roles.reduce((acc, role) => {
+      acc[role.id] = role.name;
+      return acc;
+    }, {} as Record<number, string>);
+  }, [roles]);
   const columns = [
     {
       title: '員工編號',
@@ -37,11 +45,21 @@ const UserTable: React.FC<UserTableProps> = ({ users, actions, loading = false }
       ),
     },
     {
-      title: '角色數量',
+      title: '角色名稱',
       dataIndex: 'roleIds',
       key: 'roleIds',
       render: (roleIds: number[]) => (
-        <Tag color="blue">{roleIds.length} 個角色</Tag>
+        <>
+          {roleIds.length > 0 ? (
+            roleIds.map(roleId => (
+              <Tag color="blue" key={roleId}>
+                {roleMap[roleId] || `未知角色(${roleId})`}
+              </Tag>
+            ))
+          ) : (
+            <Tag color="default">未分配角色</Tag>
+          )}
+        </>
       ),
     },
     {
