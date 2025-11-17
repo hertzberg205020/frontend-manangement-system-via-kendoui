@@ -79,7 +79,8 @@ function App() {
 
 
   const router = useMemo(() => {
-    if (!isRoutesReady && routeTree) {
+    if (isRoutesReady && routeTree) {
+      console.log('Final route tree:', routeTree);
       return createBrowserRouter(routeTree);
     }
     return createBrowserRouter(BASE_ROUTES);
