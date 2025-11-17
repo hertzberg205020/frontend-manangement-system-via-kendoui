@@ -1,24 +1,16 @@
 import React from 'react';
-import { Row, Col } from 'antd';
-import type { Resource, Permission } from '../../types';
-import PermissionCard from './PermissionCard';
+import { Row, Col, Empty } from 'antd';
 
-interface PermissionOverviewProps {
-  resources: Resource[];
-  permissions: Permission[];
-}
-
-const PermissionOverview: React.FC<PermissionOverviewProps> = ({
-  resources,
-  permissions,
-}) => {
+/**
+ * @deprecated This component is deprecated and no longer used.
+ * Permission management is now integrated into RoleManagement component.
+ */
+const PermissionOverview: React.FC = () => {
   return (
     <Row gutter={[16, 16]}>
-      {resources.map(resource => (
-        <Col xs={24} sm={12} lg={6} key={resource.id}>
-          <PermissionCard resource={resource} permissions={permissions} />
-        </Col>
-      ))}
+      <Col span={24}>
+        <Empty description="此組件已棄用，權限管理已整合到角色管理中" />
+      </Col>
     </Row>
   );
 };

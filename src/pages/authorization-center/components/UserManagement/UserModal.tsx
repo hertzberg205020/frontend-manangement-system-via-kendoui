@@ -7,7 +7,7 @@ interface UserModalProps {
   visible: boolean;
   user: User | null;
   onCancel: () => void;
-  onSubmit: (values: UserFormValues) => void;
+  onSubmit: (values: UserFormValues) => Promise<void>;
 }
 
 const UserModal: React.FC<UserModalProps> = ({
@@ -17,10 +17,16 @@ const UserModal: React.FC<UserModalProps> = ({
   onSubmit,
 }) => {
   const [form] = Form.useForm();
+  const [submitting, setSubmitting] = React.useState(false);
 
-  const handleSubmit = (values: UserFormValues): void => {
-    onSubmit(values);
-    form.resetFields();
+  const handleSubmit = async (values: UserFormValues): Promise<void> => {
+    setSubmitting(true);
+    try {
+      await onSubmit(values);
+      form.resetFields();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCancel = (): void => {
@@ -30,7 +36,11 @@ const UserModal: React.FC<UserModalProps> = ({
 
   React.useEffect(() => {
     if (visible && user) {
-      form.setFieldsValue(user);
+      form.setFieldsValue({
+        empId: user.empId,
+        name: user.name,
+        isActive: user.isActive,
+      });
     } else if (visible) {
       form.resetFields();
     }
@@ -45,8 +55,8 @@ const UserModal: React.FC<UserModalProps> = ({
       width={MODAL_WIDTH.SMALL}
     >
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item name="emp_id" label="員工編號" rules={[FORM_RULES.EMP_ID]}>
-          <Input placeholder="請輸入員工編號" />
+        <Form.Item name="empId" label="員工編號" rules={[FORM_RULES.EMP_ID]}>
+          <Input placeholder="請輸入員工編號" disabled={!!user} />
         </Form.Item>
 
         <Form.Item name="name" label="姓名" rules={[FORM_RULES.NAME]}>
@@ -60,7 +70,7 @@ const UserModal: React.FC<UserModalProps> = ({
         )}
 
         <Form.Item
-          name="is_active"
+          name="isActive"
           label="狀態"
           valuePropName="checked"
           initialValue={true}
@@ -71,7 +81,7 @@ const UserModal: React.FC<UserModalProps> = ({
         <Form.Item style={{ marginBottom: 0 }}>
           <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
             <Button onClick={handleCancel}>取消</Button>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={submitting}>
               {user ? '更新' : '新增'}
             </Button>
           </Space>

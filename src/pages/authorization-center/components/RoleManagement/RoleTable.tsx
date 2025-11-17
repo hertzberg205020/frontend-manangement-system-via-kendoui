@@ -7,9 +7,10 @@ import { TABLE_PAGINATION_CONFIG, MESSAGES } from '../../constants';
 interface RoleTableProps {
   roles: Role[];
   actions: RoleActions;
+  loading?: boolean;
 }
 
-const RoleTable: React.FC<RoleTableProps> = ({ roles, actions }) => {
+const RoleTable: React.FC<RoleTableProps> = ({ roles, actions, loading = false }) => {
   const columns = [
     {
       title: '角色名稱',
@@ -23,24 +24,18 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, actions }) => {
       key: 'description',
     },
     {
-      title: '使用者數量',
-      dataIndex: 'user_count',
-      key: 'user_count',
-      width: 120,
-      render: (count: number) => <Badge count={count} color="blue" />,
-    },
-    {
       title: '權限數量',
-      dataIndex: 'permission_count',
-      key: 'permission_count',
+      dataIndex: 'permissionIds',
+      key: 'permissionIds',
       width: 120,
-      render: (count: number) => <Badge count={count} color="green" />,
+      render: (permissionIds: number[]) => <Badge count={permissionIds.length} color="green" />,
     },
     {
       title: '建立時間',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: 120,
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 180,
+      render: (text: string) => new Date(text).toLocaleString('zh-TW'),
     },
     {
       title: '操作',
@@ -81,6 +76,7 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, actions }) => {
       dataSource={roles}
       rowKey="id"
       pagination={TABLE_PAGINATION_CONFIG}
+      loading={loading}
     />
   );
 };

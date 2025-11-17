@@ -1,17 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, Tabs, Typography } from 'antd';
 import {
   UserOutlined,
   TeamOutlined,
   SafetyOutlined,
-  SettingOutlined,
 } from '@ant-design/icons';
 import { useAuthorizationData } from './hooks/useAuthorizationData';
 import UserManagement from './components/UserManagement';
 import RoleManagement from './components/RoleManagement';
-import PermissionOverview from './components/PermissionOverview';
-import PermissionModal from './components/PermissionModal';
-import type { Role } from './types';
 import type { TabsProps } from 'antd';
 
 const { Title } = Typography;
@@ -21,8 +17,7 @@ const AuthorizationCenter: React.FC = () => {
     // 資料
     users,
     roles,
-    resources,
-    permissions,
+    loading,
     // 使用者操作
     createUser,
     updateUser,
@@ -34,20 +29,6 @@ const AuthorizationCenter: React.FC = () => {
     deleteRole,
     updatePermissions,
   } = useAuthorizationData();
-
-  // 權限設定 Modal 狀態
-  const [permissionModalVisible, setPermissionModalVisible] = useState<boolean>(false);
-  const [currentRole, setCurrentRole] = useState<Role | null>(null);
-
-  const handlePermissionConfig = (role: Role): void => {
-    setCurrentRole(role);
-    setPermissionModalVisible(true);
-  };
-
-  const handlePermissionSave = (): void => {
-    updatePermissions();
-    setPermissionModalVisible(false);
-  };
 
   const tabItems: TabsProps['items'] = [
     {
@@ -61,10 +42,12 @@ const AuthorizationCenter: React.FC = () => {
       children: (
         <UserManagement
           users={users}
+          roles={roles}
           onCreateUser={createUser}
           onUpdateUser={updateUser}
           onDeleteUser={deleteUser}
           onAssignRole={assignRole}
+          loading={loading}
         />
       ),
     },
@@ -82,7 +65,8 @@ const AuthorizationCenter: React.FC = () => {
           onCreateRole={createRole}
           onUpdateRole={updateRole}
           onDeleteRole={deleteRole}
-          onPermissionConfig={handlePermissionConfig}
+          onUpdatePermissions={updatePermissions}
+          loading={loading}
         />
       ),
     }
@@ -97,15 +81,6 @@ const AuthorizationCenter: React.FC = () => {
         </Title>
 
         <Tabs defaultActiveKey="users" size="large" items={tabItems} />
-
-        <PermissionModal
-          visible={permissionModalVisible}
-          role={currentRole}
-          resources={resources}
-          permissions={permissions}
-          onCancel={() => setPermissionModalVisible(false)}
-          onSave={handlePermissionSave}
-        />
       </Card>
     </div>
   );

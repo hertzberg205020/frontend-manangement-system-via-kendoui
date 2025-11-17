@@ -1,71 +1,50 @@
-// 使用者相關型別
+// Import API types from auth-management
+import type {
+  UserResponse,
+  RoleDto,
+  PermissionTreeNode as ApiPermissionTreeNode,
+} from '@/api/auth-management';
+
+// 使用者相關型別 - 對應後端 API
 export interface User {
-  id: number;
+  empId: string;
   name: string;
-  emp_id: string;
-  is_active: boolean;
-  roles: string[];
-  created_at: string;
+  isActive: boolean;
+  roleIds: number[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserFormValues {
-  emp_id: string;
+  empId: string;
   name: string;
   password?: string;
-  is_active: boolean;
+  isActive: boolean;
 }
 
-// 角色相關型別
+// 角色相關型別 - 對應後端 API
 export interface Role {
   id: number;
   name: string;
-  description: string;
-  user_count: number;
-  permission_count: number;
-  created_at: string;
+  description?: string;
+  permissionIds: number[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface RoleFormValues {
   name: string;
-  description: string;
+  description?: string;
 }
 
-// 權限相關型別
-export interface Resource {
-  id: number;
-  code: string;
-  description: string;
-  is_active: boolean;
-}
-
-export interface Permission {
-  id: number;
-  resource_id: number;
-  action: string;
-  description: string;
-}
-
-// 權限樹狀結構型別
-export interface PermissionTreeNode {
-  title: string;
-  key: string;
-  children?: PermissionTreeNode[];
-}
-
-// 表格欄位型別
-export interface TableColumn<T = unknown> {
-  title: string;
-  dataIndex?: string;
-  key: string;
-  width?: number;
-  render?: (value: unknown, record: T) => React.ReactNode;
-}
+// Re-export API types for convenience
+export type { UserResponse, RoleDto, ApiPermissionTreeNode };
 
 // 事件處理函數型別
 export interface UserActions {
   onAdd: () => void;
   onEdit: (user: User) => void;
-  onDelete: (userId: number) => void;
+  onDelete: (empId: string) => void;
   onAssignRole: (user: User) => void;
 }
 

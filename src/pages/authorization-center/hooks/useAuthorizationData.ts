@@ -1,150 +1,195 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { message } from 'antd';
-import type { User, Role, Resource, Permission, UserFormValues, RoleFormValues } from '../types';
-import { getCurrentDateString, generateId } from '../utils';
+import type { User, Role, UserFormValues, RoleFormValues } from '../types';
 import { MESSAGES } from '../constants';
+import {
+  getUsers,
+  createUser as createUserApi,
+  updateUser as updateUserApi,
+  deleteUser as deleteUserApi,
+  replaceUserRoles,
+  getRoles,
+  createRole as createRoleApi,
+  replaceRolePermissions,
+  type UserResponse,
+  type RoleDto,
+  type CreateUserRequest,
+  type UpdateUserRequest,
+  type CreateRoleRequest,
+} from '@/api/auth-management';
+
+// Helper function to convert UserResponse to User
+const convertUserResponse = (userResponse: UserResponse): User => ({
+  empId: userResponse.empId,
+  name: userResponse.name,
+  isActive: userResponse.isActive,
+  roleIds: userResponse.roleIds,
+  createdAt: userResponse.createdAt,
+  updatedAt: userResponse.updatedAt,
+});
+
+// Helper function to convert RoleDto to Role
+const convertRoleDto = (roleDto: RoleDto): Role => ({
+  id: roleDto.id,
+  name: roleDto.name,
+  description: roleDto.description,
+  permissionIds: roleDto.permissionIds,
+  createdAt: roleDto.createdAt,
+  updatedAt: roleDto.updatedAt,
+});
 
 export const useAuthorizationData = () => {
-  // 使用者資料
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: 1,
-      name: '張三',
-      emp_id: 'EMP001',
-      is_active: true,
-      roles: ['管理員', '使用者'],
-      created_at: '2024-01-15',
-    },
-    {
-      id: 2,
-      name: '李四',
-      emp_id: 'EMP002',
-      is_active: true,
-      roles: ['使用者'],
-      created_at: '2024-01-16',
-    },
-    {
-      id: 3,
-      name: '王五',
-      emp_id: 'EMP003',
-      is_active: false,
-      roles: ['訪客'],
-      created_at: '2024-01-17',
-    },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  // 角色資料
-  const [roles, setRoles] = useState<Role[]>([
-    {
-      id: 1,
-      name: '管理員',
-      description: '系統管理員，擁有所有權限',
-      user_count: 1,
-      permission_count: 12,
-      created_at: '2024-01-10',
-    },
-    {
-      id: 2,
-      name: '使用者',
-      description: '一般使用者，基本操作權限',
-      user_count: 2,
-      permission_count: 6,
-      created_at: '2024-01-10',
-    },
-    {
-      id: 3,
-      name: '訪客',
-      description: '訪客角色，僅檢視權限',
-      user_count: 1,
-      permission_count: 2,
-      created_at: '2024-01-10',
-    },
-  ]);
+  // Fetch users from API
+  const fetchUsers = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      const response = await getUsers({ page: 1, pageSize: 100 });
+      const convertedUsers = response.data.data.map(convertUserResponse);
+      setUsers(convertedUsers);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+      message.error('獲取使用者列表失敗');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // 資源資料
-  const [resources] = useState<Resource[]>([
-    { id: 1, code: 'user.profile', description: '使用者資料', is_active: true },
-    { id: 2, code: 'dashboard', description: '儀表板', is_active: true },
-    { id: 3, code: 'reports', description: '報表管理', is_active: true },
-    { id: 4, code: 'settings', description: '系統設定', is_active: true },
-  ]);
+  // Fetch roles from API
+  const fetchRoles = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      const response = await getRoles();
+      const convertedRoles = response.data.map(convertRoleDto);
+      setRoles(convertedRoles);
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
+      message.error('獲取角色列表失敗');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // 權限資料
-  const [permissions] = useState<Permission[]>([
-    { id: 1, resource_id: 1, action: 'read', description: '檢視使用者資料' },
-    { id: 2, resource_id: 1, action: 'edit', description: '編輯使用者資料' },
-    { id: 3, resource_id: 2, action: 'read', description: '檢視儀表板' },
-    { id: 4, resource_id: 3, action: 'read', description: '檢視報表' },
-    { id: 5, resource_id: 3, action: 'create', description: '建立報表' },
-    { id: 6, resource_id: 3, action: 'edit', description: '編輯報表' },
-    { id: 7, resource_id: 3, action: 'delete', description: '刪除報表' },
-    { id: 8, resource_id: 4, action: 'read', description: '檢視系統設定' },
-    { id: 9, resource_id: 4, action: 'edit', description: '編輯系統設定' },
-  ]);
+  // Initialize data on mount
+  useEffect(() => {
+    void fetchUsers();
+    void fetchRoles();
+  }, []);
 
   // 使用者操作
-  const createUser = (values: UserFormValues): void => {
-    const newUser: User = {
-      id: generateId(),
-      ...values,
-      roles: [],
-      created_at: getCurrentDateString(),
-    };
-    setUsers(prev => [...prev, newUser]);
-    message.success(MESSAGES.USER_CREATED);
+  const createUser = async (values: UserFormValues): Promise<void> => {
+    try {
+      const createData: CreateUserRequest = {
+        empId: values.empId,
+        name: values.name,
+        password: values.password || 'defaultPassword123', // 需要提供預設密碼或從表單取得
+        roleIds: [],
+      };
+      await createUserApi(createData);
+      message.success(MESSAGES.USER_CREATED);
+      await fetchUsers();
+    } catch (error) {
+      console.error('Failed to create user:', error);
+      message.error('建立使用者失敗');
+    }
   };
 
-  const updateUser = (id: number, values: UserFormValues): void => {
-    setUsers(prev =>
-      prev.map(user => (user.id === id ? { ...user, ...values } : user))
-    );
-    message.success(MESSAGES.USER_UPDATED);
+  const updateUser = async (empId: string, values: UserFormValues): Promise<void> => {
+    try {
+      const updateData: UpdateUserRequest = {
+        name: values.name,
+        isActive: values.isActive,
+      };
+      await updateUserApi(empId, updateData);
+      message.success(MESSAGES.USER_UPDATED);
+      await fetchUsers();
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      message.error('更新使用者失敗');
+    }
   };
 
-  const deleteUser = (id: number): void => {
-    setUsers(prev => prev.filter(user => user.id !== id));
-    message.success(MESSAGES.USER_DELETED);
+  const deleteUser = async (empId: string): Promise<void> => {
+    try {
+      await deleteUserApi(empId);
+      message.success(MESSAGES.USER_DELETED);
+      await fetchUsers();
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+      message.error('刪除使用者失敗');
+    }
+  };
+
+  const assignRole = async (user: User, roleIds: number[]): Promise<void> => {
+    try {
+      await replaceUserRoles(user.empId, { roleIds });
+      message.success('角色分配成功');
+      await fetchUsers();
+    } catch (error) {
+      console.error('Failed to assign roles:', error);
+      message.error('角色分配失敗');
+    }
   };
 
   // 角色操作
-  const createRole = (values: RoleFormValues): void => {
-    const newRole: Role = {
-      id: generateId(),
-      ...values,
-      user_count: 0,
-      permission_count: 0,
-      created_at: getCurrentDateString(),
-    };
-    setRoles(prev => [...prev, newRole]);
-    message.success(MESSAGES.ROLE_CREATED);
+  const createRole = async (values: RoleFormValues): Promise<void> => {
+    try {
+      const createData: CreateRoleRequest = {
+        name: values.name,
+        description: values.description,
+      };
+      await createRoleApi(createData);
+      message.success(MESSAGES.ROLE_CREATED);
+      await fetchRoles();
+    } catch (error) {
+      console.error('Failed to create role:', error);
+      message.error('建立角色失敗');
+    }
   };
 
-  const updateRole = (id: number, values: RoleFormValues): void => {
-    setRoles(prev =>
-      prev.map(role => (role.id === id ? { ...role, ...values } : role))
-    );
-    message.success(MESSAGES.ROLE_UPDATED);
+  const updateRole = async (_id: number, _values: RoleFormValues): Promise<void> => {
+    try {
+      // Note: The API doesn't have an update role endpoint for name/description
+      // We would need to fetch the role, then update it
+      // For now, we'll just refetch the roles
+      message.warning('角色更新功能尚未實作');
+      await fetchRoles();
+    } catch (error) {
+      console.error('Failed to update role:', error);
+      message.error('更新角色失敗');
+    }
   };
 
-  const deleteRole = (id: number): void => {
-    setRoles(prev => prev.filter(role => role.id !== id));
-    message.success(MESSAGES.ROLE_DELETED);
+  const deleteRole = async (_id: number): Promise<void> => {
+    try {
+      // Note: The API doesn't have a delete role endpoint
+      message.warning('角色刪除功能尚未實作');
+      await fetchRoles();
+    } catch (error) {
+      console.error('Failed to delete role:', error);
+      message.error('刪除角色失敗');
+    }
   };
 
-  const assignRole = (_user: User): void => {
-    message.info(MESSAGES.ROLE_ASSIGNMENT_PENDING);
-  };
-
-  const updatePermissions = (): void => {
-    message.success(MESSAGES.PERMISSION_UPDATED);
+  const updatePermissions = async (roleId: number, permissionIds: number[]): Promise<void> => {
+    try {
+      await replaceRolePermissions(roleId, { permissionIds });
+      message.success(MESSAGES.PERMISSION_UPDATED);
+      await fetchRoles();
+    } catch (error) {
+      console.error('Failed to update permissions:', error);
+      message.error('更新權限失敗');
+    }
   };
 
   return {
     // 資料
     users,
     roles,
-    resources,
-    permissions,
+    loading,
     // 使用者操作
     createUser,
     updateUser,
@@ -155,5 +200,8 @@ export const useAuthorizationData = () => {
     updateRole,
     deleteRole,
     updatePermissions,
+    // Refetch functions
+    refetchUsers: fetchUsers,
+    refetchRoles: fetchRoles,
   };
 };

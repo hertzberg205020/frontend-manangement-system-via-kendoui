@@ -7,14 +7,15 @@ import { TABLE_PAGINATION_CONFIG, MESSAGES } from '../../constants';
 interface UserTableProps {
   users: User[];
   actions: UserActions;
+  loading?: boolean;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ users, actions }) => {
+const UserTable: React.FC<UserTableProps> = ({ users, actions, loading = false }) => {
   const columns = [
     {
       title: '員工編號',
-      dataIndex: 'emp_id',
-      key: 'emp_id',
+      dataIndex: 'empId',
+      key: 'empId',
       width: 120,
     },
     {
@@ -25,35 +26,30 @@ const UserTable: React.FC<UserTableProps> = ({ users, actions }) => {
     },
     {
       title: '狀態',
-      dataIndex: 'is_active',
-      key: 'is_active',
+      dataIndex: 'isActive',
+      key: 'isActive',
       width: 100,
-      render: (is_active: boolean) => (
+      render: (isActive: boolean) => (
         <Badge
-          status={is_active ? 'success' : 'error'}
-          text={is_active ? '啟用' : '停用'}
+          status={isActive ? 'success' : 'error'}
+          text={isActive ? '啟用' : '停用'}
         />
       ),
     },
     {
-      title: '角色',
-      dataIndex: 'roles',
-      key: 'roles',
-      render: (roles: string[]) => (
-        <Space wrap>
-          {roles.map(role => (
-            <Tag key={role} color="blue">
-              {role}
-            </Tag>
-          ))}
-        </Space>
+      title: '角色數量',
+      dataIndex: 'roleIds',
+      key: 'roleIds',
+      render: (roleIds: number[]) => (
+        <Tag color="blue">{roleIds.length} 個角色</Tag>
       ),
     },
     {
       title: '建立時間',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: 120,
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 180,
+      render: (text: string) => new Date(text).toLocaleString('zh-TW'),
     },
     {
       title: '操作',
@@ -77,7 +73,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, actions }) => {
           </Button>
           <Popconfirm
             title={MESSAGES.DELETE_USER_CONFIRM}
-            onConfirm={() => actions.onDelete(record.id)}
+            onConfirm={() => actions.onDelete(record.empId)}
           >
             <Button type="text" danger icon={<DeleteOutlined />}>
               刪除
@@ -92,8 +88,9 @@ const UserTable: React.FC<UserTableProps> = ({ users, actions }) => {
     <Table
       columns={columns}
       dataSource={users}
-      rowKey="id"
+      rowKey="empId"
       pagination={TABLE_PAGINATION_CONFIG}
+      loading={loading}
     />
   );
 };

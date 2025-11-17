@@ -7,7 +7,7 @@ interface RoleModalProps {
   visible: boolean;
   role: Role | null;
   onCancel: () => void;
-  onSubmit: (values: RoleFormValues) => void;
+  onSubmit: (values: RoleFormValues) => Promise<void>;
 }
 
 const RoleModal: React.FC<RoleModalProps> = ({
@@ -17,10 +17,16 @@ const RoleModal: React.FC<RoleModalProps> = ({
   onSubmit,
 }) => {
   const [form] = Form.useForm();
+  const [submitting, setSubmitting] = React.useState(false);
 
-  const handleSubmit = (values: RoleFormValues): void => {
-    onSubmit(values);
-    form.resetFields();
+  const handleSubmit = async (values: RoleFormValues): Promise<void> => {
+    setSubmitting(true);
+    try {
+      await onSubmit(values);
+      form.resetFields();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCancel = (): void => {
@@ -30,7 +36,10 @@ const RoleModal: React.FC<RoleModalProps> = ({
 
   React.useEffect(() => {
     if (visible && role) {
-      form.setFieldsValue(role);
+      form.setFieldsValue({
+        name: role.name,
+        description: role.description,
+      });
     } else if (visible) {
       form.resetFields();
     }
@@ -60,7 +69,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
         <Form.Item style={{ marginBottom: 0 }}>
           <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
             <Button onClick={handleCancel}>取消</Button>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={submitting}>
               {role ? '更新' : '新增'}
             </Button>
           </Space>

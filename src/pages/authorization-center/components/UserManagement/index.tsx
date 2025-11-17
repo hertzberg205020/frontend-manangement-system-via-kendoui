@@ -1,27 +1,35 @@
 import React, { useState } from 'react';
-import { Card, Button } from 'antd';
+import { Card, Button, Modal, Transfer } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import type { User, UserFormValues } from '../../types';
+import type { User, Role, UserFormValues } from '../../types';
 import UserTable from './UserTable';
 import UserModal from './UserModal';
+import type { TransferProps } from 'antd';
 
 interface UserManagementProps {
   users: User[];
-  onCreateUser: (values: UserFormValues) => void;
-  onUpdateUser: (id: number, values: UserFormValues) => void;
-  onDeleteUser: (id: number) => void;
-  onAssignRole: (user: User) => void;
+  roles: Role[];
+  onCreateUser: (values: UserFormValues) => Promise<void>;
+  onUpdateUser: (empId: string, values: UserFormValues) => Promise<void>;
+  onDeleteUser: (empId: string) => Promise<void>;
+  onAssignRole: (user: User, roleIds: number[]) => Promise<void>;
+  loading?: boolean;
 }
 
 const UserManagement: React.FC<UserManagementProps> = ({
   users,
+  roles,
   onCreateUser,
   onUpdateUser,
   onDeleteUser,
   onAssignRole,
+  loading = false,
 }) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [roleModalVisible, setRoleModalVisible] = useState<boolean>(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [targetKeys, setTargetKeys] = useState<number[]>([]);
 
   const handleAdd = (): void => {
     setCurrentUser(null);
@@ -33,21 +41,45 @@ const UserManagement: React.FC<UserManagementProps> = ({
     setModalVisible(true);
   };
 
-  const handleModalSubmit = (values: UserFormValues): void => {
+  const handleModalSubmit = async (values: UserFormValues): Promise<void> => {
     if (currentUser) {
-      onUpdateUser(currentUser.id, values);
+      await onUpdateUser(currentUser.empId, values);
     } else {
-      onCreateUser(values);
+      await onCreateUser(values);
     }
     setModalVisible(false);
+  };
+
+  const handleAssignRole = (user: User): void => {
+    setSelectedUser(user);
+    setTargetKeys(user.roleIds);
+    setRoleModalVisible(true);
+  };
+
+  const handleRoleTransferChange: TransferProps['onChange'] = (newTargetKeys) => {
+    setTargetKeys(newTargetKeys as number[]);
+  };
+
+  const handleRoleModalOk = async (): Promise<void> => {
+    if (selectedUser) {
+      await onAssignRole(selectedUser, targetKeys);
+      setRoleModalVisible(false);
+      setSelectedUser(null);
+    }
   };
 
   const userActions = {
     onAdd: handleAdd,
     onEdit: handleEdit,
     onDelete: onDeleteUser,
-    onAssignRole,
+    onAssignRole: handleAssignRole,
   };
+
+  const roleTransferData = roles.map(role => ({
+    key: role.id,
+    title: role.name,
+    description: role.description || '',
+  }));
 
   return (
     <>
@@ -59,7 +91,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
           </Button>
         }
       >
-        <UserTable users={users} actions={userActions} />
+        <UserTable users={users} actions={userActions} loading={loading} />
       </Card>
 
       <UserModal
@@ -68,6 +100,33 @@ const UserManagement: React.FC<UserManagementProps> = ({
         onCancel={() => setModalVisible(false)}
         onSubmit={handleModalSubmit}
       />
+
+      <Modal
+        title={`分配角色 - ${selectedUser?.name}`}
+        open={roleModalVisible}
+        onOk={handleRoleModalOk}
+        onCancel={() => {
+          setRoleModalVisible(false);
+          setSelectedUser(null);
+        }}
+        width={800}
+      >
+        <Transfer
+          dataSource={roleTransferData}
+          titles={['可選角色', '已選角色']}
+          targetKeys={targetKeys}
+          onChange={handleRoleTransferChange}
+          render={(item) => `${item.title} - ${item.description}`}
+          listStyle={{
+            width: 350,
+            height: 400,
+          }}
+          showSearch
+          filterOption={(inputValue, item) =>
+            item.title.toLowerCase().includes(inputValue.toLowerCase())
+          }
+        />
+      </Modal>
     </>
   );
 };
