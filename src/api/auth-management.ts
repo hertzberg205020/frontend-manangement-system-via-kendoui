@@ -1083,6 +1083,18 @@ export function getRoleById(id: number): Promise<ApiResponse<RoleDto>> {
 }
 
 /**
+ * Request payload for updating an existing role
+ * @interface UpdateRoleRequest
+ * @since 1.0.0
+ */
+export interface UpdateRoleRequest {
+  /** Role name (required, unique, max 100 characters) */
+  name: string;
+  /** Optional description of the role (max 512 characters) */
+  description?: string;
+}
+
+/**
  * Request payload for replacing role permissions
  * @interface ReplaceRolePermissionsRequest
  * @since 1.0.0
@@ -1090,6 +1102,160 @@ export function getRoleById(id: number): Promise<ApiResponse<RoleDto>> {
 export interface ReplaceRolePermissionsRequest {
   /** Array of permission IDs to assign to the role (replaces all existing permissions) */
   permissionIds: number[];
+}
+
+/**
+ * Update role information
+ *
+ * Updates the name and description of a specified role. This endpoint does not support
+ * updating role permissions - permission management should use the dedicated endpoint
+ * PUT /api/auth/roles/{id}/permissions.
+ *
+ * Fields that can be updated:
+ * - name: Role name (1-100 characters, must be unique)
+ * - description: Role description (optional, max 512 characters)
+ *
+ * Fields that cannot be updated:
+ * - id: Role ID (used as identification key, cannot be changed)
+ * - permissionIds: Role permissions (requires dedicated permission management endpoint)
+ *
+ * Path Parameters:
+ * - id: Required, role ID (positive integer, minimum: 1)
+ *
+ * Validation Rules:
+ * - name: Required, length 1-100 characters, system-wide unique (case-insensitive)
+ * - description: Optional, maximum length 512 characters
+ *
+ * Use Cases:
+ * - Renaming roles to better reflect their purpose
+ * - Updating role descriptions to clarify their responsibilities
+ * - Maintaining role information in permission management interfaces
+ *
+ * Request Body:
+ * ```json
+ * {
+ *   "name": "Super Admin",
+ *   "description": "系統超級管理員，擁有所有權限"
+ * }
+ * ```
+ *
+ * @param id - Role ID to update. Must be a positive integer (>= 1).
+ * @param data - The role update data containing name and optional description
+ * @returns Promise resolving to ApiResponse containing updated RoleDto data
+ * @throws {HttpError} 400 - Validation failed (invalid format or missing required fields)
+ * @throws {HttpError} 401 - Unauthorized (authentication required)
+ * @throws {HttpError} 403 - Forbidden (insufficient permissions - requires admin role)
+ * @throws {HttpError} 404 - Role not found (the specified role ID doesn't exist)
+ * @throws {HttpError} 409 - Conflict (role name already exists in the system)
+ * @throws {HttpError} 500 - Internal server error occurred while updating role
+ *
+ * @example
+ * ```typescript
+ * // Update role name and description
+ * try {
+ *   const response = await updateRole(1, {
+ *     name: 'Super Admin',
+ *     description: '系統超級管理員，擁有所有權限'
+ *   });
+ *   console.log('Role updated:', response.data);
+ *   console.log('Updated name:', response.data.name);
+ *   console.log('Updated description:', response.data.description);
+ *   console.log('Permissions unchanged:', response.data.permissionIds);
+ * } catch (error) {
+ *   if (error.code === 404) {
+ *     console.error('Role not found');
+ *   } else if (error.code === 409) {
+ *     console.error('Role name already exists');
+ *   } else if (error.code === 400) {
+ *     console.error('Validation failed - check input format');
+ *   }
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Update only role description, keep name unchanged
+ * try {
+ *   // First fetch current role data
+ *   const currentRole = await getRoleById(2);
+ *   // Update with new description
+ *   const response = await updateRole(2, {
+ *     name: currentRole.data.name,
+ *     description: '更新後的角色描述'
+ *   });
+ *   console.log('Description updated:', response.data);
+ * } catch (error) {
+ *   console.error('Failed to update role:', error);
+ * }
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use in a React component with form handling
+ * const handleUpdateRole = async (roleId: number, values: UpdateRoleRequest) => {
+ *   try {
+ *     const response = await updateRole(roleId, values);
+ *     message.success('角色資訊更新成功');
+ *     // Navigate back to role list or update local state
+ *     navigate('/roles');
+ *   } catch (error) {
+ *     if (error.code === 404) {
+ *       message.error('角色不存在');
+ *     } else if (error.code === 409) {
+ *       message.error('角色名稱已存在');
+ *     } else if (error.code === 403) {
+ *       message.error('無權限更新角色資訊');
+ *     } else if (error.code === 400) {
+ *       message.error('輸入驗證失敗');
+ *     } else {
+ *       message.error('更新失敗');
+ *     }
+ *   }
+ * };
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Use with Ant Design Form
+ * const [form] = Form.useForm();
+ *
+ * const onFinish = async (values: UpdateRoleRequest) => {
+ *   try {
+ *     const response = await updateRole(roleId, values);
+ *     message.success(`角色 "${response.data.name}" 更新成功`);
+ *     form.resetFields();
+ *   } catch (error) {
+ *     if (error.code === 409) {
+ *       form.setFields([
+ *         {
+ *           name: 'name',
+ *           errors: ['此角色名稱已被使用'],
+ *         },
+ *       ]);
+ *     } else {
+ *       message.error('更新失敗');
+ *     }
+ *   }
+ * };
+ * ```
+ *
+ * @since 1.0.0
+ * @see {@link UpdateRoleRequest} for the request body structure
+ * @see {@link RoleDto} for the response data structure
+ * @see {@link getRoleById} for fetching current role data
+ * @see {@link replaceRolePermissions} for updating role permissions
+ * @remarks
+ * Authorization: Requires a valid JWT token with admin role permissions.
+ * This operation is restricted to administrators due to its sensitive nature.
+ * Include the token in the Authorization header: Bearer {token}
+ *
+ * Note: This endpoint only updates the role's name and description. To update the role's
+ * permissions, use the PUT /api/auth/roles/{id}/permissions endpoint instead. The
+ * permissionIds in the response reflect the role's current permissions, which remain
+ * unchanged by this operation.
+ */
+export function updateRole(id: number, data: UpdateRoleRequest): Promise<ApiResponse<RoleDto>> {
+  return put<RoleDto, UpdateRoleRequest>(`/api/auth/roles/${id}`, data);
 }
 
 /**
