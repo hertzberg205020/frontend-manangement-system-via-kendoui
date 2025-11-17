@@ -1045,6 +1045,104 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /api/auth/users/{empId}/restore:
+    post:
+      tags:
+        - Auth
+      summary: Restore a previously deleted user (reactivate user)
+      description: "Restores a soft-deleted user by setting the user's isActive field back to true. This operation\r\nallows previously deleted users to regain access to the system. This is the reverse operation\r\nof the DELETE /api/auth/users/{empId} endpoint.\r\n            \r\nRestoration Process:\r\n- Validates empId format\r\n- Locates the user by empId\r\n- Sets isActive to true\r\n- Updates the updatedAt timestamp\r\n- User roles remain intact and become active with the user\r\n            \r\nPath Parameters:\r\n- empId: Required, format N + 9 digits (e.g., N123456789)\r\n            \r\nUse Cases:\r\n- Restore accidentally deleted users\r\n- Reactivate temporarily disabled accounts\r\n- Undo soft delete operations\r\n            \r\nSample request:\r\n            \r\n    POST /api/auth/users/N123456789/restore\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": null\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - User not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 400 - Invalid empId format\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\nRequires valid JWT token with admin role. Restore operations are restricted\r\nto administrators due to their sensitive nature."
+      parameters:
+        - name: empId
+          in: path
+          description: Employee ID, format N + 9 digits (e.g., N123456789)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Restoration successful
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '400':
+          description: Request validation failed (invalid empId format)
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '403':
+          description: Insufficient permissions
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '404':
+          description: User not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ObjectApiResponse'
+        default:
+          description: Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/auth/users/{empId}/roles:
     put:
       tags:
