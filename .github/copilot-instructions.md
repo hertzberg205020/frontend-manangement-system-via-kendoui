@@ -1,171 +1,37 @@
-# Project Coding Standards
+# AI Coding Playbook
 
-Welcome to our React project! Please adhere to the following guidelines to ensure code consistency, readability, and maintainability.
+## Stack & workflows
 
-## General
+- React 19 + Vite 6 + Ant Design 5; TypeScript strict everywhere. `src/main.tsx` already loads `@ant-design/v5-patch-for-react-19`—keep new entry points consistent.
+- Node 20.19+ is required. Primary scripts live in `package.json`: `npm run dev`, `npm run build`, `npm run preview`, `npm run lint`.
+- Configure `.env.local` with `VITE_API_URL` and `VITE_ENABLE_HTTP_LOG`; never commit secrets. Vite dev server runs at `http://localhost:5173`.
 
-This project is a web application built with React and TypeScript.
+## Architecture map
 
-## Project Overview & Tech Stack
+- Redux Toolkit store (`src/store/index.ts`) wires `authSlice`, `tabsSlice`, `tenementSlice`; selectors under `src/store/selectors` decode the JWT once.
+- Permission constants (`src/constants/permissions.ts`) feed router descriptors in `router/generateRouteFromPermission.tsx` and `router/routerMap.tsx`. Changing permissions requires touching those two files plus any sidebar metadata.
+- Guards: `utils/RequireAuth.tsx` handles route-level redirects, `components/PrivateRoute` gates children by `requiredPermission`, and `utils/withPermissions.tsx` hides fine‑grained UI.
+- Layout shell comes from `components/navSidebar`, `layoutHeader`, `breadCrumb`; tabs state is centralized in `components/tabsManager` + `store/tabs`. The `hooks/useRouteSync` hook keeps tabs aligned with router changes.
 
-- **Framework**: React (v19+)
-- **Language**: TypeScript (strict mode)
-- **Build Tool**: Vite
-- **UI Library**: Ant Design 5.x
-- **Routing**: react-router 7.5
-- **Primary Goal**: Write clear, modular, testable, and performant React components.
+## HTTP & APIs
 
-## architecture
+- Never import Axios directly in pages. Use `utils/http/http.ts` (axios instance with JWT injection, retry/backoff, error typing, automatic logout on 401) via `utils/http/request.ts` helpers.
+- Domain APIs live in `src/api/<domain>.ts` and return typed `ApiResponse<T>` (see `api/users.ts`, `api/dashboard.ts`). Surfacing business errors via the shared helpers keeps AntD `message` handling uniform.
+- Local demo/mocks belong under `src/mock` (e.g., menus) to keep real API modules clean.
 
-- **Directory Structure**:
-  - `src/components/`：共用元件
-  - `src/pages/`：頁面級元件
-  - `src/api/`：API 呼叫封裝
-  - `src/store/`：Redux Toolkit 狀態管理
-  - `src/utils/`：工具與通用邏輯（如 http client）
+## Pages & components
 
-## Imports & Dependencies
+- Feature folders under `src/pages/<feature>` may include colocated `components/`, `hooks/`, `types/`, `utils/`; follow patterns from `pages/users` and `pages/dashboard`.
+- Shared UI belongs under `src/components`. Reuse `tabsManager` actions instead of duplicating tab UX; leverage `utils/process-table-column.tsx` for AntD table column builders.
+- Routing: `App.tsx` rebuilds the router when permissions change—ensure new routes integrate via the generator rather than hardcoding.
 
-- Always import React, hooks, and types from `"react"`.
-- Import router primitives from `"react-router"`.
-- Pull UI components from `"antd"` (e.g. `Button`, `Table`, `Form`).
-- For icons use `import { IconName } from "@ant-design/icons"`.
+## Coding conventions
 
-Example:
+- Functional components only; type props with `ComponentNameProps` and default-export at the bottom. Hooks follow `useCamelCase` naming.
+- Import order: React → external packages → internal `@/` modules → styles → `import type { ... }`.
+- Style: single quotes for strings, double quotes for JSX attributes, 2-space indent, semicolons required. Use `useCallback`/`useMemo` before passing handlers/data-heavy props.
+- When adding permissions: define in `constants/permissions.ts`, wire to router map, optionally update `mock/menus`, and gate UI with `withPermissions` or `PrivateRoute`.
 
-```typescript
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router';
-import { Button, Table } from 'antd';
-```
+## Quality baseline
 
-## React Best Practices
-
-- **Component Types**:
-
-  - **Always use Functional Components with Hooks** (e.g., `useState`, `useEffect`, `useContext`, `useReducer`, `useCallback`, `useMemo`).
-  - **Avoid Class Components** unless there's a specific reason (e.g., legacy code or specific lifecycle needs).
-
-- **Props Typing**:
-
-  - Use TypeScript `interface` or `type` to define clear types for component props.
-  - Interface names should be the component name suffixed with `Props`, e.g., `MyComponentProps`.
-  - For components that accept `children`, use `React.PropsWithChildren<P>` or `React.FC<P>` (where `P` is your props interface).
-
-    ```typescript
-    // Example
-    interface ButtonProps {
-    	onClick: () => void;
-    	variant?: 'primary' | 'secondary';
-    }
-
-    const Button: React.FC<ButtonProps> = ({
-    	children,
-    	onClick,
-    	variant = 'primary',
-    }) => {
-    	// ...
-    };
-    ```
-
-- **Rules of Hooks**:
-
-  - **Strictly follow the Rules of Hooks**:
-    - Only call Hooks at the top level of functional components or custom Hooks.
-    - Do not call Hooks inside loops, conditions, or nested functions.
-
-- **State Management**:
-
-  - For simple component-local state, use `useState`.
-  - For complex state shared across components, prefer `useContext` with `useReducer`.
-  - If the project uses a specific state management library (e.g., Zustand, Redux Toolkit), follow its best practices.
-  - **Avoid unnecessary prop drilling**.
-
-- **Lists & Keys**:
-
-  - When rendering lists, **always provide a stable and unique `key` prop for each list item**. Avoid using index as the key, unless the list is static and will not be reordered.
-
-- **Side Effect Management (`useEffect`)**:
-
-  - Clearly define the dependency array for `useEffect`.
-  - Pass an empty array `[]` if the effect should not re-run.
-  - If an effect needs cleanup when the component unmounts, be sure to return a cleanup function.
-
-- **Event Handling**:
-
-  - Event handler function names should start with `handle`, e.g., `handleClick`, `handleSubmit`, `handleChange`.
-  - Use `useCallback` to memoize event handlers where possible to prevent unnecessary re-renders of child components, especially when passing functions as props.
-
-- **Performance Optimization**:
-
-  - Use `React.memo` to optimize re-renders of functional components.
-  - Use `useMemo` to memoize the results of expensive calculations.
-
-- **Component Structure**:
-  - Keep components small and focused, following the Single Responsibility Principle.
-  - Extract reusable logic into custom Hooks.
-
-## Component & File Conventions
-
-- File extension: `.tsx` for React components, `.ts` for plain modules.
-- Component files in `src/components/`, pages in `src/pages/`, hooks in `src/hooks/`.
-- Filename = PascalCase for components (`UserTable.tsx`), camelCase for hooks (`useFetchData.ts`).
-- Default-export each React component at bottom of file.
-
-## TypeScript Usage Guide
-
-- **Type Definitions**:
-  - Provide explicit types for all variables, function parameters, and return values whenever possible.
-  - Prefer `interface` for defining object structures and component props.
-  - Use `type` for defining union types, intersection types, or other complex types.
-  - **Avoid using the `any` type** unless absolutely necessary and well-justified. Consider using `unknown` and perform type checking.
-- **Strict Mode**:
-  - The project has TypeScript's `strict` mode enabled; ensure your code complies with its requirements (e.g., `strictNullChecks`).
-- **Optional Properties & Default Values**:
-  - Use `?` to mark optional properties and provide sensible default values for optional props within the component.
-- Prefer immutable data (const, readonly).
-
-## Naming Conventions
-
-- **Components**: `PascalCase` (e.g., `UserProfileCard`)
-- **Custom Hooks**: `useCamelCase` (e.g., `useUserData`)
-- **Variables/Functions**: `camelCase` (e.g., `userName`, `fetchUserDetails`)
-- **TypeScript Interfaces/Types**: `PascalCase` (e.g., `User`, `ProductDetails`)
-- **Constants**: `UPPER_SNAKE_CASE` (e.g., `MAX_ITEMS`, `API_ENDPOINT`)
-
-## Code Style & Standards
-
-- **Indentation**: Use 2 spaces.
-- **Quotes**: Prefer single quotes (`'`) for strings, double quotes (`"`) for JSX attributes.
-- **Semicolons**: Use semicolons at the end of statements.
-- **Import Order**:
-  1. React-related imports (`import React from 'react';`)
-  2. External package imports
-  3. Project internal components/modules imports (use absolute or aliased paths, e.g., `@/components/...`)
-  4. Style file imports
-  5. Type imports (`import type { ... } from '...'`)
-- **Arrow Functions**: Use arrow functions wherever possible, especially for callbacks.
-- **Destructuring Assignment**: Actively use object and array destructuring.
-- **Comments**: Add clear comments for complex logic or important decisions.
-
-## Error Handling
-
-- **Asynchronous Operations**: Use `try...catch` blocks to handle errors in `async/await` operations.
-- **Component Error Boundaries**: Use Error Boundary components at appropriate levels to catch and handle rendering errors, preventing the entire application from crashing.
-
-## Code Generation Preferences
-
-- Favor concise, readable code over clever one-liners.
-- Include JSDoc/TSDoc comments on exported functions/components.
-- When generating forms, use AntD `<Form>` with proper field rules.
-- For API clients, show example fetch wrappers using `fetch` + `async/await`.
-
-## Other Important Notes
-
-- **Keep code DRY (Don't Repeat Yourself)**: Avoid repetitive code; extract common logic into functions or custom Hooks.
-- **Readability First**: Write code that is easy for others to understand and maintain.
-- **Git Commit Messages**: Follow the project's Git commit message conventions (e.g., Conventional Commits).
-
----
-
-**Copilot, please assist me in writing React and TypeScript code according to the guidelines above. When I am unsure, please prioritize the suggestions from these conventions.**
+- ESLint via `npm run lint` is the current guardrail; Vitest/RTL is not wired yet. Keep new code lint-clean and structured for future tests (pure helpers, small hooks, dependency injection where practical).
