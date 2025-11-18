@@ -1,4 +1,17 @@
-import { Button, Card, Col, Input, message, Pagination, Popconfirm, Row, Table, Tag, type PaginationProps, type TableProps } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Input,
+  message,
+  Pagination,
+  Popconfirm,
+  Row,
+  Table,
+  Tag,
+  type PaginationProps,
+  type TableProps,
+} from 'antd';
 import type { CompanyDataType } from './interface';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { batchDeleteClient, deleteClient, getClientList } from '@/api/client-list';
@@ -123,8 +136,7 @@ const Users: React.FC = () => {
 
   const isBatchDeleteBtnDisabled = useMemo(() => {
     return selectedRowKeys && selectedRowKeys.length === 0;
-  }
-    , [selectedRowKeys]);
+  }, [selectedRowKeys]);
   const handleBatchDelete = async () => {
     try {
       const { data } = await batchDeleteClient([...selectedRowKeys]);
@@ -134,11 +146,11 @@ const Users: React.FC = () => {
     catch (error) {
       console.error('Error deleting items:', error);
     }
-  }
+  };
 
   const onSelectChange = (selectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(selectedRowKeys);
-  }
+  };
 
   const rowSelection = {
     selectedRowKeys,
@@ -148,11 +160,14 @@ const Users: React.FC = () => {
   const handlePageChange: PaginationProps['onChange'] = (page, pageSize) => {
     setPage(page);
     setPageSize(pageSize);
-  }
+  };
 
-  const handleInputChange = (value: string, setValue: React.Dispatch<React.SetStateAction<string>>) => {
+  const handleInputChange = (
+    value: string,
+    setValue: React.Dispatch<React.SetStateAction<string>>
+  ) => {
     setValue(value);
-  }
+  };
 
   const handleSearch = () => {
     setSearchOpt({
@@ -161,7 +176,7 @@ const Users: React.FC = () => {
       contact: searchContact
     });
     setPage(1);
-  }
+  };
 
   const handleReset = () => {
     setSearchName('');
@@ -175,14 +190,14 @@ const Users: React.FC = () => {
     setPage(1);
     setPageSize(10);
     setSelectedRowKeys([]);
-  }
+  };
 
   const handleModalOpen = (title: string, client?: CompanyDataType) => {
     setModalTitle(title);
     setModalVisible(true);
     setMode(title === 'Create Client' ? 'CREATE' : 'EDIT');
     setClient(client || null);
-  }
+  };
 
   const handleModalCancel = useCallback(() => {
     setModalVisible(false);
@@ -191,7 +206,7 @@ const Users: React.FC = () => {
 
   const onCreate = () => {
     handleModalOpen('Create Client');
-  }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -221,7 +236,7 @@ const Users: React.FC = () => {
       finally {
         setLoading(false);
       }
-    }
+    };
 
     loadData();
   }, [page, pageSize, searchOpt, refreshTrigger]);
@@ -235,14 +250,14 @@ const Users: React.FC = () => {
     catch (error) {
       console.error('Error deleting item:', error);
     }
-  }
+  };
 
   const tableColumns: TableProps<CompanyDataType>['columns'] = useMemo(
     () => {
 
       const onEdit = (record: CompanyDataType) => {
         handleModalOpen('Edit Client', record);
-      }
+      };
 
       return columns.map((column) => {
         if (column.key === 'action') {
@@ -274,7 +289,7 @@ const Users: React.FC = () => {
           };
         }
         return column;
-      })
+      });
     },
     []
   );
@@ -293,18 +308,36 @@ const Users: React.FC = () => {
         <Row gutter={16}>
           <Col span={7}>
             <span>Enterprise</span>
-            <Input name='name' value={searchName} onChange={(e) => handleInputChange(e.target.value, setSearchName)} />
+            <Input
+              name='name'
+              value={searchName}
+              onChange={(e) => handleInputChange(e.target.value, setSearchName)}
+            />
           </Col>
           <Col span={7}>
             <span>Contact</span>
-            <Input name='contact' value={searchContact} onChange={(e) => handleInputChange(e.target.value, setSearchContact)} />
+            <Input
+              name='contact'
+              value={searchContact}
+              onChange={(e) => handleInputChange(e.target.value, setSearchContact)}
+            />
           </Col>
           <Col span={7}>
             <span>Phone</span>
-            <Input name='phone' value={searchPhone} onChange={(e) => handleInputChange(e.target.value, setSearchPhone)} />
+            <Input
+              name='phone'
+              value={searchPhone}
+              onChange={(e) => handleInputChange(e.target.value, setSearchPhone)}
+            />
           </Col>
           <Col span={3} style={{ paddingLeft: '30px' }}>
-            <Button type='primary' style={{ marginRight: '8px' }} onClick={handleSearch}>Search</Button>
+            <Button
+              type='primary'
+              style={{ marginRight: '8px' }}
+              onClick={handleSearch}
+            >
+              Search
+            </Button>
             <Button className='ml' onClick={handleReset}>Reset</Button>
           </Col>
         </Row>

@@ -28,7 +28,10 @@ const TabsManager: React.FC = () => {
   };
 
   // Tab 關閉處理
-  const handleTabEdit = (targetKey: React.MouseEvent | React.KeyboardEvent | string, action: 'add' | 'remove') => {
+  const handleTabEdit = (
+    targetKey: React.MouseEvent | React.KeyboardEvent | string,
+    action: 'add' | 'remove'
+  ) => {
     if (action === 'remove') {
       dispatch(removeTab(targetKey as string));
     }

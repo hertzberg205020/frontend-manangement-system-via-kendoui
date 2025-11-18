@@ -29,7 +29,13 @@ const Home: React.FC = () => {
         <NavSidebar collapsed={collapsed} />
       </Sider>
       <Layout>
-        <Header style={{ padding: '0 20px 0 0', background: colorBgContainer, textAlign: 'right' }} >
+        <Header
+          style={{
+            padding: '0 20px 0 0',
+            background: colorBgContainer,
+            textAlign: 'right',
+          }}
+        >
           <LayoutHeader />
         </Header>
         <Content style={{

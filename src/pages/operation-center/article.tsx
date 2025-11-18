@@ -6,4 +6,4 @@ const Articles: React.FC = () => {
   );
 };
 
-export default Articles
+export default Articles;

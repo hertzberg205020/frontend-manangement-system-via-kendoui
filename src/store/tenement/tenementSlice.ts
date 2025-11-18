@@ -21,7 +21,7 @@ export const tenementSlice = createSlice({
       state.tenementDatum = action.payload;
     },
     clearTenementDatum: (state) => {
-      state.tenementDatum = null
+      state.tenementDatum = null;
     }
   }
 });

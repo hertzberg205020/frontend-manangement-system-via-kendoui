@@ -4,11 +4,14 @@
  * @property id - The unique identifier for the company (can be the unified business number).
  * @property name - The name of the company.
  * @property status - The current status of the company (e.g., approved, suspended, dissolved).
- * @property phoneNumber - The company's phone number (as a string to accommodate extensions or special characters).
- * @property industryCategory - The business category or industry of the company (usually a text description or code).
+ * @property phoneNumber - The company's phone number (as a string to accommodate extensions or
+ *   special characters).
+ * @property industryCategory - The business category or industry of the company (usually a text
+ *   description or code).
  * @property email - The company's email address.
  * @property unifiedBusinessNumber - The company's unified business number.
- * @property industryCode - The industry code (refer to Ministry of Finance tax industry classification).
+ * @property industryCode - The industry code (refer to Ministry of Finance tax industry
+ *   classification).
  * @property responsiblePerson - The responsible person or representative of the company.
  */
 export interface CompanyDataType {

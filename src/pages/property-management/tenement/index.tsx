@@ -30,7 +30,7 @@ const Tenement: React.FC = () => {
   const handleDelete = async (id: string | number) => {
     console.log('Delete record with id:', id);
     // Implement delete logic here
-  }
+  };
 
   const tableColumns: TableProps<TenementDataType>['columns'] = useMemo(() => {
 
@@ -69,14 +69,14 @@ const Tenement: React.FC = () => {
                   </Button>
                 </Popconfirm>
               </>
-            )
+            );
           }
         };
       }
       return col;
-    })
+    });
   }
-    , [dispatch]);
+  , [dispatch]);
 
   // 分頁改變時的處理函數
   const handleTableChange: TableProps<TenementDataType>['onChange'] = (pagination) => {
@@ -103,7 +103,7 @@ const Tenement: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    }
+    };
     loadData();
   }, [currentPage, currentPageSize, refreshTrigger]);
 

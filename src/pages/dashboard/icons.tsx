@@ -1,4 +1,9 @@
-import { RadarChartOutlined, SnippetsOutlined, DollarOutlined, LaptopOutlined } from '@ant-design/icons';
+import {
+  RadarChartOutlined,
+  SnippetsOutlined,
+  DollarOutlined,
+  LaptopOutlined,
+} from '@ant-design/icons';
 import './index.scss';
 
 export const icons: Record<string, React.ReactNode> = {

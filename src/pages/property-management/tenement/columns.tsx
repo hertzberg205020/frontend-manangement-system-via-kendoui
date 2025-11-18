@@ -55,7 +55,10 @@ const columns: TableProps<TenementDataType>['columns'] = [
     dataIndex: 'vacancyRate',
     key: 'vacancyRate',
     render: (value: number) => {
-      const displayValue = typeof value === 'number' && value >= 0 ? Number((value * 100).toFixed(4)) : 0;
+      const isValidNumber = typeof value === 'number' && value >= 0;
+      const displayValue = isValidNumber
+        ? Number((value * 100).toFixed(4))
+        : 0;
       return (<Progress percent={displayValue} status="active" />);
     }
   },

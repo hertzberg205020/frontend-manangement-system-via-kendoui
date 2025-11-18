@@ -10,11 +10,14 @@ import { upsertClient } from '@/api/client-list';
  * @property id？ - The unique identifier for the company (can be the unified business number).
  * @property name - The name of the company.
  * @property status - The current status of the company (e.g., approved, suspended, dissolved).
- * @property phoneNumber - The company's phone number (as a string to accommodate extensions or special characters).
- * @property industryCategory - The business category or industry of the company (usually a text description or code).
+ * @property phoneNumber - The company's phone number (as a string to accommodate extensions or
+ *   special characters).
+ * @property industryCategory - The business category or industry of the company (usually a text
+ *   description or code).
  * @property email - The company's email address.
  * @property unifiedBusinessNumber - The company's unified business number.
- * @property industryCode - The industry code (refer to Ministry of Finance tax industry classification).
+ * @property industryCode - The industry code (refer to Ministry of Finance tax industry
+ *   classification).
  * @property responsiblePerson - The responsible person or representative of the company.
  */
 type CreateCompanyDataType = Omit<CompanyDataType, 'id'> & {
@@ -30,14 +33,21 @@ interface ClientFormProps {
   client: CreateCompanyDataType | null;
 }
 
-const ClientFormModal: React.FC<ClientFormProps> = ({ visible, onClose, title, mode, client, onRefresh }) => {
+const ClientFormModal: React.FC<ClientFormProps> = ({
+  visible,
+  onClose,
+  title,
+  mode,
+  client,
+  onRefresh,
+}) => {
 
   const [form] = Form.useForm<CreateCompanyDataType>();
 
   useEffect(() => {
     // 確保只在 Modal 顯示時處理表單資料
     if (!visible) {
-      return
+      return;
     }
 
     // 如果是編輯模式，則將傳入的 client 資料設置到表單中
@@ -109,7 +119,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({ visible, onClose, title, m
             <Form.Item<CreateCompanyDataType>
               label="公司名稱"
               name="name"
-              rules={[{ required: true, message: "公司名稱不能為空" }]}
+              rules={[{ required: true, message: '公司名稱不能為空' }]}
             >
               <Input />
             </Form.Item>
@@ -119,7 +129,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({ visible, onClose, title, m
               label="公司電話"
               name="phoneNumber"
               rules={[
-                { required: true, message: "公司電話不能為空" },
+                { required: true, message: '公司電話不能為空' },
                 // { pattern: /^0\d{1,2}-\d{6,8}$/, message: "請輸入有效的台灣市話格式，如 02-12345678" }
               ]}
             >
@@ -132,7 +142,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({ visible, onClose, title, m
             <Form.Item<CreateCompanyDataType>
               label="公司狀態"
               name="status"
-              rules={[{ required: true, message: "公司狀態不能為空" }]}
+              rules={[{ required: true, message: '公司狀態不能為空' }]}
             >
               <Radio.Group>
                 <Radio value="approved">核准設立</Radio>
@@ -147,7 +157,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({ visible, onClose, title, m
             <Form.Item<CreateCompanyDataType>
               label="營業項目"
               name="industryCategory"
-              rules={[{ required: true, message: "營業項目不能為空" }]}
+              rules={[{ required: true, message: '營業項目不能為空' }]}
             >
               <Input />
             </Form.Item>
@@ -159,8 +169,8 @@ const ClientFormModal: React.FC<ClientFormProps> = ({ visible, onClose, title, m
               label="電子郵件"
               name="email"
               rules={[
-                { required: true, message: "電子郵件不能為空" },
-                { type: 'email', message: "請輸入有效的電子郵件" }
+                { required: true, message: '電子郵件不能為空' },
+                { type: 'email', message: '請輸入有效的電子郵件' }
               ]}
             >
               <Input />
@@ -171,8 +181,8 @@ const ClientFormModal: React.FC<ClientFormProps> = ({ visible, onClose, title, m
               label="統一編號"
               name="unifiedBusinessNumber"
               rules={[
-                { required: true, message: "統一編號不能為空" },
-                { pattern: /^\d{8}$/, message: "請輸入有效的8位數統一編號" }
+                { required: true, message: '統一編號不能為空' },
+                { pattern: /^\d{8}$/, message: '請輸入有效的8位數統一編號' }
               ]}
             >
               <Input />
@@ -184,7 +194,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({ visible, onClose, title, m
             <Form.Item<CreateCompanyDataType>
               label="行業代碼"
               name="industryCode"
-              rules={[{ required: true, message: "行業代碼不能為空" }]}
+              rules={[{ required: true, message: '行業代碼不能為空' }]}
             >
               <Input />
             </Form.Item>
@@ -193,7 +203,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({ visible, onClose, title, m
             <Form.Item<CreateCompanyDataType>
               label="負責人"
               name="responsiblePerson"
-              rules={[{ required: true, message: "負責人不能為空" }]}
+              rules={[{ required: true, message: '負責人不能為空' }]}
             >
               <Input />
             </Form.Item>

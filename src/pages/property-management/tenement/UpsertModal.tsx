@@ -91,7 +91,7 @@ const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode,
             <Form.Item<CreateTenementDataType>
               label="物業名稱"
               name="name"
-              rules={[{ required: true, message: "物業名稱不能為空" }]}
+              rules={[{ required: true, message: '物業名稱不能為空' }]}
             >
               <Input placeholder="請輸入物業名稱" />
             </Form.Item>
@@ -100,7 +100,7 @@ const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode,
             <Form.Item<CreateTenementDataType>
               label="負責人"
               name="responsiblePerson"
-              rules={[{ required: true, message: "負責人不能為空" }]}
+              rules={[{ required: true, message: '負責人不能為空' }]}
             >
               <Input placeholder="請輸入負責人姓名" />
             </Form.Item>
@@ -113,7 +113,7 @@ const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode,
               label="聯絡電話"
               name="tel"
               rules={[
-                { required: true, message: "聯絡電話不能為空" },
+                { required: true, message: '聯絡電話不能為空' },
                 // { pattern: /^0\d{1,2}-?\d{6,8}$/, message: "請輸入有效的台灣電話格式" }
               ]}
             >
@@ -124,7 +124,7 @@ const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode,
             <Form.Item<CreateTenementDataType>
               label="大樓狀態"
               name="status"
-              rules={[{ required: true, message: "大樓狀態不能為空" }]}
+              rules={[{ required: true, message: '大樓狀態不能為空' }]}
             >
               <Radio.Group>
                 <Radio value={0}>使用中</Radio>
@@ -141,7 +141,7 @@ const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode,
               label="空置率 (%)"
               name="vacancyRate"
               rules={[
-                { type: 'number', min: 0, max: 100, message: "空置率必須在 0-100 之間" }
+                { type: 'number', min: 0, max: 100, message: '空置率必須在 0-100 之間' }
               ]}
             >
               <InputNumber
@@ -158,7 +158,7 @@ const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode,
             <Form.Item<CreateTenementDataType>
               label="管理費"
               name="managementFee"
-              rules={[{ required: true, message: "管理費不能為空" }]}
+              rules={[{ required: true, message: '管理費不能為空' }]}
             >
               <Input placeholder="請輸入管理費金額" addonBefore="$" />
             </Form.Item>

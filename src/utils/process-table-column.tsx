@@ -13,7 +13,11 @@ interface ProcessColumnsOptions<T extends { id: string | number }> {
   deleteDescription?: string;
 }
 
-export function processTableColumns<T extends { id: string | number }>(options: ProcessColumnsOptions<T>): TableProps<T>['columns'] {
+export function processTableColumns<
+  T extends { id: string | number }
+>(
+  options: ProcessColumnsOptions<T>
+): TableProps<T>['columns'] {
   const {
     columns,
     actionColumnKey = 'action',

@@ -30,7 +30,7 @@ export const isValidTabItem = (item: unknown): item is TabItem => {
   const tab = item as Record<string, unknown>;
   return typeof tab.key === 'string' &&
     typeof tab.label === 'string' &&
-    (typeof tab.closable === 'boolean' || tab.closable === undefined)
+    (typeof tab.closable === 'boolean' || tab.closable === undefined);
 };
 
 const isValidTabsState = (state: unknown): state is TabsState => {
@@ -71,9 +71,11 @@ const clearCorruptedStorage = (): void => {
 
 /**
  * Loads the Tabs state from sessionStorage.
- * @returns {TabsState} Returns the Tabs state. If no data is found in sessionStorage, returns the default state.
+ * @returns {TabsState} Returns the Tabs state.
+ * If no data is found in sessionStorage, returns the default state.
  * @description
- * Attempts to retrieve and parse the 'tabs-state' entry from sessionStorage. If the data structure is valid, returns the parsed state;
+ * Attempts to retrieve and parse the 'tabs-state' entry from sessionStorage.
+ * If the data structure is valid, returns the parsed state;
  * otherwise, returns the default Tabs state (including the home tab).
  * This 函式 is used to initialize the Tabs state, ensuring tab 資訊 persists after a page refresh.
  * @example
