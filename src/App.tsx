@@ -8,6 +8,7 @@ import { generateRoutesFromPermissions } from './router/generateRouteFromPermiss
 
 
 function App() {
+  // const { token, permissions } = useAppSelector(state => state.authSlice);
   const token = useAppSelector(selectToken);
   const permissions = useAppSelector(selectPermissions);
   const permissionsLoaded = useAppSelector(selectPermissionsLoaded);
