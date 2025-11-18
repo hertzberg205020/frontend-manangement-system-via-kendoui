@@ -63,7 +63,7 @@ const getDefaultTabsState = (): TabsState => ({
 
 const clearCorruptedStorage = (): void => {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
   } catch (error) {
     console.warn('清除損壞的 Tab 狀態失敗:', error);
   }
@@ -183,12 +183,16 @@ const tabsSlice = createSlice({
     },
 
     // 清除持久化數據（用於登出時）
-    clearTabsStorage: () => {
+    clearTabsStorage: (state) => {
       try {
-        localStorage.removeItem('tabs-state');
+        sessionStorage.removeItem('tabs-state');
       } catch (error) {
         console.warn('清除 Tab 狀態失敗:', error);
       }
+      // 重置 Redux state 為預設狀態
+      const defaultState = getDefaultTabsState();
+      state.activeKey = defaultState.activeKey;
+      state.items = defaultState.items;
     }
   }
 });
