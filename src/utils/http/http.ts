@@ -626,7 +626,7 @@ http.interceptors.response.use(
     try {
       const retryResult = await retryRequest(error);
       return retryResult;
-    } catch (retryError) {
+    } catch {
       // All retries failed, process the error for user display
       const httpError = handleError(error);
       logError(httpError);
