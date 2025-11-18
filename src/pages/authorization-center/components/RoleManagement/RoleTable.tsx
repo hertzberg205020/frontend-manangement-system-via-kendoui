@@ -40,13 +40,13 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, actions, loading = false }
       title: '建立時間',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: 180,
+      width: 200,
       render: (text: string) => new Date(text).toLocaleString('zh-TW'),
     },
     {
       title: '操作',
       key: 'action',
-      width: 200,
+      width: 240,
       render: (_: unknown, record: Role) => (
         <Space>
           <Button
