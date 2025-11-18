@@ -12,11 +12,6 @@ description: 'generate a detailed prompt for refactoring function/method signatu
     name="COMMUNICATION_INTERFACE_SERVICE_FILE"
     value="${workspaceFolderBasename}/src/pages/authorization-center/services/IAuthorizationService.ts"
     description="get the communication interface service file path" />
-
-  <Variable
-    name="COMMUNICATION_API_SERVICE_FILE"
-    value="${workspaceFolderBasename}/src/pages/authorization-center/services/ApiAuthorizationService.ts"
-    description="get the communication api service file path" />
   <Variable
     name="AUTH_CENTER_PAGE"
     value="${workspaceFolderBasename}/src/pages/authorization-center/index.tsx"
@@ -34,10 +29,10 @@ description: 'generate a detailed prompt for refactoring function/method signatu
 
 ## Purpose
 
-將 UserManagement 元件中的的方法與實踐的 API 串接起來，確保方法簽名與 API 規範一致。
+將 ${AUTH_CENTER_PAGE} 元件中需要與網頁後端通訊的方法與實踐的 API 串接起來。
 
 ## Tasks
 
-1. 分析 ${USER_MANAGEMENT_COMPONENT_DIR} 目錄中的元件，找出所有需要與後端 API 互動的方法。
-2. 查詢 ${COMMUNICATION_INTERFACE_SERVICE_FILE} 檔案中的 IAuthorizationService 介面，找出與步驟一中方法對應的方法簽名。
-3. 改寫 ${COMMUNICATION_API_SERVICE_FILE} 檔案中的 ApiAuthorizationService 類別，介接 ${AUTH_API_SERVICE} 檔案中的 API 呼叫，確保方法簽名與 IAuthorizationService 介面一致。
+1. 移除 ${AUTH_CENTER_PAGE} 元件中目前所依賴的 `IAuthorizationService` 介面，並根據 ${AUTH_API_SERVICE} 中的 API 規範，重新介接 ${AUTH_CENTER_PAGE} 頁面中 `UserManagement` 與 `RoleManagement` 元件所需的 API 方法。
+2. 對 ${AUTH_CENTER_PAGE} 中的 `UserManagement` 元件進行重構，操作欄位的分配角色功能採用 Ant Design 的 Transfer 元件。
+3. 對 ${AUTH_CENTER_PAGE} 中的 `RoleManagement` 元件進行重構，操作欄位的權限設定功能採用 Ant Design 的 Tree 元件，並搭配 ${AUTH_API_SERVICE} 中的 `getPermissionsHierarchy` API 進行資料讀取。
