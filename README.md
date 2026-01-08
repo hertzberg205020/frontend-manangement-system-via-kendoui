@@ -4,6 +4,8 @@ Operational cockpit for science/industrial parks built with React 19, TypeScript
 
 > The stack already targets the latest stable releases: **React 19** (new Actions/useOptimistic hooks) [[React team, 2024-12-05]](https://react.dev/blog/2024/12/05/react-19), **Vite 6** (Environment API, Node 20.19+ baseline, stricter security defaults) [[Vite changelog]](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md#600-2024-11-26), **Ant Design 5** with the React 19 compatibility patch [[antd docs]](https://ant.design/docs/react/v5-for-19), and **React Router 7.5** (data loaders/actions, deferred routing) [[React Router overview]](https://reactrouter.com/en/main/start/overview).
 
+New to the codebase? Start with [AGENTS.md](AGENTS.md) for the architecture map, conventions, and common change checklists.
+
 ---
 
 ## 📋 Table of Contents
@@ -276,6 +278,8 @@ See [Backlog](#backlog) for tracking items.
 ---
 
 ## 🤝 Contributing
+
+Read [AGENTS.md](AGENTS.md) first for the repo-specific architecture and workflows.
 
 1. Fork and branch from `main` (`feature/<topic>`).
 2. Follow the coding standards inside `.github/copilot-instructions.md` (hooks-first, strict typing, Ant Design best practices).
