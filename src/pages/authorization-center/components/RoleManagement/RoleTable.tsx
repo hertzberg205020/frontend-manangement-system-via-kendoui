@@ -1,8 +1,9 @@
 import React from 'react';
-import { Table, Button, Space, Badge, Popconfirm } from 'antd';
+import { Table, Button, Space, Badge } from 'antd';
 import { EditOutlined, DeleteOutlined, SafetyOutlined } from '@ant-design/icons';
 import type { Role, RoleActions } from '../../types';
 import { TABLE_PAGINATION_CONFIG, MESSAGES } from '../../constants';
+import { Popconfirm } from '@/ui';
 
 interface RoleTableProps {
   roles: Role[];

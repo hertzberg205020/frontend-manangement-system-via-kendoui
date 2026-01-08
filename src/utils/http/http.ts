@@ -7,7 +7,7 @@
 
 import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { message } from 'antd';
+import { notify } from '@/ui';
 import { store } from '@/store';
 
 /**
@@ -348,7 +348,7 @@ const handleError = (error: AxiosError): HttpError => {
 };
 
 /**
- * Displays user-friendly error messages using Ant Design's message component
+ * Displays user-friendly error messages using the notify facade
  * Different error types are shown with appropriate styling and duration
  * @param error - The HTTP error to display
  * @since 1.0.0
@@ -367,7 +367,7 @@ const showErrorMessage = (error: HttpError): void => {
     case ErrorType.TIMEOUT_ERROR:
       // Network and timeout errors get longer display duration (5s)
       // as users may need more time to understand connectivity issues
-      message.error({
+      notify.error({
         content: error.message,
         duration: 5,
         key: 'network-error',
@@ -377,7 +377,7 @@ const showErrorMessage = (error: HttpError): void => {
     case ErrorType.UNAUTHORIZED:
       // Auth errors use warning style and shorter duration (3s)
       // as they typically trigger automatic redirects
-      message.warning({
+      notify.warning({
         content: error.message,
         duration: 3,
         key: 'auth-error',
@@ -386,7 +386,7 @@ const showErrorMessage = (error: HttpError): void => {
 
     case ErrorType.FORBIDDEN:
       // Permission errors use warning style with moderate duration (4s)
-      message.warning({
+      notify.warning({
         content: error.message,
         duration: 4,
         key: 'permission-error',
@@ -395,7 +395,7 @@ const showErrorMessage = (error: HttpError): void => {
 
     case ErrorType.SERVER_ERROR:
       // Server errors get longest duration (6s) as they may require user action
-      message.error({
+      notify.error({
         content: error.message,
         duration: 6,
         key: 'server-error',
@@ -404,7 +404,7 @@ const showErrorMessage = (error: HttpError): void => {
 
     case ErrorType.BUSINESS_ERROR:
       // Business logic errors use standard duration (4s)
-      message.error({
+      notify.error({
         content: error.message,
         duration: 4,
         key: 'business-error',
@@ -413,7 +413,7 @@ const showErrorMessage = (error: HttpError): void => {
 
     default:
       // Fallback for unknown error types
-      message.error({
+      notify.error({
         content: error.message,
         duration: 4,
         key: 'general-error',

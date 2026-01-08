@@ -1,7 +1,8 @@
-import { Col, Form, Input, message, Modal, Radio, Row } from 'antd';
+import { Col, Form, Input, Modal, Radio, Row } from 'antd';
 import React, { useEffect } from 'react';
 import type { CompanyDataType } from './interface';
 import { upsertClient } from '@/api/client-list';
+import { notify } from '@/ui';
 
 /**
  * Represents the structure of company data.
@@ -72,7 +73,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({
       const values = await form.validateFields();
       // 在這裡可以處理表單提交的邏輯，例如發送請求到後端
       const { data } = await upsertClient(values);
-      message.success(data || '操作成功');
+      notify.success(data || '操作成功');
       // 提交後關閉模態框
       onClose();
       // 如果有 onRefresh 函數，則調用它來刷新列表

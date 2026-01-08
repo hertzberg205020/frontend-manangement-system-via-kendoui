@@ -6,7 +6,7 @@ import type { Role, RoleFormValues } from '../../types';
 import RoleTable from './RoleTable';
 import RoleModal from './RoleModal';
 import { getPermissionsHierarchy, type PermissionTreeNode } from '@/api/auth-management';
-import { message } from 'antd';
+import { notify } from '@/ui';
 
 interface RoleManagementProps {
   roles: Role[];
@@ -47,7 +47,7 @@ const RoleManagement: React.FC<RoleManagementProps> = ({
       setPermissionTree(response.data);
     } catch (error) {
       console.error('Failed to load permissions:', error);
-      message.error('載入權限列表失敗');
+      notify.error('載入權限列表失敗');
     } finally {
       setLoadingPermissions(false);
     }

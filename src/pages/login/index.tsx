@@ -2,8 +2,8 @@ import logo from '@/assets/logo.png';
 import backgroundPicture from '@/assets/bg.jpg';
 import loginBackground from '@/assets/login-background.png';
 import './index.scss';
-import { Button, Form, Input, message } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Button, Form, Input } from 'antd';
+import { Icons } from '@/ui';
 import { getUserPermissions, login } from '@/api/users';
 import { clearPermissions, clearToken, setPermissions, setToken } from '@/store/login/authSlice';
 import { jwtDecode } from 'jwt-decode';
@@ -11,6 +11,7 @@ import JwtToken from '@/types/jwtPayload';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import { useAppDispatch } from '@/store';
+import { notify } from '@/ui';
 
 function Login() {
   // hook
@@ -36,7 +37,7 @@ function Login() {
 
       // API contract: { token: string }
       if (!token) {
-        message.error('登入失敗，未取得 token');
+        notify.error('登入失敗，未取得 token');
         setLoading(false);
         return;
       }
@@ -46,7 +47,7 @@ function Login() {
       const jwt = new JwtToken(payload);
 
       if (jwt.isExpired()) {
-        message.error('登入失敗：Token 已過期');
+        notify.error('登入失敗：Token 已過期');
         setLoading(false);
         return;
       }
@@ -64,7 +65,7 @@ function Login() {
       }
     } catch (error) {
       setLoading(false);
-      message.error('登入失敗，請稍後再試');
+      notify.error('登入失敗，請稍後再試');
       console.error('Login failed:', error);
       dispatch(clearToken());
       dispatch(clearPermissions());
@@ -88,7 +89,7 @@ function Login() {
               name="account"
               rules={[{ required: true, message: 'Please input your username!' }]}
             >
-              <Input placeholder="輸入帳號" prefix={<UserOutlined />} />
+              <Input placeholder="輸入帳號" prefix={<Icons.User />} />
             </Form.Item>
 
             <Form.Item
@@ -96,7 +97,7 @@ function Login() {
               name="password"
               rules={[{ required: true, message: 'Please input your password!' }]}
             >
-              <Input.Password placeholder="輸入密碼" prefix={<LockOutlined />} />
+              <Input.Password placeholder="輸入密碼" prefix={<Icons.Lock />} />
             </Form.Item>
 
             <Form.Item label={null}>

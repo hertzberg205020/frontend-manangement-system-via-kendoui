@@ -1,8 +1,9 @@
 import React from 'react';
-import { Table, Button, Space, Badge, Tag, Popconfirm } from 'antd';
+import { Table, Button, Space, Badge, Tag } from 'antd';
 import { EditOutlined, DeleteOutlined, KeyOutlined, UndoOutlined } from '@ant-design/icons';
 import type { User, UserActions, Role } from '../../types';
 import { TABLE_PAGINATION_CONFIG, MESSAGES } from '../../constants';
+import { Popconfirm } from '@/ui';
 
 interface UserTableProps {
   users: User[];

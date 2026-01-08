@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { message } from 'antd';
+import { notify } from '@/ui';
 import type { User, Role, UserFormValues, RoleFormValues } from '../types';
 import { MESSAGES } from '../constants';
 import {
@@ -56,7 +56,7 @@ export const useAuthorizationData = () => {
       setUsers(convertedUsers);
     } catch (error) {
       console.error('Failed to fetch users:', error);
-      message.error('獲取使用者列表失敗');
+      notify.error('獲取使用者列表失敗');
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export const useAuthorizationData = () => {
       setRoles(convertedRoles);
     } catch (error) {
       console.error('Failed to fetch roles:', error);
-      message.error('獲取角色列表失敗');
+      notify.error('獲取角色列表失敗');
     } finally {
       setLoading(false);
     }
@@ -93,11 +93,11 @@ export const useAuthorizationData = () => {
         roleIds: [],
       };
       await createUserApi(createData);
-      message.success(MESSAGES.USER_CREATED);
+      notify.success(MESSAGES.USER_CREATED);
       await fetchUsers();
     } catch (error) {
       console.error('Failed to create user:', error);
-      message.error('建立使用者失敗');
+      notify.error('建立使用者失敗');
     }
   };
 
@@ -108,44 +108,44 @@ export const useAuthorizationData = () => {
         isActive: values.isActive,
       };
       await updateUserApi(empId, updateData);
-      message.success(MESSAGES.USER_UPDATED);
+      notify.success(MESSAGES.USER_UPDATED);
       await fetchUsers();
     } catch (error) {
       console.error('Failed to update user:', error);
-      message.error('更新使用者失敗');
+      notify.error('更新使用者失敗');
     }
   };
 
   const deleteUser = async (empId: string): Promise<void> => {
     try {
       await deleteUserApi(empId);
-      message.success(MESSAGES.USER_DELETED);
+      notify.success(MESSAGES.USER_DELETED);
       await fetchUsers();
     } catch (error) {
       console.error('Failed to delete user:', error);
-      message.error('刪除使用者失敗');
+      notify.error('刪除使用者失敗');
     }
   };
 
   const restoreUser = async (empId: string): Promise<void> => {
     try {
       await restoreUserApi(empId);
-      message.success(MESSAGES.USER_RESTORED);
+      notify.success(MESSAGES.USER_RESTORED);
       await fetchUsers();
     } catch (error) {
       console.error('Failed to restore user:', error);
-      message.error('恢復使用者失敗');
+      notify.error('恢復使用者失敗');
     }
   };
 
   const assignRole = async (user: User, roleIds: number[]): Promise<void> => {
     try {
       await replaceUserRoles(user.empId, { roleIds });
-      message.success('角色分配成功');
+      notify.success('角色分配成功');
       await fetchUsers();
     } catch (error) {
       console.error('Failed to assign roles:', error);
-      message.error('角色分配失敗');
+      notify.error('角色分配失敗');
     }
   };
 
@@ -157,11 +157,11 @@ export const useAuthorizationData = () => {
         description: values.description,
       };
       await createRoleApi(createData);
-      message.success(MESSAGES.ROLE_CREATED);
+      notify.success(MESSAGES.ROLE_CREATED);
       await fetchRoles();
     } catch (error) {
       console.error('Failed to create role:', error);
-      message.error('建立角色失敗');
+      notify.error('建立角色失敗');
     }
   };
 
@@ -172,18 +172,18 @@ export const useAuthorizationData = () => {
         description: values.description,
       };
       await updateRoleApi(id, updateData);
-      message.success(MESSAGES.ROLE_UPDATED);
+      notify.success(MESSAGES.ROLE_UPDATED);
       await fetchRoles();
     } catch (error) {
       console.error('Failed to update role:', error);
-      message.error('更新角色失敗');
+      notify.error('更新角色失敗');
     }
   };
 
   const deleteRole = async (id: number): Promise<void> => {
     try {
       await deleteRoleApi(id);
-      message.success(MESSAGES.ROLE_DELETED);
+      notify.success(MESSAGES.ROLE_DELETED);
       await fetchRoles();
     } catch (error: unknown) {
       console.error('Failed to delete role:', error);
@@ -197,13 +197,13 @@ export const useAuthorizationData = () => {
       const responseStatus = hasResponse(error) ? error.response?.status : undefined;
 
       if (errorCode === 409 || responseStatus === 409) {
-        message.error('無法刪除角色，該角色已分配給一或多位使用者');
+        notify.error('無法刪除角色，該角色已分配給一或多位使用者');
       } else if (errorCode === 404 || responseStatus === 404) {
-        message.error('角色不存在');
+        notify.error('角色不存在');
       } else if (errorCode === 403 || responseStatus === 403) {
-        message.error('無權限刪除角色');
+        notify.error('無權限刪除角色');
       } else {
-        message.error('刪除角色失敗');
+        notify.error('刪除角色失敗');
       }
     }
   };
@@ -211,11 +211,11 @@ export const useAuthorizationData = () => {
   const updatePermissions = async (roleId: number, permissionIds: number[]): Promise<void> => {
     try {
       await replaceRolePermissions(roleId, { permissionIds });
-      message.success(MESSAGES.PERMISSION_UPDATED);
+      notify.success(MESSAGES.PERMISSION_UPDATED);
       await fetchRoles();
     } catch (error) {
       console.error('Failed to update permissions:', error);
-      message.error('更新權限失敗');
+      notify.error('更新權限失敗');
     }
   };
 

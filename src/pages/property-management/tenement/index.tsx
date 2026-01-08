@@ -1,11 +1,12 @@
 import { getData } from '@/api/tenement';
 import type { TenementDataType } from '@/types/tenement';
-import { Button, Card, Col, Input, message, Popconfirm, Row, Table, type TableProps } from 'antd';
+import { Button, Card, Col, Input, Row, Table, type TableProps } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import columns from './columns';
 import { useAppDispatch } from '@/store';
 import { clearTenementDatum, setTenementDatum } from '@/store/tenement/tenementSlice';
 import UpsertModal from './UpsertModal';
+import { notify, Popconfirm } from '@/ui';
 
 const Tenement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,7 +56,7 @@ const Tenement: React.FC = () => {
                   okText="Yes"
                   cancelText="No"
                   onConfirm={() => handleDelete(record.id)}
-                  onCancel={() => message.info('Delete cancelled')}
+                  onCancel={() => notify.info('Delete cancelled')}
                 >
                   <Button type="primary" size="small" danger className="ml">
                     Delete
@@ -89,7 +90,7 @@ const Tenement: React.FC = () => {
         setTotalRecords(total);
       } catch (error) {
         console.error('Error loading data:', error);
-        message.error('Failed to load data');
+        notify.error('Failed to load data');
       } finally {
         setLoading(false);
       }

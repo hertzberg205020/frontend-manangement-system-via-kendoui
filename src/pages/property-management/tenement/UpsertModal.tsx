@@ -1,9 +1,10 @@
 import { upsertTenement } from '@/api/tenement';
 import { useAppSelector } from '@/store';
 import type { CreateTenementDataType } from '@/types/tenement';
-import { Col, Form, Input, InputNumber, message, Modal, Radio, Row } from 'antd';
+import { Col, Form, Input, InputNumber, Modal, Radio, Row } from 'antd';
 import React from 'react';
 import { useEffect } from 'react';
+import { notify } from '@/ui';
 
 interface FormProps {
   visible: boolean;
@@ -46,7 +47,7 @@ const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode,
       // 在這裡可以處理表單提交的邏輯，例如發送請求到後端
       console.log('Form values:', values);
       const { data } = await upsertTenement(values);
-      message.success(data || '操作成功');
+      notify.success(data || '操作成功');
 
       // 提交後關閉模態框
       onClose();

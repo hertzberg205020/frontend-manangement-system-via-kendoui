@@ -1,5 +1,6 @@
-import { Button, message, Popconfirm } from 'antd';
+import { Button } from 'antd';
 import type { TableProps } from 'antd/es/table';
+import { notify, Popconfirm } from '@/ui';
 
 //
 interface ProcessColumnsOptions<T extends { id: string | number }> {
@@ -43,7 +44,7 @@ export function processTableColumns<T extends { id: string | number }>(
                 okText="Yes"
                 cancelText="No"
                 onConfirm={() => onDelete(record.id)}
-                onCancel={() => message.info('Delete cancelled')}
+                onCancel={() => notify.info('Delete cancelled')}
               >
                 <Button type="primary" size="small" danger className="ml">
                   {deleteText}

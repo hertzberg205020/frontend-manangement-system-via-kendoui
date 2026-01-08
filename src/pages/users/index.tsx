@@ -3,9 +3,7 @@ import {
   Card,
   Col,
   Input,
-  message,
   Pagination,
-  Popconfirm,
   Row,
   Table,
   Tag,
@@ -16,6 +14,7 @@ import type { CompanyDataType } from './interface';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { batchDeleteClient, deleteClient, getClientList } from '@/api/client-list';
 import ClientFormModal from './ClientForm';
+import { notify, Popconfirm } from '@/ui';
 
 const columns: TableProps<CompanyDataType>['columns'] = [
   {
@@ -136,7 +135,7 @@ const Users: React.FC = () => {
   const handleBatchDelete = async () => {
     try {
       const { data } = await batchDeleteClient([...selectedRowKeys]);
-      message.success(data);
+      notify.success(data);
       setRefreshTrigger((prev) => !prev);
     } catch (error) {
       console.error('Error deleting items:', error);
@@ -226,7 +225,7 @@ const Users: React.FC = () => {
         //   [];
         setSelectedRowKeys([]);
       } catch (error) {
-        message.error('Failed to fetch data');
+        notify.error('Failed to fetch data');
         console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
@@ -239,7 +238,7 @@ const Users: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       const { data } = await deleteClient(id);
-      message.success(data);
+      notify.success(data);
       setRefreshTrigger((prev) => !prev);
     } catch (error) {
       console.error('Error deleting item:', error);
@@ -266,7 +265,7 @@ const Users: React.FC = () => {
                 okText="Yes"
                 cancelText="No"
                 onConfirm={() => handleDelete(record.id)}
-                onCancel={() => message.info('Delete cancelled')}
+                onCancel={() => notify.info('Delete cancelled')}
               >
                 <Button type="primary" size="small" danger className="ml">
                   Delete
