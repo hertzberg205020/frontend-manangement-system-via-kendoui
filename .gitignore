@@ -25,3 +25,6 @@ dist-ssr
 *.sw?
 
 .memory/*
+
+# Telerik license file (機敏檔案，請勿追蹤)
+telerik-license.txt
