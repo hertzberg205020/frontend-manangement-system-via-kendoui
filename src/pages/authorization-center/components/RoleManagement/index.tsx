@@ -118,13 +118,20 @@ const RoleManagement: React.FC<RoleManagementProps> = ({
 
   // Convert PermissionTreeNode to Ant Design Tree data format
   const convertToTreeData = (nodes: PermissionTreeNode[]): DataNode[] => {
-    return nodes.map(node => ({
-      title: node.title,
-      key: node.isLeaf && node.permissionId ? `permission-${node.permissionId}` : node.key,
-      children: node.children ? convertToTreeData(node.children) : undefined,
-      selectable: false,
-      checkable: true,
-    }));
+    return nodes.map(node => {
+      // Always generate consistent key format for leaf nodes with permissionId
+      const nodeKey = node.isLeaf && node.permissionId
+        ? `permission-${node.permissionId}`
+        : node.key;
+
+      return {
+        title: node.title,
+        key: nodeKey,
+        children: node.children ? convertToTreeData(node.children) : undefined,
+        selectable: false,
+        checkable: node.isLeaf, // Only leaf nodes should be checkable
+      };
+    });
   };
 
   return (
