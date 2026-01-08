@@ -31,7 +31,10 @@ export class LoginError extends Error {
 
 export async function login(data: LoginData): Promise<LoginResponse> {
   try {
-    const res = await post<LoginResponse, LoginData>('api/auth/login', data);
+    // Skip automatic error notification - let the login page handle it
+    const res = await post<LoginResponse, LoginData>('api/auth/login', data, {
+      skipErrorNotification: true,
+    });
 
     if (res.code < 200 || res.code >= 300) {
       // Provide more specific error messages based on status code

@@ -93,13 +93,15 @@ interface RequestMetadata {
 }
 
 /**
- * Axios module augmentation to add metadata support
+ * Axios module augmentation to add metadata support and error notification control
  * @since 1.0.0
  */
 declare module 'axios' {
   interface InternalAxiosRequestConfig {
     /** Optional metadata for request tracking */
     metadata?: RequestMetadata;
+    /** Skip automatic error notification in HTTP interceptor (default: false) */
+    skipErrorNotification?: boolean;
   }
 }
 
@@ -598,9 +600,13 @@ http.interceptors.response.use(
           method: config.method,
         };
 
-        // Log and display the business error
+        // Log the business error
         logError(businessError);
-        showErrorMessage(businessError);
+
+        // Display error message only if not skipped
+        if (!config.skipErrorNotification) {
+          showErrorMessage(businessError);
+        }
 
         // Reject with structured error for consistent error handling
         return Promise.reject(businessError);
@@ -633,7 +639,11 @@ http.interceptors.response.use(
       // All retries failed, process the error for user display
       const httpError = handleError(error);
       logError(httpError);
-      showErrorMessage(httpError);
+
+      // Display error message only if not skipped
+      if (!error.config?.skipErrorNotification) {
+        showErrorMessage(httpError);
+      }
 
       // Reject with structured HttpError for consistent error handling
       return Promise.reject(httpError);
