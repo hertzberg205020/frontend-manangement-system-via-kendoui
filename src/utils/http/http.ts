@@ -272,28 +272,36 @@ const handleError = (error: AxiosError): HttpError => {
     const { status, data } = error.response;
 
     switch (true) {
-      case status === 401:
+      case status === 401: {
+        // Check if this is a login request (don't redirect on login page)
+        const isLoginRequest = url?.includes('/auth/login');
+
         httpError = {
           type: ErrorType.UNAUTHORIZED,
           code: status,
-          message: '登入已過期，請重新登入',
+          message: isLoginRequest ? '帳號或密碼錯誤' : '登入已過期，請重新登入',
           originalError: error,
           timestamp,
           url,
           method,
         };
-        // Fixed: Added null checking for store state
-        try {
-          const state = store.getState();
-          if (state?.authSlice) {
-            store.dispatch({ type: 'auth/logout' });
+
+        // Only redirect to login if not already on login page
+        if (!isLoginRequest) {
+          // Fixed: Added null checking for store state
+          try {
+            const state = store.getState();
+            if (state?.authSlice) {
+              store.dispatch({ type: 'auth/logout' });
+            }
+            window.location.href = '/login';
+          } catch (storeError) {
+            console.error('Store access error:', storeError);
+            window.location.href = '/login';
           }
-          window.location.href = '/login';
-        } catch (storeError) {
-          console.error('Store access error:', storeError);
-          window.location.href = '/login';
         }
         break;
+      }
 
       case status === 403:
         httpError = {

@@ -37,7 +37,7 @@ function Login() {
 
       // API contract: { token: string }
       if (!token) {
-        notify.error('登入失敗，未取得 token');
+        notify.error('登入失敗，未取得憑證');
         setLoading(false);
         return;
       }
@@ -47,7 +47,7 @@ function Login() {
       const jwt = new JwtToken(payload);
 
       if (jwt.isExpired()) {
-        notify.error('登入失敗：Token 已過期');
+        notify.error('登入憑證已過期，請重新登入');
         setLoading(false);
         return;
       }
@@ -55,8 +55,16 @@ function Login() {
       // 儲存原始 token 到 Redux
       dispatch(setToken(token));
 
-      const permissions = await getUserPermissions();
-      dispatch(setPermissions(permissions));
+      try {
+        const permissions = await getUserPermissions();
+        dispatch(setPermissions(permissions));
+      } catch {
+        // If fetching permissions fails, clear token and show error
+        dispatch(clearToken());
+        notify.error('無法載入使用者權限，請稍後再試');
+        setLoading(false);
+        return;
+      }
 
       setLoading(false);
       // 導向首頁
@@ -65,7 +73,50 @@ function Login() {
       }
     } catch (error) {
       setLoading(false);
-      notify.error('登入失敗，請稍後再試');
+
+      // Handle LoginError with specific messages
+      if (error && typeof error === 'object' && 'name' in error && error.name === 'LoginError') {
+        const loginError = error as unknown as { message: string; type: string };
+
+        // Display error message based on error type
+        switch (loginError.type) {
+          case 'auth':
+            notify.error({
+              content: loginError.message,
+              duration: 5,
+              key: 'login-auth-error',
+            });
+            break;
+          case 'validation':
+            notify.warning({
+              content: loginError.message,
+              duration: 4,
+              key: 'login-validation-error',
+            });
+            break;
+          case 'network':
+            notify.error({
+              content: loginError.message,
+              duration: 6,
+              key: 'login-network-error',
+            });
+            break;
+          default:
+            notify.error({
+              content: loginError.message,
+              duration: 5,
+              key: 'login-error',
+            });
+        }
+      } else {
+        // Fallback for unknown errors
+        notify.error({
+          content: '登入過程發生錯誤，請稍後再試',
+          duration: 5,
+          key: 'login-unknown-error',
+        });
+      }
+
       console.error('Login failed:', error);
       dispatch(clearToken());
       dispatch(clearPermissions());
