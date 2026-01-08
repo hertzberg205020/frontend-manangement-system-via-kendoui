@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@progress/kendo-licensing": "^1.8.0",
     "@progress/kendo-react-buttons": "^13.2.0",
     "@progress/kendo-react-charts": "^13.2.0",
     "@progress/kendo-react-dateinputs": "^13.2.0",
