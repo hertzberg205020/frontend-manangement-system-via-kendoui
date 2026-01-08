@@ -26,7 +26,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   children,
   requiredPermission,
   allowAnonymous = false,
-  redirectPath = '/login'
+  redirectPath = '/login',
 }) => {
   const token = useAppSelector(selectToken);
   const permissions = useAppSelector(selectPermissions);
@@ -54,9 +54,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
           status="403"
           title="403"
           subTitle="抱歉，您沒有存取此頁面的權限。"
-          extra={
-            <a href="/dashboard">返回首頁</a>
-          }
+          extra={<a href="/dashboard">返回首頁</a>}
         />
       );
     }

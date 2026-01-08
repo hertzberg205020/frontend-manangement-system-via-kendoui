@@ -89,10 +89,9 @@ CREATE INDEX idx_role_permissions_permission_id ON auth.role_permissions(permiss
     "icon": "DashboardOutlined",
     "label": "Dashboard",
     "description": "儀表板",
-    "key": "/dashboard",
+    "key": "/dashboard"
   },
   {
-
     "icon": "TeamOutlined",
     "label": "Tenant Management",
     "description": "客戶管理",
@@ -102,13 +101,13 @@ CREATE INDEX idx_role_permissions_permission_id ON auth.role_permissions(permiss
         "icon": "UnorderedListOutlined",
         "label": "Tenant List",
         "description": "客戶列表",
-        "key": "/users/list",
+        "key": "/users/list"
       },
       {
         "icon": "UserAddOutlined",
         "label": "Add Tenant",
         "description": "新增客戶",
-        "key": "/users/add",
+        "key": "/users/add"
       }
     ]
   },
@@ -119,24 +118,22 @@ CREATE INDEX idx_role_permissions_permission_id ON auth.role_permissions(permiss
     "description": "物業管理",
     "children": [
       {
-
         "icon": "InsertRowLeftOutlined",
         "label": "Building Management",
         "description": "大樓管理",
-        "key": "/property-management/building",
-
+        "key": "/property-management/building"
       },
       {
         "icon": "BankOutlined",
         "label": "Room Management",
         "description": "房間管理",
-        "key": "/property-management/room",
+        "key": "/property-management/room"
       },
       {
         "icon": "TruckOutlined",
         "label": "Vehicle Information",
         "description": "車輛管理",
-        "key": "/property-management/car",
+        "key": "/property-management/car"
       }
     ]
   },
@@ -153,24 +150,22 @@ CREATE INDEX idx_role_permissions_permission_id ON auth.role_permissions(permiss
     "key": "/finance",
     "children": [
       {
-
         "icon": "ProfileOutlined",
         "label": "Contract Management",
         "description": "合約管理",
-        "key": "/finance/contract",
-
+        "key": "/finance/contract"
       },
       {
         "icon": "FrownOutlined",
         "label": "Contract Detail",
         "description": "合約明細",
-        "key": "/finance/contract/detail",
+        "key": "/finance/contract/detail"
       },
       {
         "icon": "FileTextOutlined",
         "label": "Billing Management",
         "description": "收費管理",
-        "key": "/finance/bill",
+        "key": "/finance/bill"
       }
     ]
   },
@@ -178,7 +173,7 @@ CREATE INDEX idx_role_permissions_permission_id ON auth.role_permissions(permiss
     "icon": "TransactionOutlined",
     "label": "Leasing Hub",
     "description": "招商管理",
-    "key": "/merchant-portal",
+    "key": "/merchant-portal"
   },
   {
     "icon": "FundProjectionScreenOutlined",
@@ -187,24 +182,22 @@ CREATE INDEX idx_role_permissions_permission_id ON auth.role_permissions(permiss
     "key": "/operation-center",
     "children": [
       {
-
         "icon": "FundViewOutlined",
         "label": "Operations Overview",
         "description": "運營概覽",
-        "key": "/operation-center/analytics",
-
+        "key": "/operation-center/analytics"
       },
       {
         "icon": "ReadOutlined",
         "label": "Article Publishing",
         "description": "文章發布",
-        "key": "/operation-center/article",
+        "key": "/operation-center/article"
       },
       {
         "icon": "CommentOutlined",
         "label": "Content Comments",
         "description": "內容評論",
-        "key": "/operation-center/comments",
+        "key": "/operation-center/comments"
       }
     ]
   },
@@ -212,25 +205,25 @@ CREATE INDEX idx_role_permissions_permission_id ON auth.role_permissions(permiss
     "icon": "ToolOutlined",
     "label": "Equipment Management",
     "description": "設備管理",
-    "key": "/equipment",
+    "key": "/equipment"
   },
   {
     "icon": "ThunderboltOutlined",
     "label": "Energy Consumption",
     "description": "能耗管理",
-    "key": "/energy",
+    "key": "/energy"
   },
   {
     "icon": "SettingOutlined",
     "label": "Authorization Settings",
     "description": "權限管理",
-    "key": "/authorization-center",
+    "key": "/authorization-center"
   },
   {
     "icon": "UserOutlined",
     "label": "User Profile",
     "description": "個人資訊",
-    "key": "/user-profile",
+    "key": "/user-profile"
   }
 ]
 ```
@@ -368,3 +361,4 @@ the permissions for the admin user would be:
 ]
 
 ```
+````

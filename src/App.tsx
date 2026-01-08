@@ -6,7 +6,6 @@ import type { RouteObject } from 'react-router';
 import { Spin } from 'antd';
 import { generateRoutesFromPermissions } from './router/generateRouteFromPermission';
 
-
 function App() {
   // const { token, permissions } = useAppSelector(state => state.authSlice);
   const token = useAppSelector(selectToken);
@@ -18,14 +17,14 @@ function App() {
   const [routeTree, setRouteTree] = useState<RouteObject[] | null>(null);
 
   /**
-     * 建立使用者路由的核心邏輯
-     *
-     * 這個函式展示了新權限系統的工作流程：
-     * 1. 檢查使用者登入狀態
-     * 2. 如果已登入，取得使用者權限
-     * 3. 根據權限生成對應的路由
-     * 4. 將權限控制的路由整合到完整的路由樹中
-     */
+   * 建立使用者路由的核心邏輯
+   *
+   * 這個函式展示了新權限系統的工作流程：
+   * 1. 檢查使用者登入狀態
+   * 2. 如果已登入，取得使用者權限
+   * 3. 根據權限生成對應的路由
+   * 4. 將權限控制的路由整合到完整的路由樹中
+   */
   useEffect(() => {
     const buildUserRoutes = async () => {
       try {
@@ -49,15 +48,16 @@ function App() {
         const completeRoutes: RouteObject[] = [...BASE_ROUTES];
 
         // 找到根路由並加入使用者專屬路由
-        const rootRouteIndex = completeRoutes.findIndex(route => route.path === '/');
+        const rootRouteIndex = completeRoutes.findIndex((route) => route.path === '/');
 
         if (rootRouteIndex >= 0 && userRoutes.length > 0) {
           // 將使用者路由加入到根路由的子路由中
           completeRoutes[rootRouteIndex].children = userRoutes;
 
           // 設定首頁為儀表板（如果使用者有權限的話）
-          const dashboardRoute = completeRoutes[rootRouteIndex].children
-            ?.find(route => route.path === '/dashboard');
+          const dashboardRoute = completeRoutes[rootRouteIndex].children?.find(
+            (route) => route.path === '/dashboard'
+          );
 
           if (dashboardRoute) {
             dashboardRoute.index = true;
@@ -76,7 +76,6 @@ function App() {
     buildUserRoutes();
   }, [token, permissions, permissionsLoaded]);
 
-
   const router = useMemo(() => {
     return createBrowserRouter(routeTree ?? BASE_ROUTES);
   }, [routeTree]);
@@ -89,12 +88,14 @@ function App() {
    */
   if (!isRoutesReady || !router) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
         <Spin size="large" />
       </div>
     );
@@ -109,12 +110,14 @@ function App() {
   return (
     <Suspense
       fallback={
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh'
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+          }}
+        >
           <Spin size="large" />
         </div>
       }

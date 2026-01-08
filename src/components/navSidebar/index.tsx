@@ -20,7 +20,6 @@ interface AntdMenuItem {
   children?: AntdMenuItem[] | null;
 }
 
-
 interface NavSidebarProps {
   collapsed: boolean;
 }
@@ -41,7 +40,7 @@ function convertToAntdMenuItem(nodes: MenuItemForDisplay[]): AntdMenuItem[] {
       key,
       label,
       icon: icon ? icons[icon] : null, // 從圖示對映中取得對應的 React 元件
-      children: (children && children.length > 0) ? convertToAntdMenuItem(children) : null,
+      children: children && children.length > 0 ? convertToAntdMenuItem(children) : null,
     };
 
     return antdMenuItem;
@@ -56,7 +55,10 @@ function convertToAntdMenuItem(nodes: MenuItemForDisplay[]): AntdMenuItem[] {
  * 而是直接從權限路由對映表中取得資訊。
  * 這種方式更加直接且可靠。
  */
-function findMenuItemInfoByPath(path: string, nodes: MenuItemForDisplay[]): {
+function findMenuItemInfoByPath(
+  path: string,
+  nodes: MenuItemForDisplay[]
+): {
   key: string;
   label: string;
   description: string;
@@ -72,7 +74,7 @@ function findMenuItemInfoByPath(path: string, nodes: MenuItemForDisplay[]): {
       return {
         key: node.key,
         label: node.label,
-        description: node.description || ''
+        description: node.description || '',
       };
     }
 
@@ -85,10 +87,8 @@ function findMenuItemInfoByPath(path: string, nodes: MenuItemForDisplay[]): {
     }
   }
 
-
   throw new Error('找不到對應的選單項目資訊');
 }
-
 
 /**
  * 1. 從使用 menuList 改為使用 permissions
@@ -102,7 +102,7 @@ const NavSidebar: React.FC<NavSidebarProps> = ({ collapsed }) => {
   // 從 Redux store 取得使用者權限
   const permissions = useAppSelector(selectPermissions);
   const token = useAppSelector(selectToken);
-  const { activeKey } = useAppSelector(state => state.tabsSlice);
+  const { activeKey } = useAppSelector((state) => state.tabsSlice);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -127,11 +127,13 @@ const NavSidebar: React.FC<NavSidebarProps> = ({ collapsed }) => {
 
       if (menuItemInfo) {
         // 建立新標籤頁
-        dispatch(addTab({
-          key: menuItemInfo.key,
-          label: menuItemInfo.label,
-          closable: menuItemInfo.key !== '/dashboard' // 首頁不可關閉
-        }));
+        dispatch(
+          addTab({
+            key: menuItemInfo.key,
+            label: menuItemInfo.label,
+            closable: menuItemInfo.key !== '/dashboard', // 首頁不可關閉
+          })
+        );
       } else {
         console.warn(`找不到路徑 ${key} 對應的選單項目資訊`);
       }
@@ -144,7 +146,6 @@ const NavSidebar: React.FC<NavSidebarProps> = ({ collapsed }) => {
       navigate(key);
     }
   };
-
 
   /**
    * 根據使用者權限生成選單
@@ -175,7 +176,6 @@ const NavSidebar: React.FC<NavSidebarProps> = ({ collapsed }) => {
 
       // 更新選單樹
       setMenuTree(antdMenuItems);
-
     } catch (error) {
       console.error('生成選單時發生錯誤:', error);
       // 發生錯誤時清空選單
@@ -190,9 +190,9 @@ const NavSidebar: React.FC<NavSidebarProps> = ({ collapsed }) => {
    * 根據權限動態生成的選單資料。
    */
   return (
-    <div className='nav-left'>
+    <div className="nav-left">
       <div className="logo">
-        <img src={logo} alt='Smart Park' width={18} />
+        <img src={logo} alt="Smart Park" width={18} />
         {!collapsed && <h1>Smart</h1>}
       </div>
       <Menu

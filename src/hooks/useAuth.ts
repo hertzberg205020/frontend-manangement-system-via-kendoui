@@ -5,7 +5,7 @@ import {
   selectPermissions,
   selectUserInfo,
   selectIsTokenExpired,
-  selectIsAuthenticated
+  selectIsAuthenticated,
 } from '@/store';
 import type { Permission } from '@/constants/permissions';
 
@@ -33,14 +33,14 @@ export const useAuth = () => {
    * 檢查用戶是否具有任一權限
    */
   const hasAnyPermission = (perms: Permission[]): boolean => {
-    return perms.some(permission => permissions.includes(permission));
+    return perms.some((permission) => permissions.includes(permission));
   };
 
   /**
    * 檢查用戶是否具有所有權限
    */
   const hasAllPermissions = (perms: Permission[]): boolean => {
-    return perms.every(permission => permissions.includes(permission));
+    return perms.every((permission) => permissions.includes(permission));
   };
 
   return {

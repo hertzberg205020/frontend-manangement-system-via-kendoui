@@ -1,7 +1,6 @@
 import type { Permission } from '@/constants/permissions';
 import { get, post } from '@/utils/http/request';
 
-
 interface LoginData {
   account: string;
   password: string;
@@ -10,8 +9,6 @@ interface LoginData {
 interface LoginResponse {
   token: string;
 }
-
-
 
 export async function login(data: LoginData): Promise<LoginResponse> {
   const res = await post<LoginResponse, LoginData>('api/auth/login', data);
@@ -32,8 +29,6 @@ export async function login(data: LoginData): Promise<LoginResponse> {
 
   return res.data;
 }
-
-
 
 /**
  * Fetches the list of permissions for the currently authenticated user.

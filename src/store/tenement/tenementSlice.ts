@@ -2,7 +2,7 @@ import type { CreateTenementDataType } from '@/types/tenement';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 interface TenementState {
-  tenementDatum: CreateTenementDataType | null,
+  tenementDatum: CreateTenementDataType | null;
 }
 
 /**
@@ -22,8 +22,8 @@ export const tenementSlice = createSlice({
     },
     clearTenementDatum: (state) => {
       state.tenementDatum = null;
-    }
-  }
+    },
+  },
 });
 
 export const { setTenementDatum, clearTenementDatum } = tenementSlice.actions;

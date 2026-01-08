@@ -6,7 +6,6 @@
  * roles, expiration).
  */
 
-
 export interface JwtPayload {
   sub?: string;
   jti?: string;
@@ -46,7 +45,10 @@ export default class JwtToken implements JwtPayload {
     this.jti = raw['jti'] as string | undefined;
 
     // 來源 payload 使用長 URI 欄位名稱，嘗試映射到友善屬性
-    this.name = (raw['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] as string) || (raw['name'] as string) || undefined;
+    this.name =
+      (raw['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] as string) ||
+      (raw['name'] as string) ||
+      undefined;
 
     const rolesFromUri = raw['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
     if (Array.isArray(rolesFromUri)) {
@@ -68,7 +70,6 @@ export default class JwtToken implements JwtPayload {
   hasRole(role: string): boolean {
     return this.roles.includes(role);
   }
-
 
   /** 檢查是否過期（預設使用目前時間） */
   isExpired(nowSeconds = Date.now() / 1000): boolean {

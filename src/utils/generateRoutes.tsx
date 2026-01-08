@@ -15,7 +15,6 @@ export interface MenuNode {
  * @returns {RouteObject[]} - The generated routes.
  */
 export function generateRoutes(menuItems: MenuNode[] | undefined): RouteObject[] {
-
   const routes: RouteObject[] = [];
 
   // only the leaf nodes are added to the routes
@@ -29,7 +28,7 @@ export function generateRoutes(menuItems: MenuNode[] | undefined): RouteObject[]
       if (isLeafNode) {
         const node: RouteObject = {
           path: item.key,
-          element: getRoute(item.key)
+          element: getRoute(item.key),
         };
 
         routes.push(node);

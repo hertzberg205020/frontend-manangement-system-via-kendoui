@@ -20,7 +20,7 @@ import {
   ReadOutlined,
   CommentOutlined,
   ThunderboltOutlined,
-  TeamOutlined
+  TeamOutlined,
 } from '@ant-design/icons';
 
 /**
@@ -73,7 +73,7 @@ const icons: Record<string, React.ReactNode> = {
   ReadOutlined: <ReadOutlined />,
   CommentOutlined: <CommentOutlined />,
   ThunderboltOutlined: <ThunderboltOutlined />,
-  TeamOutlined: <TeamOutlined />
+  TeamOutlined: <TeamOutlined />,
 };
 
 export default icons;

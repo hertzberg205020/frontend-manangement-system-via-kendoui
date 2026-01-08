@@ -12,7 +12,6 @@ import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import { useAppDispatch } from '@/store';
 
-
 function Login() {
   // hook
   const [form] = Form.useForm();
@@ -24,11 +23,9 @@ function Login() {
     backgroundImage: `url(${backgroundPicture})`,
   };
 
-
   const loginStyle: React.CSSProperties = {
     backgroundImage: `url(${loginBackground})`,
   };
-
 
   const handleSubmit = async () => {
     try {
@@ -65,7 +62,6 @@ function Login() {
       if (token) {
         navigate('/', { replace: true });
       }
-
     } catch (error) {
       setLoading(false);
       message.error('登入失敗，請稍後再試');
@@ -76,27 +72,23 @@ function Login() {
   };
 
   return (
-    <div className='login' style={backgroundStyle}>
-      <div className='container'>
-        <div className='login-background' style={loginStyle}>
-        </div>
-        <div className='part'>
+    <div className="login" style={backgroundStyle}>
+      <div className="container">
+        <div className="login-background" style={loginStyle}></div>
+        <div className="part">
           <div className="title">
             <div className="logo">
               <img src={logo} alt="Logo" width={100} />
             </div>
             <h1>管理平台</h1>
           </div>
-          <Form
-            form={form}
-            onFinish={handleSubmit}
-          >
+          <Form form={form} onFinish={handleSubmit}>
             <Form.Item
               label="Account"
               name="account"
               rules={[{ required: true, message: 'Please input your username!' }]}
             >
-              <Input placeholder='輸入帳號' prefix={<UserOutlined />} />
+              <Input placeholder="輸入帳號" prefix={<UserOutlined />} />
             </Form.Item>
 
             <Form.Item
@@ -104,7 +96,7 @@ function Login() {
               name="password"
               rules={[{ required: true, message: 'Please input your password!' }]}
             >
-              <Input.Password placeholder='輸入密碼' prefix={<LockOutlined />} />
+              <Input.Password placeholder="輸入密碼" prefix={<LockOutlined />} />
             </Form.Item>
 
             <Form.Item label={null}>
@@ -115,7 +107,6 @@ function Login() {
           </Form>
         </div>
       </div>
-
     </div>
   );
 }

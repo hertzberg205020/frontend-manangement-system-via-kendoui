@@ -16,8 +16,7 @@ const initialState: AuthState = {
   token: sessionStorage.getItem('token') || null,
   permissions: persistedPermissions,
   permissionsLoaded:
-    sessionStorage.getItem('permissionsLoaded') === 'true' ||
-    persistedPermissions.length > 0,
+    sessionStorage.getItem('permissionsLoaded') === 'true' || persistedPermissions.length > 0,
 };
 
 /**

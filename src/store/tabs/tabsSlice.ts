@@ -1,9 +1,9 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 export interface TabItem {
-  key: string;          // 路由路徑
-  label: string;        // 顯示標題
-  closable: boolean;    // 是否可關閉
+  key: string; // 路由路徑
+  label: string; // 顯示標題
+  closable: boolean; // 是否可關閉
 }
 
 interface TabsState {
@@ -16,9 +16,8 @@ const HOME_TAB_KEY = '/dashboard';
 const DEFAULT_HOME_TAB: TabItem = {
   key: HOME_TAB_KEY,
   label: 'Dashboard',
-  closable: false
+  closable: false,
 };
-
 
 /**
  * 檢查物件是否為有效的 TabItem
@@ -28,37 +27,39 @@ const DEFAULT_HOME_TAB: TabItem = {
 export const isValidTabItem = (item: unknown): item is TabItem => {
   if (typeof item !== 'object' || item === null) return false;
   const tab = item as Record<string, unknown>;
-  return typeof tab.key === 'string' &&
+  return (
+    typeof tab.key === 'string' &&
     typeof tab.label === 'string' &&
-    (typeof tab.closable === 'boolean' || tab.closable === undefined);
+    (typeof tab.closable === 'boolean' || tab.closable === undefined)
+  );
 };
 
 const isValidTabsState = (state: unknown): state is TabsState => {
   if (typeof state !== 'object' || state === null) return false;
   const tabsState = state as Record<string, unknown>;
 
-  return typeof tabsState.activeKey === 'string' &&
+  return (
+    typeof tabsState.activeKey === 'string' &&
     Array.isArray(tabsState.items) &&
     tabsState.items.length > 0 &&
-    tabsState.items.every(isValidTabItem);
+    tabsState.items.every(isValidTabItem)
+  );
 };
 
 const ensureHomeTab = (items: TabItem[]): TabItem[] => {
-  const hasHomeTab = items.some(item =>
-    item.key === HOME_TAB_KEY && !item.closable
-  );
+  const hasHomeTab = items.some((item) => item.key === HOME_TAB_KEY && !item.closable);
 
   return hasHomeTab ? items : [DEFAULT_HOME_TAB, ...items];
 };
 
 const ensureValidActiveKey = (activeKey: string, items: TabItem[]): string => {
-  const activeTabExists = items.some(item => item.key === activeKey);
+  const activeTabExists = items.some((item) => item.key === activeKey);
   return activeTabExists ? activeKey : HOME_TAB_KEY;
 };
 
 const getDefaultTabsState = (): TabsState => ({
   activeKey: HOME_TAB_KEY,
-  items: [DEFAULT_HOME_TAB]
+  items: [DEFAULT_HOME_TAB],
 });
 
 const clearCorruptedStorage = (): void => {
@@ -99,7 +100,7 @@ const loadTabsFromStorage = (): TabsState => {
     const activeKey = ensureValidActiveKey(parsedState.activeKey, items);
     return {
       activeKey,
-      items
+      items,
     };
   } catch (error) {
     console.warn('載入 Tab 狀態失敗:', error);
@@ -137,7 +138,7 @@ const tabsSlice = createSlice({
 
     // 添加新 Tab
     addTab: (state, action: PayloadAction<TabItem>) => {
-      const existingTab = state.items.find(item => item.key === action.payload.key);
+      const existingTab = state.items.find((item) => item.key === action.payload.key);
       if (!existingTab) {
         state.items.push(action.payload);
       }
@@ -154,7 +155,7 @@ const tabsSlice = createSlice({
         return;
       }
 
-      const tabIndex = state.items.findIndex(item => item.key === tabKey);
+      const tabIndex = state.items.findIndex((item) => item.key === tabKey);
 
       if (state.activeKey === tabKey) {
         const newActiveIndex = tabIndex - 1;
@@ -168,14 +169,14 @@ const tabsSlice = createSlice({
     // 關閉其他 Tab
     removeOtherTabs: (state, action: PayloadAction<string>) => {
       const keepTabKey = action.payload;
-      state.items = state.items.filter(item => !item.closable || item.key === keepTabKey);
+      state.items = state.items.filter((item) => !item.closable || item.key === keepTabKey);
       state.activeKey = keepTabKey;
       saveTabsToStorage(state);
     },
 
     // 關閉所有可關閉的 Tab
     removeAllTabs: (state) => {
-      state.items = state.items.filter(item => !item.closable);
+      state.items = state.items.filter((item) => !item.closable);
       if (state.items.length > 0) {
         state.activeKey = state.items[0].key;
       }
@@ -193,17 +194,11 @@ const tabsSlice = createSlice({
       const defaultState = getDefaultTabsState();
       state.activeKey = defaultState.activeKey;
       state.items = defaultState.items;
-    }
-  }
+    },
+  },
 });
 
-export const {
-  setActiveTab,
-  addTab,
-  removeTab,
-  removeOtherTabs,
-  removeAllTabs,
-  clearTabsStorage
-} = tabsSlice.actions;
+export const { setActiveTab, addTab, removeTab, removeOtherTabs, removeAllTabs, clearTabsStorage } =
+  tabsSlice.actions;
 
 export default tabsSlice.reducer;

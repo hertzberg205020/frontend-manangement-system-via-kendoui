@@ -14,9 +14,8 @@ interface FormProps {
 }
 
 const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode, onRefresh }) => {
-
   const [form] = Form.useForm<CreateTenementDataType>();
-  const { tenementDatum: datum } = useAppSelector(state => state.tenementSlice);
+  const { tenementDatum: datum } = useAppSelector((state) => state.tenementSlice);
 
   useEffect(() => {
     // 確保只在 Modal 顯示時處理表單資料
@@ -64,24 +63,11 @@ const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode,
   };
 
   return (
-    <Modal
-      title={title}
-      open={visible}
-      onCancel={handleCancel}
-      width={800}
-      onOk={handleOk}
-    >
-      <Form<CreateTenementDataType>
-        form={form}
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-      >
+    <Modal title={title} open={visible} onCancel={handleCancel} width={800} onOk={handleOk}>
+      <Form<CreateTenementDataType> form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
         {/* 隱藏的 ID 欄位，僅在編輯模式下使用 */}
         {mode === 'EDIT' && (
-          <Form.Item<CreateTenementDataType>
-            name="id"
-            hidden={true}
-          >
+          <Form.Item<CreateTenementDataType> name="id" hidden={true}>
             <Input />
           </Form.Item>
         )}
@@ -140,9 +126,7 @@ const TenementFormModal: React.FC<FormProps> = ({ visible, onClose, title, mode,
             <Form.Item<CreateTenementDataType>
               label="空置率 (%)"
               name="vacancyRate"
-              rules={[
-                { type: 'number', min: 0, max: 100, message: '空置率必須在 0-100 之間' }
-              ]}
+              rules={[{ type: 'number', min: 0, max: 100, message: '空置率必須在 0-100 之間' }]}
             >
               <InputNumber
                 min={0}

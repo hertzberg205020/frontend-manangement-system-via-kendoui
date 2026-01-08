@@ -8,7 +8,6 @@ import type { PagedData } from '@/types/PagedData';
 import { del, get, post, put } from '@/utils/http/request';
 import type { ApiResponse } from '@/utils/http/request';
 
-
 /**
  * Permission tree node representing a hierarchical permission structure
  * @interface PermissionTreeNode
@@ -123,7 +122,6 @@ export interface UserResponse {
   /** Timestamp when the user was last updated (ISO 8601 format) */
   updatedAt: string;
 }
-
 
 /**
  * Query parameters for retrieving users with pagination and filtering

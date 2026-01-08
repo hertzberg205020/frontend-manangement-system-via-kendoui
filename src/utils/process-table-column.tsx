@@ -13,9 +13,7 @@ interface ProcessColumnsOptions<T extends { id: string | number }> {
   deleteDescription?: string;
 }
 
-export function processTableColumns<
-  T extends { id: string | number }
->(
+export function processTableColumns<T extends { id: string | number }>(
   options: ProcessColumnsOptions<T>
 ): TableProps<T>['columns'] {
   const {
@@ -29,35 +27,33 @@ export function processTableColumns<
     onDelete,
   } = options;
 
-  return columns?.map(col => {
-    if (col.key === actionColumnKey) {
-      return {
-        ...col,
-        render: (_value, record) => (
-          <>
-            <Button
-              type="primary"
-              size="small"
-              onClick={() => onEdit(record)}
-            >
-              {editText}
-            </Button>
-            <Popconfirm
-              title={deleteTitle}
-              description={deleteDescription}
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => onDelete(record.id)}
-              onCancel={() => message.info('Delete cancelled')}
-            >
-              <Button type="primary" size="small" danger className="ml">
-                {deleteText}
+  return (
+    columns?.map((col) => {
+      if (col.key === actionColumnKey) {
+        return {
+          ...col,
+          render: (_value, record) => (
+            <>
+              <Button type="primary" size="small" onClick={() => onEdit(record)}>
+                {editText}
               </Button>
-            </Popconfirm>
-          </>
-        )
-      };
-    }
-    return col;
-  }) || [];
-};
+              <Popconfirm
+                title={deleteTitle}
+                description={deleteDescription}
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => onDelete(record.id)}
+                onCancel={() => message.info('Delete cancelled')}
+              >
+                <Button type="primary" size="small" danger className="ml">
+                  {deleteText}
+                </Button>
+              </Popconfirm>
+            </>
+          ),
+        };
+      }
+      return col;
+    }) || []
+  );
+}

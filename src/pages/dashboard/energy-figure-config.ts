@@ -2,35 +2,35 @@ const energyFigureConfig = {
   title: {
     text: 'Daily Energy',
     left: 'left',
-    top: 0 // 或 '2%'
+    top: 0, // 或 '2%'
   },
   tooltip: {
-    trigger: 'axis'
+    trigger: 'axis',
   },
   legend: {
     data: [],
-    top: 'auto'// 或 '8%'
+    top: 'auto', // 或 '8%'
   },
   grid: {
     left: '%',
     right: '4%',
     bottom: '3%',
-    containLabel: true
+    containLabel: true,
   },
   toolbox: {
     feature: {
-      saveAsImage: {}
-    }
+      saveAsImage: {},
+    },
   },
   xAxis: {
     type: 'category',
     boundaryGap: false,
-    data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00']
+    data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
   },
   yAxis: {
-    type: 'value'
+    type: 'value',
   },
-  series: []
+  series: [],
 };
 
 export default energyFigureConfig;

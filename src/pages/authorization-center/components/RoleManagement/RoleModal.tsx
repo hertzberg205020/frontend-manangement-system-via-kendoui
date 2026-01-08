@@ -10,12 +10,7 @@ interface RoleModalProps {
   onSubmit: (values: RoleFormValues) => Promise<void>;
 }
 
-const RoleModal: React.FC<RoleModalProps> = ({
-  visible,
-  role,
-  onCancel,
-  onSubmit,
-}) => {
+const RoleModal: React.FC<RoleModalProps> = ({ visible, role, onCancel, onSubmit }) => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -58,11 +53,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
           <Input placeholder="請輸入角色名稱" />
         </Form.Item>
 
-        <Form.Item
-          name="description"
-          label="描述"
-          rules={[FORM_RULES.ROLE_DESCRIPTION]}
-        >
+        <Form.Item name="description" label="描述" rules={[FORM_RULES.ROLE_DESCRIPTION]}>
           <Input.TextArea placeholder="請輸入角色描述" rows={3} />
         </Form.Item>
 

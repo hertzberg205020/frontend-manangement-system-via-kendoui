@@ -18,7 +18,7 @@ import PrivateRoute from '@/components/PrivateRoute';
 export function generateRoutesFromPermissions(permissions: Permission[]): RouteObject[] {
   const routes: RouteObject[] = [];
 
-  permissions.forEach(permission => {
+  permissions.forEach((permission) => {
     const routeInfo = PERMISSION_ROUTE_MAP[permission];
     if (!routeInfo) {
       console.warn(`未找到權限 ${permission} 對應的路由資訊`);
@@ -35,11 +35,7 @@ export function generateRoutesFromPermissions(permissions: Permission[]): RouteO
     // 建立包含權限檢查的路由
     const route: RouteObject = {
       path: routeInfo.path,
-      element: (
-        <PrivateRoute requiredPermission={permission}>
-          {element}
-        </PrivateRoute>
-      )
+      element: <PrivateRoute requiredPermission={permission}>{element}</PrivateRoute>,
     };
 
     routes.push(route);

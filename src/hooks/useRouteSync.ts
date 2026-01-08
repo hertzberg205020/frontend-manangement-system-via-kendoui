@@ -31,11 +31,13 @@ export const useRouteSync = () => {
     // 當 activeKey 變化時，tabsManager 會自動導航到對應的路由
     // navigate 的職責為 tabsManager
     if (menuItem) {
-      dispatch(addTab({
-        key: menuItem.key,
-        label: menuItem.label,
-        closable: menuItem.key !== '/dashboard'
-      }));
+      dispatch(
+        addTab({
+          key: menuItem.key,
+          label: menuItem.label,
+          closable: menuItem.key !== '/dashboard',
+        })
+      );
     } else {
       console.warn(`No menu item found for path: ${currentPath}`);
       // 預設切換到儀表板

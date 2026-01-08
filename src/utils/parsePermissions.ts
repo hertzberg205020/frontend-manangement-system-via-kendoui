@@ -2,7 +2,7 @@ import { PERMISSIONS } from '@/constants/permissions';
 import type { Permission } from '@/constants/permissions';
 
 const isStringArray = (value: unknown): value is string[] => {
-  return Array.isArray(value) && value.every(item => typeof item === 'string');
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
 };
 
 /**
@@ -23,7 +23,7 @@ export function parsePermissions(rawPermissionList: string[]): Permission[] {
   const isPermission = (p: string): p is Permission => allowed.has(p);
 
   return rawPermissionList
-    .map(t => String(t).trim())
+    .map((t) => String(t).trim())
     .filter(Boolean)
     .filter(isPermission) as Permission[];
 }

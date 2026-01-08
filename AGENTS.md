@@ -87,7 +87,7 @@
 > 這意味著：
 >
 > - 權限未載入完成前，App 會顯示 loading spinner。
-> - 權限路由是「在 runtime 組裝」的，新增 / 修改 permission 對應頁面要確保三個地方一致 (permissions map /routerMap/ MENU\_NODES)。
+> - 權限路由是「在 runtime 組裝」的，新增 / 修改 permission 對應頁面要確保三個地方一致 (permissions map /routerMap/ MENU_NODES)。
 
 ---
 
@@ -127,7 +127,7 @@
 ### Permission -> Route
 
 - 定義：`src/constants/permissions.ts`
-  ்  - `PERMISSIONS.*`：權限 code
+  ் - `PERMISSIONS.*`：權限 code
   - `RESOURCES.*`：path 常數
   - `PERMISSION_ROUTE_MAP`：把 Permission 映到 `{ path, label, description, icon, parentPath }`
 

@@ -5,7 +5,6 @@
 > 假設與註記
 >
 > - 本檔放在 `Documents/login/README.md`（專案內已有 `Documents/` 資料夾，因此採用單數 `Document` 的使用者要求時，做了合理推斷）。
->
 
 ## 主要目的
 

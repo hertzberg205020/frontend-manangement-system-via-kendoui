@@ -6,7 +6,7 @@ import { adminPermissions, managerPermissions, userPermissions } from '@/mock/me
 
 // simulate network delay 200-600ms
 Mock.setup({
-  timeout: '200-600'
+  timeout: '200-600',
 });
 
 const BASE_URL: string = import.meta.env.VITE_API_URL;
@@ -15,7 +15,7 @@ const getQueryParams = (url: string): Record<string, string> => {
   const params: Record<string, string> = {};
   const queryString = url.split('?')[1];
   if (!queryString) return params;
-  queryString.split('&').forEach(pair => {
+  queryString.split('&').forEach((pair) => {
     const [key, value] = pair.split('=');
     params[decodeURIComponent(key)] = decodeURIComponent(value || '');
   });
@@ -24,7 +24,6 @@ const getQueryParams = (url: string): Record<string, string> => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 Mock.mock(`${BASE_URL}/login`, 'post', (options: any): any => {
-
   const { account, password } = JSON.parse(options.body);
 
   let response;
@@ -37,7 +36,7 @@ Mock.mock(`${BASE_URL}/login`, 'post', (options: any): any => {
         data: {
           account: 'admin',
           token: 'mocktoken123456admin',
-        }
+        },
       };
       break;
     case 'user:123456':
@@ -46,8 +45,8 @@ Mock.mock(`${BASE_URL}/login`, 'post', (options: any): any => {
         message: '登入成功',
         data: {
           account: 'user',
-          token: 'mocktoken123456user'
-        }
+          token: 'mocktoken123456user',
+        },
       };
       break;
     case 'manager:123456':
@@ -56,22 +55,20 @@ Mock.mock(`${BASE_URL}/login`, 'post', (options: any): any => {
         message: '登入成功',
         data: {
           account: 'manager',
-          token: 'mocktoken123456manager'
-        }
+          token: 'mocktoken123456manager',
+        },
       };
       break;
     default:
       response = {
         code: 401,
         message: '帳號或密碼錯誤',
-        data: null
+        data: null,
       };
   }
 
   return response;
-
 });
-
 
 // 權限 API mock
 Mock.mock(`${BASE_URL}/permissions`, 'get', () => {
@@ -90,7 +87,7 @@ Mock.mock(`${BASE_URL}/permissions`, 'get', () => {
   return {
     code: 200,
     message: 'success',
-    data: permissions
+    data: permissions,
   };
 });
 
@@ -112,7 +109,7 @@ Mock.mock(`${BASE_URL}/menu`, 'get', () => {
   return {
     code: 200,
     message: 'success',
-    data: permissions
+    data: permissions,
   };
 });
 
@@ -125,8 +122,8 @@ Mock.mock(`${BASE_URL}/energyData`, 'get', () => {
       { name: 'Gas', data: [220, 182, 191, 234, 290, 330, 310] },
       { name: 'Oil', data: [150, 232, 201, 154, 190, 330, 410] },
       { name: 'Electricity', data: [320, 332, 301, 334, 390, 330, 320] },
-      { name: 'Heat', data: [820, 932, 901, 934, 1290, 1330, 1320] }
-    ]
+      { name: 'Heat', data: [820, 932, 901, 934, 1290, 1330, 1320] },
+    ],
   };
 });
 
@@ -153,7 +150,18 @@ Mock.Random.extend({
     // 台灣公司名稱通常有後綴
     const prefixes = ['台灣', '中華', '高雄', '台北', '台中', '新竹', '彰化', '桃園'];
     const suffixes = ['股份有限公司', '有限公司', '企業社', '工作室', '商行'];
-    const industries = ['科技', '電子', '資訊', '半導體', '金融', '生技', '傳媒', '製造', '物流', '顧問'];
+    const industries = [
+      '科技',
+      '電子',
+      '資訊',
+      '半導體',
+      '金融',
+      '生技',
+      '傳媒',
+      '製造',
+      '物流',
+      '顧問',
+    ];
 
     return this.pick(prefixes) + this.cword(2, 4) + this.pick(industries) + this.pick(suffixes);
   },
@@ -161,7 +169,7 @@ Mock.Random.extend({
   // 台灣統一編號 (8位數字)
   unifiedBusinessNumber: function () {
     return Mock.mock(/\d{8}/);
-  }
+  },
 });
 
 // 公司資料列表的介面
@@ -176,19 +184,27 @@ Mock.mock(new RegExp(`${BASE_URL}/client-list.*`), 'get', (options: any) => {
     data: Mock.mock({
       [`list|${pageSize}`]: [
         {
-          'id': '@unifiedBusinessNumber', // 使用統一編號作為ID
-          'name': '@taiwanCompanyName', // 台灣公司名稱
+          id: '@unifiedBusinessNumber', // 使用統一編號作為ID
+          name: '@taiwanCompanyName', // 台灣公司名稱
           'status|1': ['核准設立', '停業', '解散', '撤銷', '廢止'], // 台灣公司狀態
-          'phoneNumber': '@taiwanPhone', // 台灣電話號碼
-          'industryCategory|1': ['製造業', '資訊服務業', '金融保險業', '批發零售業', '專業科學及技術服務業', '營建工程業', '運輸倉儲業'],
-          'email': '@email',
-          'unifiedBusinessNumber': '@unifiedBusinessNumber', // 台灣統一編號 (8位數字)
+          phoneNumber: '@taiwanPhone', // 台灣電話號碼
+          'industryCategory|1': [
+            '製造業',
+            '資訊服務業',
+            '金融保險業',
+            '批發零售業',
+            '專業科學及技術服務業',
+            '營建工程業',
+            '運輸倉儲業',
+          ],
+          email: '@email',
+          unifiedBusinessNumber: '@unifiedBusinessNumber', // 台灣統一編號 (8位數字)
           'industryCode|1': ['F101', 'J201', 'I301', 'C501', 'G801', 'H701', 'D401'], // 模擬行業代碼
-          'responsiblePerson': '@last', // 公司負責人姓名
+          responsiblePerson: '@last', // 公司負責人姓名
         },
       ],
-      total: 78
-    })
+      total: 78,
+    }),
   };
 });
 
@@ -199,7 +215,7 @@ Mock.mock(`${BASE_URL}/client/delete`, 'post', (options: any) => {
   return {
     code: 200,
     message: 'success',
-    data: '刪除成功'
+    data: '刪除成功',
   };
 });
 
@@ -211,7 +227,7 @@ Mock.mock(`${BASE_URL}/client/batch-delete`, 'post', (options: any) => {
   return {
     code: 200,
     message: 'success',
-    data: '刪除成功'
+    data: '刪除成功',
   };
 });
 
@@ -222,7 +238,7 @@ Mock.mock(`${BASE_URL}/client/upsert`, 'post', (options: any) => {
   return {
     code: 200,
     message: 'success',
-    data: '操作成功'
+    data: '操作成功',
   };
 });
 
@@ -249,12 +265,12 @@ const tenementTemplate = {
   managementFee: function () {
     const amount = Mock.Random.integer(3000, 20000);
     return `$${amount.toLocaleString()}`;
-  }
+  },
 };
 
 function generateTenementList(pageSize: number): TenementDataType[] {
   const template = {
-    [`list|${pageSize}`]: [tenementTemplate]
+    [`list|${pageSize}`]: [tenementTemplate],
   };
 
   const mockData = Mock.mock(template);
@@ -283,10 +299,9 @@ function generatePaginatedTenementData(
     total: totalRecords,
     page,
     pageSize,
-    totalPages
+    totalPages,
   };
 }
-
 
 // 模擬 API 端點
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -304,7 +319,7 @@ Mock.mock(new RegExp(`${BASE_URL}/tenement.*`), 'get', (options: any) => {
   return {
     code: 200,
     message: 'success',
-    data: mockData
+    data: mockData,
   };
 });
 
@@ -314,6 +329,6 @@ Mock.mock(`${BASE_URL}/tenement/upsert`, 'post', (options: any) => {
   return {
     code: 200,
     message: 'success',
-    data: '操作成功'
+    data: '操作成功',
   };
 });

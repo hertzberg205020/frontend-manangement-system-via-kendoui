@@ -78,7 +78,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
     onAssignRole: handleAssignRole,
   };
 
-  const roleTransferData = roles.map(role => ({
+  const roleTransferData = roles.map((role) => ({
     key: role.id,
     title: role.name,
     description: role.description || '',

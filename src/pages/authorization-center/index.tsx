@@ -1,10 +1,6 @@
 import React from 'react';
 import { Card, Tabs, Typography } from 'antd';
-import {
-  UserOutlined,
-  TeamOutlined,
-  SafetyOutlined,
-} from '@ant-design/icons';
+import { UserOutlined, TeamOutlined, SafetyOutlined } from '@ant-design/icons';
 import { useAuthorizationData } from './hooks/useAuthorizationData';
 import UserManagement from './components/UserManagement';
 import RoleManagement from './components/RoleManagement';
@@ -71,7 +67,7 @@ const AuthorizationCenter: React.FC = () => {
           loading={loading}
         />
       ),
-    }
+    },
   ];
 
   return (

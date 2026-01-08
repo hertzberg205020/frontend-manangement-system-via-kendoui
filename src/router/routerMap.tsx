@@ -40,7 +40,7 @@ const routerMap: Record<string, React.ReactNode> = {
   [RESOURCES.EQUIPMENT]: <EquipmentManagement />,
   [RESOURCES.ENERGY]: <EnergyConsumption />,
   [RESOURCES.AUTHORIZATION_CENTER]: <AuthorizationSettings />,
-  [RESOURCES.USER_PROFILE]: <UserProfile />
+  [RESOURCES.USER_PROFILE]: <UserProfile />,
 };
 
 export const getRoute = (path: string): React.ReactNode | undefined => {

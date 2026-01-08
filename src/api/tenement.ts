@@ -7,7 +7,6 @@ interface GetDataOption {
   pageSize: number;
 }
 
-
 /**
  * 取得 tenement 分頁資訊
  * @param option 查詢參數
@@ -16,9 +15,8 @@ interface GetDataOption {
 export async function getData(option: GetDataOption): Promise<PaginatedResponse<TenementDataType>> {
   const response = await get<PaginatedResponse<TenementDataType>>('/tenement', {
     page: option.page,
-    pageSize: option.pageSize
+    pageSize: option.pageSize,
   });
-
 
   if (response.code === 200) {
     return response.data;

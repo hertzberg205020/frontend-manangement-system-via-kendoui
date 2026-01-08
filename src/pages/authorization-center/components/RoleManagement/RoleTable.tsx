@@ -29,11 +29,7 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, actions, loading = false }
       key: 'permissionIds',
       width: 120,
       render: (permissionIds: number[]) => (
-        <Badge
-          count={permissionIds.length}
-          showZero
-          color="green"
-        />
+        <Badge count={permissionIds.length} showZero color="green" />
       ),
     },
     {
@@ -49,11 +45,7 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, actions, loading = false }
       width: 240,
       render: (_: unknown, record: Role) => (
         <Space>
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => actions.onEdit(record)}
-          >
+          <Button type="text" icon={<EditOutlined />} onClick={() => actions.onEdit(record)}>
             編輯
           </Button>
           <Button

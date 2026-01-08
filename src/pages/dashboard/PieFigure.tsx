@@ -1,4 +1,3 @@
-
 import ReactECharts from 'echarts-for-react';
 
 const option: Record<string, unknown> = {
@@ -14,7 +13,7 @@ const option: Record<string, unknown> = {
       center: ['50%', '60%'],
       roseType: 'area',
       itemStyle: {
-        borderRadius: 8
+        borderRadius: 8,
       },
       data: [
         { value: 40, name: 'Operating' },
@@ -24,11 +23,10 @@ const option: Record<string, unknown> = {
         { value: 28, name: 'Newly Signed' },
         { value: 26, name: 'Available for Rent' },
         { value: 22, name: 'Lease Terminated' },
-      ]
-    }
-  ]
+      ],
+    },
+  ],
 };
-
 
 const PieFigure: React.FC = () => {
   return (

@@ -150,14 +150,14 @@ src/components/tabsManager/
 
 ```typescript
 interface TabItem {
-  key: string;          // 路由路徑
-  label: string;        // 顯示標題
-  closable: boolean;    // 是否可關閉
+  key: string; // 路由路徑
+  label: string; // 顯示標題
+  closable: boolean; // 是否可關閉
 }
 
 interface TabsState {
-  activeKey: string;    // 當前活躍頁籤
-  items: TabItem[];     // 所有頁籤列表
+  activeKey: string; // 當前活躍頁籤
+  items: TabItem[]; // 所有頁籤列表
 }
 ```
 
@@ -284,7 +284,7 @@ LayoutHeader (logout) → dispatch clearTabsStorage() → sessionStorage.clear()
 **導出的重要數據**:
 
 ```typescript
-export const MENU_NODES: MenuItemForDisplay[]
+export const MENU_NODES: MenuItemForDisplay[];
 ```
 
 **作用**:
@@ -312,7 +312,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 ```typescript
 const dispatch = useAppDispatch();
-const { activeKey, items } = useAppSelector(state => state.tabsSlice);
+const { activeKey, items } = useAppSelector((state) => state.tabsSlice);
 ```
 
 ---
@@ -412,9 +412,9 @@ const { activeKey, items } = useAppSelector(state => state.tabsSlice);
 ### Hooks 使用
 
 ```typescript
-const dispatch = useAppDispatch();        // Redux dispatch
-const navigate = useNavigate();           // React Router 導航
-const { activeKey, items } = useAppSelector(state => state.tabsSlice);
+const dispatch = useAppDispatch(); // Redux dispatch
+const navigate = useNavigate(); // React Router 導航
+const { activeKey, items } = useAppSelector((state) => state.tabsSlice);
 ```
 
 ### 核心方法
@@ -455,13 +455,13 @@ const getContextMenuItems = (tabKey: string): MenuProps['items'] => [
   {
     key: 'close-others',
     label: '關閉其他',
-    onClick: () => dispatch(removeOtherTabs(tabKey))
+    onClick: () => dispatch(removeOtherTabs(tabKey)),
   },
   {
     key: 'close-all',
     label: '關閉所有',
-    onClick: () => dispatch(removeAllTabs())
-  }
+    onClick: () => dispatch(removeAllTabs()),
+  },
 ];
 ```
 
@@ -482,13 +482,13 @@ const getContextMenuItems = (tabKey: string): MenuProps['items'] => [
 
 ```scss
 .ant-tabs-tab {
-  border-radius: 6px 6px 0 0;           // 圓角
-  border: 1px solid #d9d9d9;            // 邊框
-  background: #fafafa;                   // 背景色
+  border-radius: 6px 6px 0 0; // 圓角
+  border: 1px solid #d9d9d9; // 邊框
+  background: #fafafa; // 背景色
 
   &.ant-tabs-tab-active {
-    background: #fff;                    // 活躍狀態背景
-    border-color: #1890ff;               // 活躍狀態邊框
+    background: #fff; // 活躍狀態背景
+    border-color: #1890ff; // 活躍狀態邊框
   }
 }
 ```
@@ -515,7 +515,7 @@ reorderTabs: (state, action: PayloadAction<{ fromIndex: number; toIndex: number 
   const [removed] = state.items.splice(fromIndex, 1);
   state.items.splice(toIndex, 0, removed);
   saveTabsToStorage(state);
-}
+};
 ```
 
 #### 2. 添加頁籤右鍵選單的「重新載入」功能
@@ -534,7 +534,7 @@ const getContextMenuItems = (tabKey: string): MenuProps['items'] => [
     onClick: () => {
       navigate(tabKey, { replace: true });
       window.location.reload(); // 或使用更優雅的刷新方式
-    }
+    },
   },
   // ... 其他選單項
 ];
@@ -555,12 +555,12 @@ interface TabItem {
   key: string;
   label: string;
   closable: boolean;
-  pinned?: boolean;  // 新增
+  pinned?: boolean; // 新增
 }
 
 // reducer
 togglePinTab: (state, action: PayloadAction<string>) => {
-  const tab = state.items.find(item => item.key === action.payload);
+  const tab = state.items.find((item) => item.key === action.payload);
   if (tab) {
     tab.pinned = !tab.pinned;
     // 將固定的頁籤移到前面
@@ -571,7 +571,7 @@ togglePinTab: (state, action: PayloadAction<string>) => {
     });
     saveTabsToStorage(state);
   }
-}
+};
 ```
 
 ---
@@ -631,12 +631,12 @@ export const useRouteSync = () => {
 const MAX_TABS = 10;
 
 addTab: (state, action: PayloadAction<TabItem>) => {
-  const existingTab = state.items.find(item => item.key === action.payload.key);
+  const existingTab = state.items.find((item) => item.key === action.payload.key);
 
   if (!existingTab) {
     // 如果達到上限，移除最舊的可關閉頁籤
     if (state.items.length >= MAX_TABS) {
-      const removeIndex = state.items.findIndex(item => item.closable);
+      const removeIndex = state.items.findIndex((item) => item.closable);
       if (removeIndex !== -1) {
         state.items.splice(removeIndex, 1);
       }
@@ -646,7 +646,7 @@ addTab: (state, action: PayloadAction<TabItem>) => {
 
   state.activeKey = action.payload.key;
   saveTabsToStorage(state);
-}
+};
 ```
 
 ---
@@ -728,8 +728,8 @@ describe('tabsSlice', () => {
       activeKey: '/users',
       items: [
         { key: '/dashboard', label: 'Dashboard', closable: false },
-        { key: '/users', label: 'Users', closable: true }
-      ]
+        { key: '/users', label: 'Users', closable: true },
+      ],
     };
 
     const newState = tabsSlice.reducer(initialState, removeTab('/users'));

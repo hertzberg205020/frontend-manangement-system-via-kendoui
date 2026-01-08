@@ -9,7 +9,6 @@ import { useRouteSync } from '@/hooks/useRouteSync';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-
 const Home: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -25,7 +24,8 @@ const Home: React.FC = () => {
         width={240}
         collapsible
         collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}>
+        onCollapse={(value) => setCollapsed(value)}
+      >
         <NavSidebar collapsed={collapsed} />
       </Sider>
       <Layout>
@@ -38,20 +38,25 @@ const Home: React.FC = () => {
         >
           <LayoutHeader />
         </Header>
-        <Content style={{
-          margin: '0 16px',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%'
-        }}>
+        <Content
+          style={{
+            margin: '0 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
           <CustomBreadcrumb />
 
-          <div className="tabs-container" style={{
-            flexShrink: 0,
-            background: colorBgContainer,
-            borderRadius: `${borderRadiusLG}px ${borderRadiusLG}px 0 0`,
-            marginBottom: 0
-          }}>
+          <div
+            className="tabs-container"
+            style={{
+              flexShrink: 0,
+              background: colorBgContainer,
+              borderRadius: `${borderRadiusLG}px ${borderRadiusLG}px 0 0`,
+              marginBottom: 0,
+            }}
+          >
             <TabsManager />
           </div>
 
@@ -73,7 +78,7 @@ const Home: React.FC = () => {
           Ant Design ©{new Date().getFullYear()} Created by Ant UED
         </Footer>
       </Layout>
-    </Layout >
+    </Layout>
   );
 };
 

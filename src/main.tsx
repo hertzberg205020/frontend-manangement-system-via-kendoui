@@ -7,13 +7,10 @@ import { store } from '@/store';
 import { ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
 
-createRoot(document.getElementById('root') as HTMLElement)
-  .render(
-
-    <Provider store={store}>
-      <ConfigProvider locale={enUS}>
-        <App />
-      </ConfigProvider>
-    </Provider>
-    ,
-  );
+createRoot(document.getElementById('root') as HTMLElement).render(
+  <Provider store={store}>
+    <ConfigProvider locale={enUS}>
+      <App />
+    </ConfigProvider>
+  </Provider>
+);

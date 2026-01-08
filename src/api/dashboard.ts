@@ -6,12 +6,11 @@ export interface EnergyData {
 }
 
 export function getEnergyData(): Promise<EnergyData[]> {
-  return get<EnergyData[]>('/energy-data').then(response => {
+  return get<EnergyData[]>('/energy-data').then((response) => {
     if (response.code === 200) {
       return response.data;
     } else {
       throw new Error(response.message || 'Failed to fetch energy data');
     }
   });
-
 }

@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import type { CompanyDataType } from './interface';
 import { upsertClient } from '@/api/client-list';
 
-
 /**
  * Represents the structure of company data.
  *
@@ -41,7 +40,6 @@ const ClientFormModal: React.FC<ClientFormProps> = ({
   client,
   onRefresh,
 }) => {
-
   const [form] = Form.useForm<CreateCompanyDataType>();
 
   useEffect(() => {
@@ -61,7 +59,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({
         email: client.email,
         unifiedBusinessNumber: client.unifiedBusinessNumber,
         industryCode: client.industryCode,
-        responsiblePerson: client.responsiblePerson
+        responsiblePerson: client.responsiblePerson,
       });
     } else {
       // 如果是新增模式，則清空表單
@@ -90,26 +88,11 @@ const ClientFormModal: React.FC<ClientFormProps> = ({
   };
 
   return (
-
-    <Modal
-      title={title}
-      open={visible}
-      onCancel={handleCancel}
-      width={800}
-      onOk={handleOk}
-    >
-      <Form<CreateCompanyDataType>
-        form={form}
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-      >
-
+    <Modal title={title} open={visible} onCancel={handleCancel} width={800} onOk={handleOk}>
+      <Form<CreateCompanyDataType> form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
         {/* 隱藏的 ID 欄位，僅在編輯模式下使用 */}
         {mode === 'EDIT' && (
-          <Form.Item<CreateCompanyDataType>
-            name="id"
-            hidden={true}
-          >
+          <Form.Item<CreateCompanyDataType> name="id" hidden={true}>
             <Input />
           </Form.Item>
         )}
@@ -170,7 +153,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({
               name="email"
               rules={[
                 { required: true, message: '電子郵件不能為空' },
-                { type: 'email', message: '請輸入有效的電子郵件' }
+                { type: 'email', message: '請輸入有效的電子郵件' },
               ]}
             >
               <Input />
@@ -182,7 +165,7 @@ const ClientFormModal: React.FC<ClientFormProps> = ({
               name="unifiedBusinessNumber"
               rules={[
                 { required: true, message: '統一編號不能為空' },
-                { pattern: /^\d{8}$/, message: '請輸入有效的8位數統一編號' }
+                { pattern: /^\d{8}$/, message: '請輸入有效的8位數統一編號' },
               ]}
             >
               <Input />
@@ -211,7 +194,6 @@ const ClientFormModal: React.FC<ClientFormProps> = ({
         </Row>
       </Form>
     </Modal>
-
   );
 };
 

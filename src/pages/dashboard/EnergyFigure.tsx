@@ -3,9 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import initialEnergyData from './energy-figure-config';
 import ReactECharts from 'echarts-for-react';
 
-
 export const EnergyFigure: React.FC = () => {
-
   const [energyData, setEnergyData] = useState<EnergyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,9 +39,9 @@ export const EnergyFigure: React.FC = () => {
     return {
       ...initialEnergyData,
       legend: {
-        data: data.map(item => item.name),
+        data: data.map((item) => item.name),
       },
-      series: data.map(item => ({
+      series: data.map((item) => ({
         name: item.name,
         type: 'line',
         stack: 'Total',

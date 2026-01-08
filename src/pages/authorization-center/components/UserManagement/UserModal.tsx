@@ -10,12 +10,7 @@ interface UserModalProps {
   onSubmit: (values: UserFormValues) => Promise<void>;
 }
 
-const UserModal: React.FC<UserModalProps> = ({
-  visible,
-  user,
-  onCancel,
-  onSubmit,
-}) => {
+const UserModal: React.FC<UserModalProps> = ({ visible, user, onCancel, onSubmit }) => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -69,12 +64,7 @@ const UserModal: React.FC<UserModalProps> = ({
           </Form.Item>
         )}
 
-        <Form.Item
-          name="isActive"
-          label="狀態"
-          valuePropName="checked"
-          initialValue={true}
-        >
+        <Form.Item name="isActive" label="狀態" valuePropName="checked" initialValue={true}>
           <Switch checkedChildren="啟用" unCheckedChildren="停用" />
         </Form.Item>
 

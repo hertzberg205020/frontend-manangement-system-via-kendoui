@@ -10,7 +10,7 @@ import './index.scss';
 const TabsManager: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { activeKey, items } = useAppSelector(state => state.tabsSlice);
+  const { activeKey, items } = useAppSelector((state) => state.tabsSlice);
 
   // 監聽 activeKey 變化，自動導航（用於處理關閉 Tab 後的導航）
   useEffect(() => {
@@ -18,7 +18,6 @@ const TabsManager: React.FC = () => {
       navigate(activeKey, { replace: true });
     }
   }, [activeKey, navigate]);
-
 
   // Tab 切換處理
   const handleTabChange = (key: string) => {
@@ -42,29 +41,26 @@ const TabsManager: React.FC = () => {
     {
       key: 'close-others',
       label: '關閉其他',
-      onClick: () => dispatch(removeOtherTabs(tabKey))
+      onClick: () => dispatch(removeOtherTabs(tabKey)),
     },
     {
       key: 'close-all',
       label: '關閉所有',
-      onClick: () => dispatch(removeAllTabs())
-    }
+      onClick: () => dispatch(removeAllTabs()),
+    },
   ];
 
   // 轉換 Tab 項目格式
-  const tabItems = items.map(item => ({
+  const tabItems = items.map((item) => ({
     key: item.key,
     label: (
-      <Dropdown
-        menu={{ items: getContextMenuItems(item.key) }}
-        trigger={['contextMenu']}
-      >
+      <Dropdown menu={{ items: getContextMenuItems(item.key) }} trigger={['contextMenu']}>
         <span className="tab-label">
           <span className="tab-text">{item.label}</span>
         </span>
       </Dropdown>
     ),
-    closable: item.closable
+    closable: item.closable,
   }));
 
   return (
@@ -79,7 +75,7 @@ const TabsManager: React.FC = () => {
         tabBarStyle={{
           margin: 0,
           padding: '0 16px',
-          background: 'transparent'
+          background: 'transparent',
         }}
         tabBarExtraContent={
           <Dropdown
@@ -88,14 +84,14 @@ const TabsManager: React.FC = () => {
                 {
                   key: 'close-others',
                   label: '關閉其他',
-                  onClick: () => dispatch(removeOtherTabs(activeKey))
+                  onClick: () => dispatch(removeOtherTabs(activeKey)),
                 },
                 {
                   key: 'close-all',
                   label: '關閉所有',
-                  onClick: () => dispatch(removeAllTabs())
-                }
-              ]
+                  onClick: () => dispatch(removeAllTabs()),
+                },
+              ],
             }}
             placement="bottomRight"
           >

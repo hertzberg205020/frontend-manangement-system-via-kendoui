@@ -14,10 +14,13 @@ interface UserTableProps {
 const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = false }) => {
   // 建立角色 ID 到名稱的對應表
   const roleMap = React.useMemo(() => {
-    return roles.reduce((acc, role) => {
-      acc[role.id] = role.name;
-      return acc;
-    }, {} as Record<number, string>);
+    return roles.reduce(
+      (acc, role) => {
+        acc[role.id] = role.name;
+        return acc;
+      },
+      {} as Record<number, string>
+    );
   }, [roles]);
   const columns = [
     {
@@ -38,10 +41,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = 
       key: 'isActive',
       width: 100,
       render: (isActive: boolean) => (
-        <Badge
-          status={isActive ? 'success' : 'error'}
-          text={isActive ? '啟用' : '停用'}
-        />
+        <Badge status={isActive ? 'success' : 'error'} text={isActive ? '啟用' : '停用'} />
       ),
     },
     {
@@ -52,7 +52,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = 
       render: (roleIds: number[]) => (
         <>
           {roleIds.length > 0 ? (
-            roleIds.map(roleId => (
+            roleIds.map((roleId) => (
               <Tag color="blue" key={roleId}>
                 {roleMap[roleId] || `未知角色(${roleId})`}
               </Tag>
@@ -76,18 +76,10 @@ const UserTable: React.FC<UserTableProps> = ({ users, roles, actions, loading = 
       width: 180,
       render: (_: unknown, record: User) => (
         <Space>
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => actions.onEdit(record)}
-          >
+          <Button type="text" icon={<EditOutlined />} onClick={() => actions.onEdit(record)}>
             編輯
           </Button>
-          <Button
-            type="text"
-            icon={<KeyOutlined />}
-            onClick={() => actions.onAssignRole(record)}
-          >
+          <Button type="text" icon={<KeyOutlined />} onClick={() => actions.onAssignRole(record)}>
             分配角色
           </Button>
           {record.isActive ? (

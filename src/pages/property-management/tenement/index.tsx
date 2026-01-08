@@ -19,8 +19,6 @@ const Tenement: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
   const dispatch = useAppDispatch();
 
-
-
   const onClose = () => {
     setVisible(false);
     setModalTitle('');
@@ -33,7 +31,6 @@ const Tenement: React.FC = () => {
   };
 
   const tableColumns: TableProps<TenementDataType>['columns'] = useMemo(() => {
-
     const onEdit = (record: TenementDataType) => {
       setVisible(true);
       setModalTitle('Edit Tenement');
@@ -42,18 +39,14 @@ const Tenement: React.FC = () => {
       dispatch(setTenementDatum(record));
     };
 
-    return columns?.map(col => {
+    return columns?.map((col) => {
       if (col.key === 'action') {
         return {
           ...col,
           render(_value, record) {
             return (
               <>
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={() => onEdit(record)}
-                >
+                <Button type="primary" size="small" onClick={() => onEdit(record)}>
                   Edit
                 </Button>
                 <Popconfirm
@@ -70,13 +63,12 @@ const Tenement: React.FC = () => {
                 </Popconfirm>
               </>
             );
-          }
+          },
         };
       }
       return col;
     });
-  }
-  , [dispatch]);
+  }, [dispatch]);
 
   // 分頁改變時的處理函數
   const handleTableChange: TableProps<TenementDataType>['onChange'] = (pagination) => {
@@ -87,8 +79,6 @@ const Tenement: React.FC = () => {
       setCurrentPageSize(pagination.pageSize);
     }
   };
-
-
 
   useEffect(() => {
     const loadData = async () => {
@@ -114,7 +104,7 @@ const Tenement: React.FC = () => {
         onClose={onClose}
         title={modalTitle}
         mode={mode}
-        onRefresh={() => setRefreshTrigger(prev => !prev)}
+        onRefresh={() => setRefreshTrigger((prev) => !prev)}
       />
       <Card className="search">
         <Row gutter={16}>
@@ -127,7 +117,9 @@ const Tenement: React.FC = () => {
             <Input />
           </Col>
           <Col span={4}>
-            <Button className="mr" type="primary">查詢</Button>
+            <Button className="mr" type="primary">
+              查詢
+            </Button>
             <Button>Reset</Button>
           </Col>
         </Row>

@@ -21,7 +21,7 @@ export const PERMISSIONS = {
   USER_PROFILE_READ: 'user-profile.read',
 } as const;
 
-export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 /**
  * Centralized route path constants for the application.
@@ -103,119 +103,119 @@ export const PERMISSION_ROUTE_MAP: Record<Permission, RouteInfo> = {
     path: RESOURCES.DASHBOARD,
     label: 'Dashboard',
     description: '儀表板',
-    icon: 'DashboardOutlined'
+    icon: 'DashboardOutlined',
   },
   [PERMISSIONS.TENANTS_READ]: {
     path: RESOURCES.TENANTS_LIST,
     label: 'Tenant List',
     description: '客戶列表',
     icon: 'UnorderedListOutlined',
-    parentPath: RESOURCES.TENANTS
+    parentPath: RESOURCES.TENANTS,
   },
   [PERMISSIONS.TENANTS_CREATE]: {
     path: RESOURCES.TENANTS_CREATION,
     label: 'Add Tenant',
     description: '新增客戶',
     icon: 'UserAddOutlined',
-    parentPath: RESOURCES.TENANTS
+    parentPath: RESOURCES.TENANTS,
   },
   [PERMISSIONS.PORTFOLIO_BUILDING_READ]: {
     path: RESOURCES.PORTFOLIO_BUILDING,
     label: 'Building Management',
     description: '大樓管理',
     icon: 'InsertRowLeftOutlined',
-    parentPath: RESOURCES.PORTFOLIO
+    parentPath: RESOURCES.PORTFOLIO,
   },
   [PERMISSIONS.PORTFOLIO_SPACES_READ]: {
     path: RESOURCES.PORTFOLIO_SPACES,
     label: 'Room Management',
     description: '房間管理',
     icon: 'BankOutlined',
-    parentPath: RESOURCES.PORTFOLIO
+    parentPath: RESOURCES.PORTFOLIO,
   },
   [PERMISSIONS.PORTFOLIO_PARKING_READ]: {
     path: RESOURCES.PORTFOLIO_PARKING,
     label: 'Vehicle Information',
     description: '車輛管理',
     icon: 'TruckOutlined',
-    parentPath: RESOURCES.PORTFOLIO
+    parentPath: RESOURCES.PORTFOLIO,
   },
   [PERMISSIONS.REPAIR_READ]: {
     path: RESOURCES.REPAIR,
     label: 'Repair Management',
     description: '修復管理',
-    icon: 'ToolOutlined'
+    icon: 'ToolOutlined',
   },
   [PERMISSIONS.FINANCIALS_CONTRACT_READ]: {
     path: RESOURCES.FINANCIALS_CONTRACT,
     label: 'Contract Management',
     description: '合約管理',
     icon: 'ProfileOutlined',
-    parentPath: RESOURCES.FINANCIALS
+    parentPath: RESOURCES.FINANCIALS,
   },
   [PERMISSIONS.FINANCIALS_CONTRACT_DETAIL_READ]: {
     path: RESOURCES.FINANCIALS_CONTRACT_DETAIL,
     label: 'Contract Detail',
     description: '合約明細',
     icon: 'FrownOutlined',
-    parentPath: RESOURCES.FINANCIALS
+    parentPath: RESOURCES.FINANCIALS,
   },
   [PERMISSIONS.FINANCIALS_BILLING_READ]: {
     path: RESOURCES.FINANCIALS_BILLING,
     label: 'Billing Management',
     description: '收費管理',
     icon: 'FileTextOutlined',
-    parentPath: RESOURCES.FINANCIALS
+    parentPath: RESOURCES.FINANCIALS,
   },
   [PERMISSIONS.MERCHANT_PORTAL_READ]: {
     path: RESOURCES.MERCHANT_PORTAL,
     label: 'Leasing Hub',
     description: '招商管理',
-    icon: 'TransactionOutlined'
+    icon: 'TransactionOutlined',
   },
   [PERMISSIONS.OPERATION_ANALYTICS_READ]: {
     path: RESOURCES.OPERATION_ANALYTICS,
     label: 'Operations Overview',
     description: '運營概覽',
     icon: 'FundViewOutlined',
-    parentPath: RESOURCES.OPERATION_CENTER
+    parentPath: RESOURCES.OPERATION_CENTER,
   },
   [PERMISSIONS.OPERATION_ARTICLE_READ]: {
     path: RESOURCES.OPERATION_ARTICLE,
     label: 'Article Publishing',
     description: '文章發布',
     icon: 'ReadOutlined',
-    parentPath: RESOURCES.OPERATION_CENTER
+    parentPath: RESOURCES.OPERATION_CENTER,
   },
   [PERMISSIONS.OPERATION_COMMENTS_READ]: {
     path: RESOURCES.OPERATION_COMMENTS,
     label: 'Content Comments',
     description: '內容評論',
     icon: 'CommentOutlined',
-    parentPath: RESOURCES.OPERATION_CENTER
+    parentPath: RESOURCES.OPERATION_CENTER,
   },
   [PERMISSIONS.EQUIPMENT_READ]: {
     path: RESOURCES.EQUIPMENT,
     label: 'Equipment Management',
     description: '設備管理',
-    icon: 'ToolOutlined'
+    icon: 'ToolOutlined',
   },
   [PERMISSIONS.ENERGY_READ]: {
     path: RESOURCES.ENERGY,
     label: 'Energy Consumption',
     description: '能耗管理',
-    icon: 'ThunderboltOutlined'
+    icon: 'ThunderboltOutlined',
   },
   [PERMISSIONS.AUTHORIZATION_CENTER_READ]: {
     path: RESOURCES.AUTHORIZATION_CENTER,
     label: 'Authorization Settings',
     description: '權限管理',
-    icon: 'SettingOutlined'
+    icon: 'SettingOutlined',
   },
   [PERMISSIONS.USER_PROFILE_READ]: {
     path: RESOURCES.USER_PROFILE,
     label: 'User Profile',
     description: '個人資訊',
-    icon: 'UserOutlined'
-  }
+    icon: 'UserOutlined',
+  },
 };

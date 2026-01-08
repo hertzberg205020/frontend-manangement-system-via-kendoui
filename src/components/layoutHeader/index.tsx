@@ -9,26 +9,15 @@ import { useNavigate } from 'react-router';
 const items: MenuProps['items'] = [
   {
     key: '1',
-    label: (
-      <a target="_blank">
-        Personal Center
-      </a>
-    ),
+    label: <a target="_blank">Personal Center</a>,
     icon: <UserOutlined />,
   },
   {
     key: '2',
-    label: (
-      <a target="_blank" >
-        Logout
-      </a>
-    ),
+    label: <a target="_blank">Logout</a>,
     icon: <PoweroffOutlined />,
   },
 ];
-
-
-
 
 const LayoutHeader: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -61,7 +50,7 @@ const LayoutHeader: React.FC = () => {
 
   return (
     <div>
-      <Dropdown menu={{ items, onClick }} >
+      <Dropdown menu={{ items, onClick }}>
         <a onClick={(e) => e.preventDefault()}>
           <Space>
             Welcome, {account || 'Guest'}

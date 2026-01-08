@@ -8,8 +8,8 @@ export const store = configureStore({
   reducer: {
     authSlice,
     tenementSlice,
-    tabsSlice
-  }
+    tabsSlice,
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

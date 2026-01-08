@@ -28,7 +28,7 @@ interface IProps {
 }
 
 function RequireAuth({ allowAnonymous, redirectPath, children }: IProps) {
-  const { token } = useAppSelector(state => state.authSlice);
+  const { token } = useAppSelector((state) => state.authSlice);
   const navigate = useNavigate();
 
   const isAuthenticated = isValidToken(token);

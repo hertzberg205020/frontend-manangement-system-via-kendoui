@@ -6,12 +6,7 @@
  */
 
 import axios from 'axios';
-import type {
-  AxiosInstance,
-  InternalAxiosRequestConfig,
-  AxiosResponse,
-  AxiosError
-} from 'axios';
+import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { message } from 'antd';
 import { store } from '@/store';
 
@@ -45,14 +40,14 @@ export const ErrorType = {
   /** Authentication required (401 status) */
   UNAUTHORIZED: 'UNAUTHORIZED',
   /** Access forbidden (403 status) */
-  FORBIDDEN: 'FORBIDDEN'
+  FORBIDDEN: 'FORBIDDEN',
 } as const;
 
 /**
  * Type definition for error types derived from ErrorType constant
  * @since 1.0.0
  */
-export type ErrorType = typeof ErrorType[keyof typeof ErrorType];
+export type ErrorType = (typeof ErrorType)[keyof typeof ErrorType];
 
 /**
  * Comprehensive HTTP error information interface
@@ -133,7 +128,7 @@ const defaultRetryConfig: RetryConfig = {
     // Only retry network errors and 5xx server errors
     // Client errors (4xx) should not be retried as they indicate request issues
     return !error.response || (error.response.status >= 500 && error.response.status < 600);
-  }
+  },
 };
 
 /**
@@ -208,7 +203,7 @@ const logError = (error: HttpError): void => {
     message: error.message,
     timestamp: error.timestamp,
     url: error.url,
-    method: error.method?.toUpperCase()
+    method: error.method?.toUpperCase(),
   });
 
   // Log original error for debugging purposes
@@ -259,7 +254,7 @@ const handleError = (error: AxiosError): HttpError => {
         originalError: error,
         timestamp,
         url,
-        method
+        method,
       };
     } else {
       httpError = {
@@ -269,7 +264,7 @@ const handleError = (error: AxiosError): HttpError => {
         originalError: error,
         timestamp,
         url,
-        method
+        method,
       };
     }
   } else {
@@ -285,7 +280,7 @@ const handleError = (error: AxiosError): HttpError => {
           originalError: error,
           timestamp,
           url,
-          method
+          method,
         };
         // Fixed: Added null checking for store state
         try {
@@ -308,7 +303,7 @@ const handleError = (error: AxiosError): HttpError => {
           originalError: error,
           timestamp,
           url,
-          method
+          method,
         };
         break;
 
@@ -320,7 +315,7 @@ const handleError = (error: AxiosError): HttpError => {
           originalError: error,
           timestamp,
           url,
-          method
+          method,
         };
         break;
 
@@ -332,7 +327,7 @@ const handleError = (error: AxiosError): HttpError => {
           originalError: error,
           timestamp,
           url,
-          method
+          method,
         };
         break;
 
@@ -344,7 +339,7 @@ const handleError = (error: AxiosError): HttpError => {
           originalError: error,
           timestamp,
           url,
-          method
+          method,
         };
     }
   }
@@ -375,7 +370,7 @@ const showErrorMessage = (error: HttpError): void => {
       message.error({
         content: error.message,
         duration: 5,
-        key: 'network-error'
+        key: 'network-error',
       });
       break;
 
@@ -385,7 +380,7 @@ const showErrorMessage = (error: HttpError): void => {
       message.warning({
         content: error.message,
         duration: 3,
-        key: 'auth-error'
+        key: 'auth-error',
       });
       break;
 
@@ -394,7 +389,7 @@ const showErrorMessage = (error: HttpError): void => {
       message.warning({
         content: error.message,
         duration: 4,
-        key: 'permission-error'
+        key: 'permission-error',
       });
       break;
 
@@ -403,7 +398,7 @@ const showErrorMessage = (error: HttpError): void => {
       message.error({
         content: error.message,
         duration: 6,
-        key: 'server-error'
+        key: 'server-error',
       });
       break;
 
@@ -412,7 +407,7 @@ const showErrorMessage = (error: HttpError): void => {
       message.error({
         content: error.message,
         duration: 4,
-        key: 'business-error'
+        key: 'business-error',
       });
       break;
 
@@ -421,7 +416,7 @@ const showErrorMessage = (error: HttpError): void => {
       message.error({
         content: error.message,
         duration: 4,
-        key: 'general-error'
+        key: 'general-error',
       });
   }
 };
@@ -483,7 +478,7 @@ const retryRequest = async (
   console.log(`🔄 重試請求 (${retryCount + 1}/${maxRetries}) - ${error.config?.url}`);
 
   // Wait for the calculated delay before retrying
-  await new Promise(resolve => setTimeout(resolve, delay));
+  await new Promise((resolve) => setTimeout(resolve, delay));
 
   // Retry the original request using the same configuration
   return http.request(error.config);
@@ -526,7 +521,7 @@ http.interceptors.request.use(
     // This helps correlate requests with responses in logs
     config.metadata = {
       requestId: `req_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
-      startTime: Date.now()
+      startTime: Date.now(),
     };
 
     // Safely attempt to add authentication token from Redux store
@@ -551,7 +546,7 @@ http.interceptors.request.use(
       url: config.url,
       baseURL: config.baseURL,
       params: config.params,
-      data: config.data
+      data: config.data,
     });
 
     return config;
@@ -579,7 +574,7 @@ http.interceptors.response.use(
       status,
       duration: `${duration}ms`,
       url: config.url,
-      data: data
+      data: data,
     });
 
     // Check for business logic errors in API response
@@ -592,7 +587,7 @@ http.interceptors.response.use(
           message: data.message || '業務邏輯錯誤',
           timestamp: new Date().toISOString(),
           url: config.url,
-          method: config.method
+          method: config.method,
         };
 
         // Log and display the business error
@@ -618,7 +613,7 @@ http.interceptors.response.use(
       duration: `${duration}ms`,
       status: error.response?.status,
       url: error.config?.url,
-      error: error.message
+      error: error.message,
     });
 
     // Attempt to retry the request based on retry configuration

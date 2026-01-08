@@ -17,7 +17,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { batchDeleteClient, deleteClient, getClientList } from '@/api/client-list';
 import ClientFormModal from './ClientForm';
 
-
 const columns: TableProps<CompanyDataType>['columns'] = [
   {
     title: 'No.',
@@ -26,7 +25,7 @@ const columns: TableProps<CompanyDataType>['columns'] = [
     width: 25,
     render(_value: string, _record: CompanyDataType, index: number) {
       return index + 1;
-    }
+    },
   },
   {
     title: 'Enterprise',
@@ -43,17 +42,15 @@ const columns: TableProps<CompanyDataType>['columns'] = [
     width: 100,
     render(value: string) {
       const colorMap: Record<string, string> = {
-        '核准設立': 'green',
-        '停業': 'red',
-        '解散': 'orange',
-        '撤銷': 'purple',
-        '廢止': 'blue'
+        核准設立: 'green',
+        停業: 'red',
+        解散: 'orange',
+        撤銷: 'purple',
+        廢止: 'blue',
       };
       const color = colorMap[value] || 'default';
-      return (
-        <Tag color={color}>{value}</Tag>
-      );
-    }
+      return <Tag color={color}>{value}</Tag>;
+    },
   },
   {
     title: 'Contact',
@@ -101,7 +98,7 @@ const columns: TableProps<CompanyDataType>['columns'] = [
     title: 'Action',
     key: 'action',
     align: 'center',
-  }
+  },
 ];
 
 interface searchType {
@@ -109,7 +106,6 @@ interface searchType {
   phone: string;
   contact: string;
 }
-
 
 const Users: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
@@ -141,9 +137,8 @@ const Users: React.FC = () => {
     try {
       const { data } = await batchDeleteClient([...selectedRowKeys]);
       message.success(data);
-      setRefreshTrigger(prev => !prev);
-    }
-    catch (error) {
+      setRefreshTrigger((prev) => !prev);
+    } catch (error) {
       console.error('Error deleting items:', error);
     }
   };
@@ -173,7 +168,7 @@ const Users: React.FC = () => {
     setSearchOpt({
       name: searchName,
       phone: searchPhone,
-      contact: searchContact
+      contact: searchContact,
     });
     setPage(1);
   };
@@ -185,7 +180,7 @@ const Users: React.FC = () => {
     setSearchOpt({
       name: '',
       phone: '',
-      contact: ''
+      contact: '',
     });
     setPage(1);
     setPageSize(10);
@@ -213,10 +208,12 @@ const Users: React.FC = () => {
       // 模擬 API 請求
       try {
         setLoading(true);
-        const { data: { list, total } } = await getClientList({
+        const {
+          data: { list, total },
+        } = await getClientList({
           ...searchOpt,
           page,
-          pageSize
+          pageSize,
         });
 
         setTotal(total);
@@ -228,12 +225,10 @@ const Users: React.FC = () => {
         //     .map(item => item.id) :
         //   [];
         setSelectedRowKeys([]);
-      }
-      catch (error) {
+      } catch (error) {
         message.error('Failed to fetch data');
         console.error('Error fetching data:', error);
-      }
-      finally {
+      } finally {
         setLoading(false);
       }
     };
@@ -245,71 +240,62 @@ const Users: React.FC = () => {
     try {
       const { data } = await deleteClient(id);
       message.success(data);
-      setRefreshTrigger(prev => !prev);
-    }
-    catch (error) {
+      setRefreshTrigger((prev) => !prev);
+    } catch (error) {
       console.error('Error deleting item:', error);
     }
   };
 
-  const tableColumns: TableProps<CompanyDataType>['columns'] = useMemo(
-    () => {
+  const tableColumns: TableProps<CompanyDataType>['columns'] = useMemo(() => {
+    const onEdit = (record: CompanyDataType) => {
+      handleModalOpen('Edit Client', record);
+    };
 
-      const onEdit = (record: CompanyDataType) => {
-        handleModalOpen('Edit Client', record);
-      };
-
-      return columns.map((column) => {
-        if (column.key === 'action') {
-          return {
-            ...column,
-            render: (_value, record: CompanyDataType) => (
-              <>
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={() => onEdit(record)}
-                >
-                  Edit
+    return columns.map((column) => {
+      if (column.key === 'action') {
+        return {
+          ...column,
+          render: (_value, record: CompanyDataType) => (
+            <>
+              <Button type="primary" size="small" onClick={() => onEdit(record)}>
+                Edit
+              </Button>
+              <Popconfirm
+                title="Delete Item"
+                description="Are you sure to delete this item?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => handleDelete(record.id)}
+                onCancel={() => message.info('Delete cancelled')}
+              >
+                <Button type="primary" size="small" danger className="ml">
+                  Delete
                 </Button>
-                <Popconfirm
-                  title="Delete Item"
-                  description="Are you sure to delete this item?"
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={() => handleDelete(record.id)}
-                  onCancel={() => message.info('Delete cancelled')}
-                >
-                  <Button type="primary" size="small" danger className="ml">
-                    Delete
-                  </Button>
-                </Popconfirm>
-              </>
-            ),
-          };
-        }
-        return column;
-      });
-    },
-    []
-  );
+              </Popconfirm>
+            </>
+          ),
+        };
+      }
+      return column;
+    });
+  }, []);
 
   return (
-    <div className='users'>
+    <div className="users">
       <ClientFormModal
         visible={modalVisible}
         onClose={handleModalCancel}
         title={modalTitle}
         client={client}
         mode={mode}
-        onRefresh={() => setRefreshTrigger(prev => !prev)}
+        onRefresh={() => setRefreshTrigger((prev) => !prev)}
       />
-      <Card className='search'>
+      <Card className="search">
         <Row gutter={16}>
           <Col span={7}>
             <span>Enterprise</span>
             <Input
-              name='name'
+              name="name"
               value={searchName}
               onChange={(e) => handleInputChange(e.target.value, setSearchName)}
             />
@@ -317,7 +303,7 @@ const Users: React.FC = () => {
           <Col span={7}>
             <span>Contact</span>
             <Input
-              name='contact'
+              name="contact"
               value={searchContact}
               onChange={(e) => handleInputChange(e.target.value, setSearchContact)}
             />
@@ -325,36 +311,36 @@ const Users: React.FC = () => {
           <Col span={7}>
             <span>Phone</span>
             <Input
-              name='phone'
+              name="phone"
               value={searchPhone}
               onChange={(e) => handleInputChange(e.target.value, setSearchPhone)}
             />
           </Col>
           <Col span={3} style={{ paddingLeft: '30px' }}>
-            <Button
-              type='primary'
-              style={{ marginRight: '8px' }}
-              onClick={handleSearch}
-            >
+            <Button type="primary" style={{ marginRight: '8px' }} onClick={handleSearch}>
               Search
             </Button>
-            <Button className='ml' onClick={handleReset}>Reset</Button>
+            <Button className="ml" onClick={handleReset}>
+              Reset
+            </Button>
           </Col>
         </Row>
       </Card>
-      <Card className='mt tr'>
+      <Card className="mt tr">
+        <Button type="primary" onClick={() => onCreate()}>
+          New Enterprise
+        </Button>
         <Button
-          type='primary'
-          onClick={() => onCreate()}
-        >New Enterprise</Button>
-        <Button danger
-          type='primary'
-          className='ml'
+          danger
+          type="primary"
+          className="ml"
           disabled={isBatchDeleteBtnDisabled}
           onClick={handleBatchDelete}
-        >Batch Delete</Button>
+        >
+          Batch Delete
+        </Button>
       </Card>
-      <Card className='mt'>
+      <Card className="mt">
         <Table
           columns={tableColumns}
           dataSource={dataList}
@@ -374,7 +360,6 @@ const Users: React.FC = () => {
           onChange={handlePageChange}
         />
       </Card>
-
     </div>
   );
 };

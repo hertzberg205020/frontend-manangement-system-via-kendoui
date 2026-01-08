@@ -1,4 +1,3 @@
-
 import { useAppSelector } from '@/store';
 import { useAuth } from '@/hooks/useAuth';
 import { Breadcrumb } from 'antd';
@@ -8,7 +7,6 @@ import type { MenuItemForDisplay } from '@/types/MenuItemForDisplay';
 import { MENU_NODES } from '@/utils/menuItemsGenerator';
 
 const _recursiveFind = (path: string, data: MenuItemForDisplay[]): string[] => {
-
   if (!path || path.trim() === '') {
     return [];
   }
@@ -33,16 +31,13 @@ const _recursiveFind = (path: string, data: MenuItemForDisplay[]): string[] => {
   return [];
 };
 
-
 const CustomBreadcrumb: React.FC = () => {
   const location = useLocation();
   const { permissions } = useAuth();
-  const { activeKey } = useAppSelector(state => state.tabsSlice);
+  const { activeKey } = useAppSelector((state) => state.tabsSlice);
   const cacheRef = useRef<Map<string, string[]>>(new Map());
 
-
   const findBreadcrumbPath = (path: string, data: MenuItemForDisplay[]): string[] => {
-
     if (!path || path.trim() === '') {
       return [];
     }
@@ -66,16 +61,11 @@ const CustomBreadcrumb: React.FC = () => {
     cacheRef.current.clear();
   }, [permissions]);
 
-
   const currentPath = activeKey || location.pathname;
   const labels = findBreadcrumbPath(currentPath, MENU_NODES);
-  const items = labels.map(e => ({ title: e }));
+  const items = labels.map((e) => ({ title: e }));
 
-
-  return (
-    <Breadcrumb items={items} className='mt mb' />
-  );
+  return <Breadcrumb items={items} className="mt mb" />;
 };
-
 
 export default CustomBreadcrumb;

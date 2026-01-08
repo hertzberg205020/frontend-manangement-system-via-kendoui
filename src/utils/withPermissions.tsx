@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface WithPermissionsProps {
@@ -9,7 +8,7 @@ function withPermissions<P>(requiredPermissions: string[]) {
   return (Component: React.ComponentType<Omit<P, 'userPermissions'>>) => {
     return (props: P & WithPermissionsProps) => {
       const { userPermissions, ...restProps } = props;
-      const hasPermission = requiredPermissions.every(item => userPermissions.includes(item));
+      const hasPermission = requiredPermissions.every((item) => userPermissions.includes(item));
       if (!hasPermission) return null;
       return <Component {...(restProps as Omit<P, 'userPermissions'>)} />;
     };
