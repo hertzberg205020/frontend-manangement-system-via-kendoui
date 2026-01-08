@@ -7,7 +7,9 @@
   "paths": {
     "/api/auth/register": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Registers a new user in the system.",
         "description": "Creates a new user account using the provided information. The employee ID must be unique across the system.\r\nFor security, the password is hashed using BCrypt before storage.\r\n            \r\nExample request:\r\n            \r\n    POST /api/auth/register\r\n    {\r\n        \"name\": \"John Doe\",\r\n        \"empId\": \"EMP001\",\r\n        \"password\": \"SecurePassword123!\"\r\n    }\r\n            \r\nExample success response:\r\n            \r\n    {\r\n        \"code\": 201,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"name\": \"John Doe\",\r\n            \"empId\": \"EMP001\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nExample error responses:\r\n            \r\n    // Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Name, EmpId, and Password are required\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // EmpId already exists\r\n    {\r\n        \"code\": 409,\r\n        \"message\": \"EmpId already exists\",\r\n        \"data\": null\r\n    }",
         "requestBody": {
@@ -136,7 +138,9 @@
     },
     "/api/auth/{empId}": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Retrieve user information by employee ID",
         "description": "Fetches detailed information about a specific user using their employee ID.\r\nOnly returns information for active users in the system.\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/EMP001\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"name\": \"John Doe\",\r\n            \"empId\": \"EMP001\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error response:\r\n            \r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"資源不存在\",\r\n        \"data\": null\r\n    }",
         "operationId": "GetUser",
@@ -197,7 +201,9 @@
     },
     "/api/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Authenticate user and generate JWT token with permissions",
         "description": "Authenticates a user using their employee ID and password. Upon successful authentication,\r\nreturns a JWT token that includes user permissions and roles as claims. The token can be used\r\nfor subsequent API calls requiring authentication.\r\n            \r\nAuthentication Process:\r\n1. Validates required fields (account/empId and password)\r\n2. Verifies user exists and is active\r\n3. Validates password using BCrypt\r\n4. Retrieves user permissions and roles\r\n5. Generates JWT token with embedded claims\r\n            \r\nSample request:\r\n            \r\n    POST /api/auth/login\r\n    {\r\n        \"account\": \"EMP001\",\r\n        \"password\": \"SecurePassword123!\"\r\n    }\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // Missing credentials\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"EmpId 與密碼為必填\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // Invalid credentials\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"帳號或密碼錯誤\",\r\n        \"data\": null\r\n    }\r\n            \r\nToken Usage:\r\nInclude the returned token in subsequent API requests using the Authorization header:\r\nAuthorization: Bearer {token}",
         "requestBody": {
@@ -286,7 +292,9 @@
     },
     "/api/auth/me": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "取得目前登入使用者上下文",
         "description": "回傳目前登入使用者的完整上下文資訊,包括基本資料、擁有的角色 ID 和權限 ID。\r\n            \r\n此 endpoint 從 JWT token 中提取使用者的 empId,然後查詢並回傳該使用者的上下文資訊。\r\n前端應用程式可使用此資訊進行:\r\n- 顯示使用者資訊\r\n- 權限控制(根據 permissionIds 顯示/隱藏功能)\r\n- 角色檢查(根據 roleIds 判斷使用者類型)\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/me\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"name\": \"張三\",\r\n            \"roleIds\": [1, 2, 5],\r\n            \"permissionIds\": [1, 2, 3, 4, 5, 10, 15]\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized (未提供 token 或 token 無效)\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - User not found (使用者不存在或已停用)\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"User not found\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\n不需要特定權限,所有登入使用者都可以查詢自己的上下文資訊。",
         "responses": {
@@ -375,7 +383,9 @@
     },
     "/api/auth/users": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Retrieve a list of users with pagination and filtering support",
         "description": "Retrieves a paginated list of users from the system with support for filtering by name,\r\nemployee ID, and active status. This endpoint requires authentication and appropriate\r\npermissions to access user data.\r\n            \r\nQuery Parameters:\r\n- page: Page number (default: 1, minimum: 1)\r\n- pageSize: Items per page (default: 10, range: 1-100)\r\n- name: Optional fuzzy search by user name (case-insensitive, partial match)\r\n- empId: Optional fuzzy search by employee ID (case-insensitive, partial match)\r\n- isActive: Optional filter by user active status (true/false)\r\n            \r\nPagination Details:\r\n- Pages are 1-indexed (first page is page 1)\r\n- Maximum page size is 100 to prevent excessive data loading\r\n- Response includes total count and total pages for client-side pagination UI\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/users?page=1&pageSize=10&name=John&isActive=true\r\n            \r\nSample success response:\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"data\": [\r\n                {\r\n                    \"empId\": \"EMP001\",\r\n                    \"name\": \"John Doe\",\r\n                    \"isActive\": true,\r\n                    \"roles\": [1, 2],\r\n                    \"createdAt\": \"2024-01-15T10:30:00Z\"\r\n                },\r\n                {\r\n                    \"empId\": \"EMP002\",\r\n                    \"name\": \"John Smith\",\r\n                    \"isActive\": true,\r\n                    \"roles\": [3],\r\n                    \"createdAt\": \"2024-01-16T11:45:00Z\"\r\n                }\r\n            ],\r\n            \"total\": 25,\r\n            \"page\": 1,\r\n            \"pageSize\": 10,\r\n            \"totalPages\": 3\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // Invalid pagination parameters\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Invalid pagination parameters\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // Unauthorized access\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\nRequires valid JWT token with 'users.list.read' permission.\r\nInclude the token in the Authorization header: Bearer {token}",
         "operationId": "GetUsers",
@@ -509,7 +519,9 @@
         }
       },
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "建立新使用者",
         "description": "建立新使用者帳戶並可選擇性地分配角色。員工編號在系統中必須唯一。\r\n            \r\n驗證規則：\r\n- empId: 必填，格式為 N + 9 位數字（例如：N123456789）\r\n- name: 必填，長度 1-128 字元\r\n- password: 必填，長度 8-64 字元\r\n- roleIds: 可選，角色 ID 陣列，不可重複\r\n            \r\nSample request:\r\n            \r\n    POST /api/auth/users\r\n    {\r\n        \"empId\": \"N123456789\",\r\n        \"name\": \"張三\",\r\n        \"password\": \"SecurePass123!\",\r\n        \"roleIds\": [1, 2]\r\n    }\r\n            \r\nSample success response (201):\r\n            \r\n    {\r\n        \"code\": 201,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"name\": \"張三\",\r\n            \"isActive\": true,\r\n            \"roleIds\": [1, 2],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 409 - EmpId already exists\r\n    {\r\n        \"code\": 409,\r\n        \"message\": \"Employee ID already exists\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備建立使用者的權限",
         "requestBody": {
@@ -678,7 +690,9 @@
     },
     "/api/auth/users/{empId}": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Retrieve a single user by employee ID",
         "description": "Fetches detailed information about a specific user using their employee ID.\r\nThis endpoint returns user information including their assigned role IDs and account status.\r\n            \r\nEmployee ID Format:\r\n- Must match the pattern: ^N\\d{9}$ (e.g., N123456789)\r\n- The 'N' prefix is followed by exactly 9 digits\r\n            \r\nResponse includes:\r\n- Employee ID (empId)\r\n- User's full name\r\n- Active status (isActive)\r\n- List of assigned role IDs\r\n- Account creation timestamp\r\n- Last update timestamp\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/users/N123456789\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"name\": \"張三\",\r\n            \"isActive\": true,\r\n            \"roleIds\": [1, 2],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T11:20:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - User not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized (missing or invalid token)\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden (insufficient permissions)\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\nRequires valid JWT token with 'users.list.read' permission.\r\nInclude the token in the Authorization header: Bearer {token}",
         "operationId": "GetUserByEmpId",
@@ -777,7 +791,9 @@
         }
       },
       "put": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Update user information",
         "description": "Updates the name and active status of a specified user. This endpoint does not support updating password, employee ID, or roles.\r\n            \r\nFields that can be updated:\r\n- name: User's name (1-128 characters)\r\n- isActive: Account active status (boolean)\r\n            \r\nFields that cannot be updated:\r\n- empId: Employee ID (used as identification key, cannot be changed)\r\n- password: Password (requires dedicated password change endpoint)\r\n- roleIds: Roles (requires dedicated role assignment endpoint)\r\n            \r\nPath Parameters:\r\n- empId: Required, format N + 9 digits (e.g., N123456789)\r\n            \r\nValidation Rules:\r\n- name: Required, length 1-128 characters\r\n- isActive: Required, boolean value\r\n            \r\nSample request:\r\n            \r\n    PUT /api/auth/users/N123456789\r\n    {\r\n        \"name\": \"李四\",\r\n        \"isActive\": false\r\n    }\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"name\": \"李四\",\r\n            \"isActive\": false,\r\n            \"roleIds\": [1, 2],\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-16T14:25:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - User not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\nRequires valid JWT token with user update permissions",
         "parameters": [
@@ -955,7 +971,9 @@
         }
       },
       "delete": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Delete a user from the system (soft delete)",
         "description": "Performs a soft delete by setting the user's isActive field to false. This operation\r\npreserves data integrity and allows for potential user restoration. The user data\r\nis not permanently removed from the database.\r\n            \r\nSoft Delete vs Hard Delete:\r\n- Soft Delete (this endpoint): Sets isActive to false, data is preserved and can be restored\r\n- Hard Delete: Permanently removes data from database, cannot be restored (not implemented)\r\n            \r\nPath Parameters:\r\n- empId: Required, format N + 9 digits (e.g., N123456789)\r\n            \r\nData Cleanup:\r\n- User's isActive status is set to false\r\n- User roles (user_roles) remain intact but become inactive with the user\r\n- User can be reactivated by using PUT /api/auth/users/{empId} to set isActive to true\r\n- After deletion, the user cannot login but data is preserved for audit purposes\r\n            \r\nSample request:\r\n            \r\n    DELETE /api/auth/users/N123456789\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": null\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - User not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 400 - Invalid empId format\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\nRequires valid JWT token with admin role. Delete operations are restricted\r\nto administrators due to their sensitive nature.",
         "parameters": [
@@ -1115,7 +1133,9 @@
     },
     "/api/auth/users/{empId}/roles": {
       "put": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "全量覆寫使用者角色集合",
         "description": "此端點會完全替換指定使用者的所有角色分配。提供的角色 ID 陣列將成為使用者的唯一角色集合。\r\n            \r\n行為說明：\r\n- 移除使用者現有的所有角色\r\n- 指派請求中提供的新角色集合\r\n- 如果 roleIds 為空陣列，則移除使用者的所有角色\r\n- 重複的 roleIds 會自動去重\r\n- 操作在單一事務中執行以確保資料一致性\r\n            \r\n驗證規則：\r\n- empId: 必填，格式為 N + 9 位數字（例如：N123456789）\r\n- roleIds: 必填，可為空陣列\r\n- 每個 roleId 必須對應資料庫中存在的角色\r\n            \r\nSample request:\r\n            \r\n    PUT /api/auth/users/N123456789/roles\r\n    {\r\n        \"roleIds\": [1, 2, 3]\r\n    }\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"success\": true,\r\n        \"data\": {\r\n            \"empId\": \"N123456789\",\r\n            \"roleIds\": [1, 2, 3]\r\n        }\r\n    }\r\n            \r\nSample request (remove all roles):\r\n            \r\n    PUT /api/auth/users/N123456789/roles\r\n    {\r\n        \"roleIds\": []\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Invalid role ID\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Invalid role ID\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - User not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備管理使用者角色的權限（admin role）",
         "parameters": [
@@ -1295,7 +1315,9 @@
     },
     "/api/auth/roles": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "取得角色列表",
         "description": "取得系統中所有可用的角色列表。此端點回傳所有角色的基本資訊,\r\n包括角色 ID、名稱、描述及建立/更新時間。\r\n            \r\n回應格式:\r\n- 成功時回傳角色陣列,按建立時間排序(新到舊)\r\n- 如果系統中沒有角色,回傳空陣列\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/roles\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"success\": true,\r\n        \"data\": [\r\n            {\r\n                \"id\": 1,\r\n                \"name\": \"admin\",\r\n                \"description\": \"系統管理員\",\r\n                \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n                \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"name\": \"user\",\r\n                \"description\": \"一般使用者\",\r\n                \"createdAt\": \"2024-01-16T11:45:00Z\",\r\n                \"updatedAt\": \"2024-01-16T11:45:00Z\"\r\n            }\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\nInclude the token in the Authorization header: Bearer {token}",
         "operationId": "GetRoles",
@@ -1383,7 +1405,9 @@
         }
       },
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "建立新角色",
         "description": "建立新的系統角色。角色名稱在系統中必須唯一 (不區分大小寫)。\r\n            \r\n驗證規則:\r\n- name: 必填,長度 1-100 字元,系統內唯一\r\n- description: 可選,最大長度 512 字元\r\n            \r\nSample request:\r\n            \r\n    POST /api/auth/roles\r\n    {\r\n        \"name\": \"Project Manager\",\r\n        \"description\": \"Manages project planning and execution\"\r\n    }\r\n            \r\nSample success response (201):\r\n            \r\n    {\r\n        \"code\": 201,\r\n        \"message\": \"Create Success\",\r\n        \"data\": {\r\n            \"id\": 5,\r\n            \"name\": \"Project Manager\",\r\n            \"description\": \"Manages project planning and execution\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Validation failed\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Validation failed\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 409 - Role name already exists\r\n    {\r\n        \"code\": 409,\r\n        \"message\": \"Role name already exists\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備建立角色的權限 (roles.create)",
         "requestBody": {
@@ -1552,7 +1576,9 @@
     },
     "/api/auth/roles/{id}": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "取得單一角色",
         "description": "根據角色 ID 取得指定角色的詳細資訊。此端點回傳單一角色的基本資訊，\r\n包括角色 ID、名稱、描述及建立/更新時間。\r\n            \r\n路徑參數:\r\n- id: 必填，角色 ID（正整數，minimum: 1）\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/roles/1\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"success\": true,\r\n        \"data\": {\r\n            \"id\": 1,\r\n            \"name\": \"admin\",\r\n            \"description\": \"系統管理員\",\r\n            \"createdAt\": \"2024-01-15T10:30:00Z\",\r\n            \"updatedAt\": \"2024-01-15T10:30:00Z\"\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 404 - Role not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Resource not found\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\nInclude the token in the Authorization header: Bearer {token}",
         "operationId": "GetRoleById",
@@ -1674,7 +1700,9 @@
     },
     "/api/auth/roles/{id}/permissions": {
       "put": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "全量覆寫角色權限集合",
         "description": "完全替換指定角色的權限集合。此操作會刪除角色的所有現有權限，\r\n然後分配請求中指定的新權限集合。\r\n            \r\n驗證規則：\r\n- id: 必填，必須是有效的角色 ID（> 0）\r\n- permissionIds: 必填，權限 ID 陣列（可為空陣列以清空權限）\r\n- 每個 permissionId 必須對應一個存在、啟用且未廢棄的權限\r\n            \r\n行為說明：\r\n- 空陣列: 移除角色的所有權限\r\n- 非空陣列: 用指定的權限集合完全替換現有權限\r\n- 重複的 permissionId 會自動去重\r\n            \r\nSample request:\r\n            \r\n    PUT /api/auth/roles/1/permissions\r\n    {\r\n        \"permissionIds\": [1, 2, 3, 5, 8]\r\n    }\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": {\r\n            \"roleId\": 1,\r\n            \"permissionIds\": [1, 2, 3, 5, 8]\r\n        }\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 400 - Invalid permission ID\r\n    {\r\n        \"code\": 400,\r\n        \"message\": \"Invalid permission ID\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 404 - Role not found\r\n    {\r\n        \"code\": 404,\r\n        \"message\": \"Role with ID 999 not found\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token 並具備角色權限管理權限",
         "parameters": [
@@ -1855,7 +1883,9 @@
     },
     "/api/auth/permissions": {
       "get": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "列出所有有效權限",
         "description": "回傳系統中所有有效且未淘汰的權限清單。每個權限包含：\r\n- 權限 ID\r\n- 資源 ID\r\n- 動作類型（read, create, edit, delete）\r\n- 權限代碼（格式：{resource_code}.{action}）\r\n- 權限描述\r\n            \r\n權限代碼格式說明：\r\n- 由資源代碼和動作組成，中間用點號連接\r\n- 例如：users.list.read, roles.create.create\r\n            \r\n回傳的權限清單已依資源代碼和動作類型排序。\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/permissions\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": [\r\n            {\r\n                \"id\": 1,\r\n                \"resourceId\": 1,\r\n                \"action\": \"read\",\r\n                \"code\": \"users.list.read\",\r\n                \"description\": \"讀取使用者列表\"\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"resourceId\": 1,\r\n                \"action\": \"create\",\r\n                \"code\": \"users.create.create\",\r\n                \"description\": \"建立新使用者\"\r\n            }\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\n    // 403 - Forbidden\r\n    {\r\n        \"code\": 403,\r\n        \"message\": \"Forbidden\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token。\r\n此 endpoint 僅需驗證身份，不需特定權限（所有登入使用者皆可查詢權限清單）。",
         "responses": {
@@ -1944,7 +1974,9 @@
     },
     "/client-list": {
       "get": {
-        "tags": ["Client"],
+        "tags": [
+          "Client"
+        ],
         "summary": "取得分頁的客戶列表，支援搜尋篩選",
         "parameters": [
           {
@@ -2018,7 +2050,9 @@
     },
     "/client/delete": {
       "post": {
-        "tags": ["Client"],
+        "tags": [
+          "Client"
+        ],
         "summary": "刪除指定的客戶",
         "requestBody": {
           "description": "包含要刪除的客戶 ID",
@@ -2106,7 +2140,9 @@
     },
     "/client/batch-delete": {
       "post": {
-        "tags": ["Client"],
+        "tags": [
+          "Client"
+        ],
         "summary": "批量刪除多個客戶",
         "requestBody": {
           "description": "包含要批量刪除的客戶 ID 列表",
@@ -2174,7 +2210,9 @@
     },
     "/client/upsert": {
       "post": {
-        "tags": ["Client"],
+        "tags": [
+          "Client"
+        ],
         "summary": "新增或編輯客戶資料",
         "requestBody": {
           "description": "客戶資料",
@@ -2242,7 +2280,9 @@
     },
     "/energy-data": {
       "get": {
-        "tags": ["EnergyData"],
+        "tags": [
+          "EnergyData"
+        ],
         "summary": "取得能源資料",
         "operationId": "GetEnergyDataAsync",
         "responses": {
@@ -2254,7 +2294,9 @@
     },
     "/api/auth/resources": {
       "get": {
-        "tags": ["Resources"],
+        "tags": [
+          "Resources"
+        ],
         "summary": "列出所有資源",
         "description": "取得系統中所有資源的列表,包含啟用和停用的資源。\r\n            \r\n此 API 僅需要使用者已登入(有效的 JWT Token),不需要特定權限。\r\n            \r\nSample request:\r\n            \r\n    GET /api/auth/resources\r\n    Authorization: Bearer {jwt_token}\r\n            \r\nSample success response (200):\r\n            \r\n    {\r\n        \"code\": 200,\r\n        \"message\": \"Success\",\r\n        \"data\": [\r\n            {\r\n                \"id\": 1,\r\n                \"code\": \"users\",\r\n                \"description\": \"使用者管理資源\",\r\n                \"isActive\": true\r\n            },\r\n            {\r\n                \"id\": 2,\r\n                \"code\": \"roles\",\r\n                \"description\": \"角色管理資源\",\r\n                \"isActive\": true\r\n            }\r\n        ]\r\n    }\r\n            \r\nSample error responses:\r\n            \r\n    // 401 - Unauthorized\r\n    {\r\n        \"code\": 401,\r\n        \"message\": \"Unauthorized\",\r\n        \"data\": null\r\n    }\r\n            \r\nAuthorization:\r\n需要有效的 JWT token (僅需登入,無需特定權限)",
         "operationId": "GetResources",
@@ -2304,7 +2346,9 @@
     },
     "/tenement": {
       "get": {
-        "tags": ["Tenement"],
+        "tags": [
+          "Tenement"
+        ],
         "summary": "取得不動產分頁列表",
         "parameters": [
           {
@@ -2352,7 +2396,9 @@
     },
     "/tenement/upsert": {
       "post": {
-        "tags": ["Tenement"],
+        "tags": [
+          "Tenement"
+        ],
         "summary": "新增或編輯不動產",
         "requestBody": {
           "content": {
@@ -2419,7 +2465,9 @@
     },
     "/claims": {
       "get": {
-        "tags": ["Token"],
+        "tags": [
+          "Token"
+        ],
         "summary": "Retrieves all claims from the authenticated user.",
         "responses": {
           "200": {
@@ -2430,7 +2478,9 @@
     },
     "/username": {
       "get": {
-        "tags": ["Token"],
+        "tags": [
+          "Token"
+        ],
         "summary": "Retrieves the username of the authenticated user from the token.",
         "responses": {
           "200": {
@@ -2441,7 +2491,9 @@
     },
     "/userid": {
       "get": {
-        "tags": ["Token"],
+        "tags": [
+          "Token"
+        ],
         "summary": "Retrieves the unique identifier of the authenticated user from the token.",
         "responses": {
           "200": {
@@ -2452,7 +2504,9 @@
     },
     "/jwtid": {
       "get": {
-        "tags": ["Token"],
+        "tags": [
+          "Token"
+        ],
         "summary": "Retrieves the unique identifier (JWT ID) of the authenticated user's JSON Web Token (JWT) from the claims.",
         "responses": {
           "200": {
@@ -2463,7 +2517,9 @@
     },
     "/WeatherForecast": {
       "get": {
-        "tags": ["WeatherForecast"],
+        "tags": [
+          "WeatherForecast"
+        ],
         "operationId": "GetWeatherForecast",
         "responses": {
           "200": {
@@ -2574,7 +2630,9 @@
         "additionalProperties": false
       },
       "CreateRoleRequest": {
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "type": "object",
         "properties": {
           "name": {
@@ -2592,7 +2650,11 @@
         "additionalProperties": false
       },
       "CreateUserRequest": {
-        "required": ["empId", "name", "password"],
+        "required": [
+          "empId",
+          "name",
+          "password"
+        ],
         "type": "object",
         "properties": {
           "empId": {
@@ -2886,7 +2948,9 @@
         "additionalProperties": false
       },
       "ReplaceRolePermissionsRequest": {
-        "required": ["permissionIds"],
+        "required": [
+          "permissionIds"
+        ],
         "type": "object",
         "properties": {
           "permissionIds": {
@@ -2900,7 +2964,9 @@
         "additionalProperties": false
       },
       "ReplaceUserRolesRequest": {
-        "required": ["roleIds"],
+        "required": [
+          "roleIds"
+        ],
         "type": "object",
         "properties": {
           "roleIds": {
@@ -3162,7 +3228,10 @@
         "additionalProperties": false
       },
       "UpdateUserRequest": {
-        "required": ["isActive", "name"],
+        "required": [
+          "isActive",
+          "name"
+        ],
         "type": "object",
         "properties": {
           "name": {
@@ -3424,7 +3493,7 @@
       "Bearer": {
         "type": "http",
         "description": "請在此輸入 JWT Bearer token，格式為: Bearer {your JWT token}",
-        "scheme": "Bearer",
+        "scheme": "bearer",
         "bearerFormat": "JWT"
       }
     }
