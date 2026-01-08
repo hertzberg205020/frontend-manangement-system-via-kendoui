@@ -275,22 +275,19 @@ const handleError = (error: AxiosError): HttpError => {
 
     switch (true) {
       case status === 401: {
-        // Check if this is a login request (don't redirect on login page)
-        const isLoginRequest = url?.includes('/auth/login');
-
         httpError = {
           type: ErrorType.UNAUTHORIZED,
           code: status,
-          message: isLoginRequest ? '帳號或密碼錯誤' : '登入已過期，請重新登入',
+          message: (data as { message?: string })?.message || '未授權，請重新登入',
           originalError: error,
           timestamp,
           url,
           method,
         };
 
-        // Only redirect to login if not already on login page
-        if (!isLoginRequest) {
-          // Fixed: Added null checking for store state
+        // Only handle auto-redirect if error notification is not skipped
+        // (skipped notifications indicate the caller wants to handle the error themselves)
+        if (!error.config?.skipErrorNotification) {
           try {
             const state = store.getState();
             if (state?.authSlice) {
